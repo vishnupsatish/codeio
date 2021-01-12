@@ -1,0 +1,86 @@
+<nav style="margin-top: 0;" class="navbar is-spaced mb-0">
+
+
+    <div class="navbar-start">
+
+
+        <a class="navbar-item ml-3" style="display: block;" href="{{ url_for('admin_classes') }}">
+            <p class="title is-5 has-text-centered">View Classes</p>
+        </a>
+
+        <a class="navbar-item mx-5" style="display: block;">
+            <p class="title is-3 has-text-centered">{{ class_.name }}</p>
+        </a>
+
+
+    </div>
+
+
+</nav>
+
+
+<nav style="margin-top: 0;" class="navbar is-spaced box mb-0" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+
+
+        <a onclick="toggleActive(this)" data-target="navbar-template-mobile-open" role="button"
+           class="navbar-burger burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+
+    </div>
+
+
+    <div class="navbar-menu" id="navbar-template-mobile-open">
+
+        <div class="navbar-start">
+            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('admin_class', id=id) }}">
+                <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
+                     src="https://res.cloudinary.com/dnwczwamg/image/upload/m-lms/required-images/home_knjayz.png"
+                     alt="">
+                <p class="has-text-centered">Home</p>
+            </a>
+
+            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('admin_class_calls', id=id) }}">
+                <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
+                     src="https://res.cloudinary.com/dnwczwamg/image/upload/m-lms/required-images/video-chat_v19tdl.png"
+                     alt="">
+                <p class="has-text-centered">Calls</p>
+            </a>
+
+
+            {#            <a class="navbar-item ml-3" style="display: block;"#}
+            {#               href="{{ url_for('admin_class_spreadsheet_editor', id=id) }}">#}
+            {#                <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"#}
+            {#                     src="https://res.cloudinary.com/dnwczwamg/image/upload/m-lms/required-images/spreadsheet_okjmuv.png"#}
+            {#                     alt="">#}
+            {#                <p class="has-text-centered">Spreadsheet Editor</p>#}
+            {#            </a>#}
+
+            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('admin_class_tools', id=id) }}">
+                <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
+                     src="https://res.cloudinary.com/dnwczwamg/image/upload/v1607810230/m-lms/required-images/gear_aerb5j.png">
+                <p class="has-text-centered">Tools</p>
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+
+            <div class="notification is-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}

@@ -1,0 +1,89 @@
+{% extends "student/templates/navbar.html" %}
+
+
+{% block new_head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student/main.css') }}">
+
+    <style>
+        .card:hover {
+            box-shadow: 0 10px 19px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            transition: 0.3s;
+        }
+    </style>
+
+
+{% endblock %}
+
+{% block body %}
+
+
+    <section class="section">
+
+        <div class="container">
+            <h2 class="title is-3">Your Classes</h2>
+
+
+            <div class="columns is-multiline" style="overflow-x: auto;">
+                <div class="column is-one-third-widescreen is-third-desktop is-one-half-tablet">
+
+                    <a href="#">
+                        <div class="card">
+
+                            <div class="card-content">
+                                <div class="media">
+
+                                    <div class="media-content">
+                                        <p class="title is-4">Class with [Teacher's Name]</p>
+                                        <p class="subtitle is-6">Created by: vishnu@email.com</p>
+                                    </div>
+                                </div>
+
+                                <div class="content">
+                                    This class is cool.
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+
+                <div class="column is-one-third-widescreen is-third-desktop is-one-half-tablet">
+
+                    <a href="#">
+                        <div class="card">
+
+                            <div class="card-content">
+                                <div class="media">
+
+                                    <div class="media-content">
+                                        <p class="title is-4">Class with [Teacher's Name]</p>
+                                        <p class="subtitle is-6">Created by: vishnu@email.com</p>
+                                    </div>
+                                </div>
+
+                                <div class="content">
+                                    This class is cool.
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

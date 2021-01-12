@@ -1,0 +1,11 @@
+html {
+    background-color: rgb(243, 243, 243);
+}
+
+.card:hover {
+    box-shadow: 0 10px 19px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    transition: 0.3s;
+}

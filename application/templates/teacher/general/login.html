@@ -1,0 +1,96 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <style>
+        .w100 {
+            width: 100vw
+        }
+
+        body {
+            background-color: #abd3d6;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+
+            <div class="columns is-centered w100">
+                <!--            <div class="column"></div>-->
+                <div class="column is-5">
+                    <div class="box">
+
+
+                        <div class="content">
+                            <p class="title is-4 has-text-centered">Login</p>
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ category }}">
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            <form method="post" action="">
+
+                                {{ form.hidden_tag() }}
+
+
+                                <div class="field">
+                                    {% if form.email.errors %}
+                                        {{ form.email(class="input is-medium is-danger") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                <p class="help is-danger">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.email(class="input is-medium") }}
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="field mt-4">
+                                    {% if form.password.errors %}
+                                        {{ form.password(class="input is-medium is-danger") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password.errors %}
+                                                <p class="help is-danger">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form.password(class="input is-medium") }}
+                                    {% endif %}
+
+                                </div>
+
+                                <label class="checkbox mt-3">
+                                    {{ form.remember(class="checkbox") }}
+                                    {{ form.remember.label }}
+                                </label>
+
+                                <div class="field mt-5">
+                                    {{ form.submit(class="button is-fullwidth is-info") }}
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!--            <div class="column"></div>-->
+            </div>
+
+        </div>
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

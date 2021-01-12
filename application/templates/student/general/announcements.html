@@ -1,0 +1,84 @@
+{% extends "student/templates/navbar.html" %}
+
+
+{% block new_head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student/main.css') }}">
+
+    <style>
+        .card:hover {
+            box-shadow: 0 10px 19px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            transition: 0.3s;
+        }
+    </style>
+
+
+{% endblock %}
+
+{% block body %}
+
+
+    <section class="section">
+
+        <div class="container">
+            <h2 class="title is-1">Announcements</h2>
+
+
+            <div class="card mb-5">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        By [Teacher's Name]
+                    </p>
+                    <a href="#" class="card-header-icon" aria-label="more options">
+				<span class="icon">
+				  <i class="fas fa-angle-down" aria-hidden="true"></i>
+				</span>
+                    </a>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        Hi everyone. Please listen to the following concert. Thanks.
+                        <br>
+                        <time datetime="2016-1-1">11:09 PM - 1 Jan 2020</time>
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="#" class="card-footer-item">Edit</a>
+                    <a href="#" class="card-footer-item">Delete</a>
+                </footer>
+            </div>
+
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        By Vishnu
+                    </p>
+                    <a href="#" class="card-header-icon" aria-label="more options">
+				<span class="icon">
+				  <i class="fas fa-angle-down" aria-hidden="true"></i>
+				</span>
+                    </a>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        Hi sir, I have a question: Why does Lorem Ipsum exist and what raga is Lorem Ipsum in?
+                        <br>
+                        <time datetime="2016-1-1">11:09 PM - 31 Dec 2019</time>
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="#" class="card-footer-item">Delete</a>
+                </footer>
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "templates/bulma_template.html" %}
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-checkradio@1.1.1/dist/css/bulma-checkradio.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin/navbar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-switch@2.0.0/dist/css/bulma-switch.min.css">
+    {% block new_head %}
+    {% endblock %}
+
+
+{% endblock %}
+{% block content %}
+
+
+
+    <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="#">
+                <img src="https://static.thenounproject.com/png/2161828-200.png">
+            </a>
+
+            <a onclick="toggleActive(this)" data-target="navbar-mobile-open" role="button" class="navbar-burger burger"
+               aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+
+        </div>
+
+        <div id="navbar-mobile-open" class="navbar-menu">
+            <div class="navbar-start">
+
+
+                <a class="navbar-item" href="#">
+                <span class="icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                    &nbsp;&nbsp;Home
+                </a>
+
+                <a class="navbar-item" href="#">
+                <span class="icon">
+                    <i class="fab fa-leanpub"></i>
+                </span>
+                    &nbsp;&nbsp;Classes
+                </a>
+
+
+            </div>
+
+            <div class="navbar-end">
+
+                <a class="navbar-item">
+                    Username&nbsp;&nbsp;
+                    <img style="vertical-align: middle;" class="is-rounded"
+                         src="https://bulma.io/images/placeholders/128x128.png">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="modal" id="view-switch">
+        <div class="modal-background" onclick="removeActive(this)" data-target="view-switch"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Change Mode</p>
+                <button class="delete" aria-label="close" onclick="javascript:removeActive(this)"
+                        data-target="view-switch"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field">
+                    <label for="switchExample">Admin&nbsp;</label>
+                    <input id="switchExample" type="checkbox" name="switchExample" class="switch">
+                    <label for="switchExample">Teacher</label>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success">Save changes</button>
+                <button onclick="removeActive(this)" data-target="view-switch" class="button">Cancel</button>
+            </footer>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+
+                <div class="notification is-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block body %}
+    {% endblock %}
+
+
+{% endblock %}
