@@ -2,10 +2,10 @@ html {
     background-color: rgb(243, 243, 243);
 }
 
-.card:hover {
+.card-hover-effect:hover {
     box-shadow: 0 10px 19px 5px rgba(0, 0, 0, 0.1);
 }
 
-.card {
+.card-hover-effect {
     transition: 0.3s;
 }

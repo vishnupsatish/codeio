@@ -16,7 +16,9 @@
     <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="#">
-                <img src="https://static.thenounproject.com/png/2161828-200.png">
+                <p class="title is-4">
+                    TeachCoding
+                </p>
             </a>
 
             <a onclick="toggleActive(this)" data-target="navbar-mobile-open" role="button" class="navbar-burger burger"
@@ -29,27 +31,36 @@
         </div>
 
         <div id="navbar-mobile-open" class="navbar-menu">
-            <div class="navbar-start">
-
-
-                <a class="navbar-item" href="#">
-                <span class="icon">
-                    <i class="fas fa-home"></i>
-                </span>
-                    &nbsp;&nbsp;Home
-                </a>
-
-                <a class="navbar-item" href="#">
-                <span class="icon">
-                    <i class="fab fa-leanpub"></i>
-                </span>
-                    &nbsp;&nbsp;Classes
-                </a>
-
-
-            </div>
+            {#            <div class="navbar-start">#}
+            {##}
+            {##}
+            {#                <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">#}
+            {#                <span class="icon">#}
+            {#                    <i class="fas fa-home"></i>#}
+            {#                </span>#}
+            {#                    &nbsp;&nbsp;Home#}
+            {#                </a>#}
+            {##}
+            {#                <a class="navbar-item" href="{{ url_for('teacher_classes') }}">#}
+            {#                <span class="icon">#}
+            {#                    <i class="fab fa-leanpub"></i>#}
+            {#                </span>#}
+            {#                    &nbsp;&nbsp;Classes#}
+            {#                </a>#}
+            {##}
+            {##}
+            {#            </div>#}
 
             <div class="navbar-end">
+
+                <a class="navbar-item">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        <span></span>
+                    </span>
+                </a>
 
                 <a class="navbar-item">
                     Username&nbsp;&nbsp;

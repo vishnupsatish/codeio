@@ -1,0 +1,37 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+
+            <div class="columns is-multiline">
+                <div class="column is-half">
+                    <div class="box"></div>
+                </div>
+
+                <div class="column is-half">
+                    <div class="box"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
