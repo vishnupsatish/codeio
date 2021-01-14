@@ -4,7 +4,7 @@
 {% block head %}
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
-
+    
 
 
 {% endblock %}
@@ -16,14 +16,38 @@
     <section class="section">
 
         <div class="container">
-
+            <a class="box card-hover-effect" href="{{ url_for('teacher_class_new_problem') }}">
+                <h3 class="title is-3">New Problem</h3>
+            </a>
             <div class="columns is-multiline">
                 <div class="column is-half">
-                    <div class="box"></div>
+                    <div class="box card-hover-effect">
+                        <h4 class="title is-4">Problem 4 - Caesar Cypher</h4>
+
+                        <div class="columns is-multiline">
+                            <div class="column is-narrow">
+                                <p class="has-text-success">20 students submitted</p>
+                            </div>
+                            <div class="column is-narrow">
+                                <p class="has-text-danger">10 students not submitted</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="column is-half">
-                    <div class="box"></div>
+                    <div class="box card-hover-effect">
+                        <h4 class="title is-4">Problem 4 - Caesar Cypher</h4>
+
+                        <div class="columns is-multiline">
+                            <div class="column is-narrow">
+                                <p class="has-text-success">20 students submitted</p>
+                            </div>
+                            <div class="column is-narrow">
+                                <p class="has-text-danger">10 students not submitted</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

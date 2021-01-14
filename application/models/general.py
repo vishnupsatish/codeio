@@ -50,6 +50,7 @@ class Problem(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
     auto_grade = db.Column(db.Boolean, nullable=False, default=False)
+    create_date_time = db.Column(db.DateTime, nullable=False)
     input_files = db.relationship('InputFile', backref='problem', lazy=True)
     output_files = db.relationship('OutputFile', backref='problem', lazy=True)
     submissions = db.relationship('Submission', backref='problem', lazy=True)

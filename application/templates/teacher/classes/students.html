@@ -1,0 +1,46 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+
+            <table class="table is-striped is-hoverable is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Average mark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>1</th>
+                        <td>Vishnu S.</td>
+                        <td>HbdjvN</td>
+                        <td>100%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

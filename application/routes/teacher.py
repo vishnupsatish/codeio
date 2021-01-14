@@ -18,6 +18,16 @@ def teacher_dashboard():
 
 
 @app.route('/class/1/home')
-def teacher_class():
+def teacher_class_home():
     return render_template('teacher/classes/home.html')
+
+
+@app.route('/class/1/students')
+def teacher_class_students():
+    return render_template('teacher/classes/students.html')
+
+
+@app.route('/class/1/new-problem')
+def teacher_class_new_problem():
+    return render_template('teacher/classes/new-problem.html')
 
