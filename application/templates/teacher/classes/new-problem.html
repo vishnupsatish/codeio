@@ -5,7 +5,11 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
 
+    <style>
+        .file:hover {
 
+        }
+    </style>
 
 {% endblock %}
 
@@ -16,12 +20,427 @@
     <section class="section">
 
         <div class="container">
+            <form action="" method="post">
+                {{ form.hidden_tag() }}
+                <div class="field">
+                    <div class="control">
+
+                        {{ form.name.label(class="label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="input is-danger is-medium") }}
+                            <div class="help is-danger">
+                                {% for error in form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="input is-medium") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+
+                        {{ form.description.label(class="label") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="textarea is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="textarea") }}
+                        {% endif %}
+                    </div>
+                </div>
 
 
+                <div class="field is-grouped is-grouped-multiline">
+                    <div class="control">
+                        {{ form.time_limit.label(class="label") }}
+                        {% if form.time_limit.errors %}
+                            {{ form.time_limit(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.time_limit.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.time_limit(class="input") }}
+                        {% endif %}
+                    </div>
+                    <div class="control">
+                        {{ form.memory_limit.label(class="label") }}
+                        {% if form.memory_limit.errors %}
+                            {{ form.memory_limit(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.memory_limit.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.memory_limit(class="input") }}
+                        {% endif %}
+                    </div>
+                    <div class="control">
+                        {{ form.total_marks.label(class="label") }}
+                        {% if form.total_marks.errors %}
+                            {{ form.total_marks(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.total_marks.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.total_marks(class="input") }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="select is-multiple">
+                        {{ form.languages.label(class="label") }}
+                        {{ form.languages(class="select is-multiple") }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="checkbox mb-3">
+                        {{ form.auto_grade(class="checkbox", id="auto-grade-checkbox", onchange="show_auto_grade(this)") }}
+                        {{ form.auto_grade.label() }}
+                    </label>
+                </div>
+                <div class="columns" id="input-and-output" style="display: none;">
+                    <div class="column">
+
+                        <div class="field">
+                            {{ form.input1file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {#                        <input class="file-input" type="file" name="resume">#}
+                                    {{ form.input1file(class="file-input", id="input1file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.input1file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.input1file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="field">
+                            {{ form.input2file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {#                        <input class="file-input" type="file" name="resume">#}
+                                    {{ form.input2file(class="file-input", id="input2file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.input2file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.input2file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="field">
+                            {{ form.input3file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {#                        <input class="file-input" type="file" name="resume">#}
+                                    {{ form.input3file(class="file-input", id="input3file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.input3file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.input3file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="field">
+                            {{ form.input4file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {#                        <input class="file-input" type="file" name="resume">#}
+                                    {{ form.input4file(class="file-input", id="input4file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.input4file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.input4file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="field">
+                            {{ form.input5file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {#                        <input class="file-input" type="file" name="resume">#}
+                                    {{ form.input5file(class="file-input", id="input5file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.input5file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.input5file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+
+                    </div>
+
+                    <div class="column">
+
+                        <div class="field">
+                            {{ form.output1file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {{ form.output1file(class="file-input", id="output1file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+
+                            {% if form.output1file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.output1file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        <div class="field">
+                            {{ form.output2file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {{ form.output2file(class="file-input", id="output2file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+
+                            {% if form.output2file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.output2file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        <div class="field">
+                            {{ form.output3file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {{ form.output3file(class="file-input", id="output3file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+
+                            {% if form.output3file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.output3file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        <div class="field">
+                            {{ form.output4file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {{ form.output4file(class="file-input", id="output4file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+
+                            {% if form.output4file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.output4file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        <div class="field">
+                            {{ form.output5file.label(class="label") }}
+
+                            <div class="file has-name">
+
+                                <label class="file-label">
+                                    {{ form.output5file(class="file-input", id="output5file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+
+                            {% if form.output5file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.output5file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </form>
         </div>
 
     </section>
 
-
+    <script>
+        function show_auto_grade(elem) {
+            if (elem.checked) {
+                document.getElementById('input-and-output').style.display = ''
+            } else {
+                document.getElementById('input-and-output').style.display = 'none'
+            }
+        }
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

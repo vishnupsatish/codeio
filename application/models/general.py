@@ -10,9 +10,14 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-association_table = db.Table('association', db.Model.metadata,
+class_student_association_table = db.Table('class_student_association', db.Model.metadata,
                              db.Column('class_id', db.Integer, db.ForeignKey('class_.id')),
                              db.Column('student_id', db.Integer, db.ForeignKey('student.id'))
+                             )
+
+problem_language_association_table = db.Table('problem_language_association', db.Model.metadata,
+                             db.Column('problem_id', db.Integer, db.ForeignKey('problem.id')),
+                             db.Column('language_id', db.Integer, db.ForeignKey('language.id'))
                              )
 
 
@@ -37,9 +42,11 @@ class Student(db.Model):
 
 class Class_(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    timeframe = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     problems = db.relationship('Problem', backref='class_', lazy=True)
-    students = db.relationship('Student', secondary=association_table, lazy='dynamic',
+    students = db.relationship('Student', secondary=class_student_association_table, lazy='dynamic',
                                backref=db.backref('classes_', lazy=True))
 
 
@@ -54,6 +61,15 @@ class Problem(db.Model):
     input_files = db.relationship('InputFile', backref='problem', lazy=True)
     output_files = db.relationship('OutputFile', backref='problem', lazy=True)
     submissions = db.relationship('Submission', backref='problem', lazy=True)
+    languages = db.relationship('Language', secondary=problem_language_association_table, lazy='dynamic',
+                               backref=db.backref('problems', lazy=True))
+
+
+class Language(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    submissions = db.relationship('Submission', backref='language', lazy=True)
 
 
 class InputFile(db.Model):
@@ -88,6 +104,7 @@ class Submission(db.Model):
     results = db.relationship('Result', backref='submission', lazy=True)
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'), nullable=False)
 
 
 class Result(db.Model):
@@ -107,7 +124,3 @@ class Result(db.Model):
     status_description = db.Column(db.String)
 
     submission_id = db.Column(db.Integer, db.ForeignKey('submission.id'), nullable=False)
-
-
-
-

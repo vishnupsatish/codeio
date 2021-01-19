@@ -57,8 +57,8 @@ class NewProblemForm(FlaskForm):
     time_limit = DecimalField('Time Limit')
     memory_limit = IntegerField('Memory Limit')
     auto_grade = BooleanField('Auto Grade')
-    total_marks = IntegerField('Marks out of:')
-    languages = SelectMultipleField('Languages')
+    total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
+    languages = SelectMultipleField('Languages', validators=[DataRequired()])
 
     input1file = FileField('Input File 1', validators=[FileAllowed(['txt'])])
     input2file = FileField('Input File 2', validators=[FileAllowed(['txt'])])
@@ -74,10 +74,8 @@ class NewProblemForm(FlaskForm):
 
     submit = InlineButtonWidget('Create Problem')
 
-    # NEED TO FINISH!
-
     def validate_auto_grade(self, auto_grade):
-        if self.input1file.data is None and auto_grade.data == True:
+        if self.input1file.data is None and auto_grade.data is True:
             raise ValidationError('Please enter at least one input file')
 
     def validate_output1file(self, output1file):
