@@ -1,0 +1,65 @@
+{% extends "teacher/templates/navbar.html" %}
+
+
+{% block new_head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block body %}
+
+
+    <section class="section">
+
+        <div class="container">
+            <h2 class="title is-2">New Class</h2>
+            <form action="" method="post">
+                {{ form.hidden_tag() }}
+                <div class="field">
+                    <div class="control">
+
+                        {{ form.name.label(class="label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="input") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+
+                        {{ form.description.label(class="label") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="textarea is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="textarea") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+            {{ form.submit(class="button is-info") }}
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -42,16 +42,18 @@ class Student(db.Model):
 
 class Class_(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    identifier = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
-    timeframe = db.Column(db.String)
+    description = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     problems = db.relationship('Problem', backref='class_', lazy=True)
-    students = db.relationship('Student', secondary=class_student_association_table, lazy='dynamic',
-                               backref=db.backref('classes_', lazy=True))
+    students = db.relationship('Student', secondary=class_student_association_table, lazy=True,
+                               backref='classes_')
 
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    identifier = db.Column(db.String, nullable=False)
     title = db.Column(db.String(45), nullable=False)
     description = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -61,8 +63,8 @@ class Problem(db.Model):
     input_files = db.relationship('InputFile', backref='problem', lazy=True)
     output_files = db.relationship('OutputFile', backref='problem', lazy=True)
     submissions = db.relationship('Submission', backref='problem', lazy=True)
-    languages = db.relationship('Language', secondary=problem_language_association_table, lazy='dynamic',
-                               backref=db.backref('problems', lazy=True))
+    languages = db.relationship('Language', secondary=problem_language_association_table, lazy=True,
+                               backref='problems')
 
 
 class Language(db.Model):

@@ -25,16 +25,16 @@
                 <div class="field">
                     <div class="control">
 
-                        {{ form.name.label(class="label") }}
-                        {% if form.name.errors %}
-                            {{ form.name(class="input is-danger is-medium") }}
+                        {{ form.title.label(class="label") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="input is-danger is-medium") }}
                             <div class="help is-danger">
-                                {% for error in form.name.errors %}
+                                {% for error in form.title.errors %}
                                     <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                         {% else %}
-                            {{ form.name(class="input is-medium") }}
+                            {{ form.title(class="input is-medium") }}
                         {% endif %}
                     </div>
                 </div>
@@ -428,6 +428,7 @@
 
                     </div>
                 </div>
+            {{ form.submit(class="button is-info") }}
             </form>
         </div>
 

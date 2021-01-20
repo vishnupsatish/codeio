@@ -52,8 +52,8 @@ class LoginForm(FlaskForm):
 
 
 class NewProblemForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
-    description = TextAreaField('Description', validators=[DataRequired(), Length(min=2, max=400)])
+    title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
+    description = TextAreaField('Description - Supports Markdown formatting', validators=[DataRequired(), Length(min=2, max=400)])
     time_limit = DecimalField('Time Limit')
     memory_limit = IntegerField('Memory Limit')
     auto_grade = BooleanField('Auto Grade')
@@ -117,3 +117,9 @@ class NewProblemForm(FlaskForm):
     def validate_input5file(self, input5file):
         if input5file.data is None and self.output5file.data is not None:
             raise ValidationError('Please enter an input file')
+
+
+class NewClassForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
+    description = TextAreaField('Description', validators=[Length(max=100)])
+    submit = InlineButtonWidget('Create Class')

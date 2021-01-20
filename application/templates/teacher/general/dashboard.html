@@ -17,14 +17,16 @@
         <div class="container">
 
             <div class="columns is-multiline">
+                {% for class_ in classes_ %}
                 <div class="column is-one-quarter">
                     <div class="box card-hover-effect">
-                        <h3 class="title is-5">{Class Name}</h3>
-                        <p>Teacher: Mr. John Smith</p>
-                        <p>24 students</p>
-                        <p>10 problems</p>
+                        <h3 class="title is-5">{{ class_.name }}</h3>
+                        <p>Teacher: {{ current_user.name }}</p>
+                        <p>{{ class_.students|length }} students</p>
+                        <p>{{ class_.problems|length }} problems</p>
                     </div>
                 </div>
+                {% endfor %}
 
 
             </div>

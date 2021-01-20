@@ -15,7 +15,7 @@
 
     <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <a class="navbar-item" href="#">
+            <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">
                 <p class="title is-4">
                     TeachCoding
                 </p>
@@ -53,7 +53,7 @@
 
             <div class="navbar-end">
 
-                <a class="navbar-item">
+                <a class="navbar-item" href={{ url_for('new_class') }}>
                     <span class="icon-text">
                         <span class="icon">
                             <i class="fas fa-plus"></i>
@@ -67,6 +67,8 @@
                     <img style="vertical-align: middle;" class="is-rounded"
                          src="https://bulma.io/images/placeholders/128x128.png">
                 </a>
+
+                <a href="{{ url_for('logout') }}" class="navbar-item">Log Out</a>
             </div>
         </div>
     </nav>
