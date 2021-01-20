@@ -11,14 +11,14 @@ def load_user(user_id):
 
 
 class_student_association_table = db.Table('class_student_association', db.Model.metadata,
-                             db.Column('class_id', db.Integer, db.ForeignKey('class_.id')),
-                             db.Column('student_id', db.Integer, db.ForeignKey('student.id'))
-                             )
+                                           db.Column('class_id', db.Integer, db.ForeignKey('class_.id')),
+                                           db.Column('student_id', db.Integer, db.ForeignKey('student.id'))
+                                           )
 
 problem_language_association_table = db.Table('problem_language_association', db.Model.metadata,
-                             db.Column('problem_id', db.Integer, db.ForeignKey('problem.id')),
-                             db.Column('language_id', db.Integer, db.ForeignKey('language.id'))
-                             )
+                                              db.Column('problem_id', db.Integer, db.ForeignKey('problem.id')),
+                                              db.Column('language_id', db.Integer, db.ForeignKey('language.id'))
+                                              )
 
 
 class User(db.Model, UserMixin):
@@ -56,15 +56,19 @@ class Problem(db.Model):
     identifier = db.Column(db.String, nullable=False)
     title = db.Column(db.String(45), nullable=False)
     description = db.Column(db.String, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
+    time_limit = db.Column(db.Float, nullable=False, default=5)
+    memory_limit = db.Column(db.Integer, nullable=False, default=768)
+    total_marks = db.Column(db.Integer, nullable=False)
     auto_grade = db.Column(db.Boolean, nullable=False, default=False)
+    allow_multiple_submissions = db.Column(db.Boolean, nullable=False, default=False)
     create_date_time = db.Column(db.DateTime, nullable=False)
     input_files = db.relationship('InputFile', backref='problem', lazy=True)
     output_files = db.relationship('OutputFile', backref='problem', lazy=True)
     submissions = db.relationship('Submission', backref='problem', lazy=True)
     languages = db.relationship('Language', secondary=problem_language_association_table, lazy=True,
-                               backref='problems')
+                                backref='problems')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
 
 
 class Language(db.Model):

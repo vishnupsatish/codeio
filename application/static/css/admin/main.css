@@ -3,7 +3,7 @@ html {
 }
 
 .card-hover-effect:hover {
-    box-shadow: 0 10px 19px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 19px 19px 5px rgba(0, 0, 0, 0.1);
 }
 
 .card-hover-effect {

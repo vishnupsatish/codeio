@@ -32,7 +32,7 @@ def logout():
 @app.route('/login', methods=['GET', 'POST'])
 def teacher_login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('teacher_dashboard'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -74,7 +74,11 @@ def teacher_class_home(identifier):
     if not current_user.is_authenticated:
         flash(NOT_LOGGED_IN_MESSAGE, 'danger')
         return redirect(url_for('teacher_login'))
-    return render_template('teacher/classes/home.html')
+    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+    problems = Problem.query.filter_by(class_=class_).all()
+    u = get_unqiue_students_problem(problems)
+    print(u)
+    return render_template('teacher/classes/home.html', problems=problems, class_=class_, identifier=identifier, u=u)
 
 
 @app.route('/class/<string:identifier>/students')
@@ -82,7 +86,8 @@ def teacher_class_students(identifier):
     if not current_user.is_authenticated:
         flash(NOT_LOGGED_IN_MESSAGE, 'danger')
         return redirect(url_for('teacher_login'))
-    return render_template('teacher/classes/students.html')
+    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+    return render_template('teacher/classes/students.html', identifier=identifier)
 
 
 @app.route('/class/<string:identifier>/new-problem')
@@ -90,6 +95,7 @@ def teacher_class_new_problem(identifier):
     if not current_user.is_authenticated:
         flash(NOT_LOGGED_IN_MESSAGE, 'danger')
         return redirect(url_for('teacher_login'))
+    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
     form = NewProblemForm()
     form.languages.choices = get_languages_form()
-    return render_template('teacher/classes/new-problem.html', form=form)
+    return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier)
