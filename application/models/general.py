@@ -2,7 +2,6 @@ import datetime as dt
 from application import db, login_manager, app
 from flask_login import UserMixin
 
-
 # IMPORTANT: ALL TIME ARE STORED IN EPOCH SECONDS, MUST CONVERT TO USER'S LOCAL TIME ZONE
 
 @login_manager.user_loader
@@ -61,7 +60,7 @@ class Problem(db.Model):
     total_marks = db.Column(db.Integer, nullable=False)
     auto_grade = db.Column(db.Boolean, nullable=False, default=False)
     allow_multiple_submissions = db.Column(db.Boolean, nullable=False, default=False)
-    create_date_time = db.Column(db.DateTime, nullable=False)
+    create_date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
     input_files = db.relationship('InputFile', backref='problem', lazy=True)
     output_files = db.relationship('OutputFile', backref='problem', lazy=True)
     submissions = db.relationship('Submission', backref='problem', lazy=True)
@@ -82,8 +81,7 @@ class InputFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer)
     file_path = db.Column(db.String, nullable=False)
-    file_name = db.Column(db.String, nullable=False)
-    file_size = db.Column(db.String)
+    file_size = db.Column(db.Integer)
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
     output_file = db.relationship('OutputFile', backref='input_file', lazy=True, uselist=False)
     results = db.relationship('Result', backref='input_file', lazy=True)
@@ -93,7 +91,6 @@ class OutputFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer)
     file_path = db.Column(db.String, nullable=False)
-    file_name = db.Column(db.String, nullable=False)
     file_size = db.Column(db.String)
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
     input_id = db.Column(db.Integer, db.ForeignKey('input_file.id'), nullable=False)

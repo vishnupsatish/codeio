@@ -4,7 +4,7 @@ from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, \
     SelectField, MultipleFileField, IntegerField, DecimalField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from wtforms.fields.html5 import DateField, URLField, TimeField
 import time
 from application.models.general import User
@@ -54,12 +54,12 @@ class LoginForm(FlaskForm):
 class NewProblemForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
     description = TextAreaField('Description - Supports Markdown formatting', validators=[DataRequired(), Length(min=2, max=400)])
-    time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'})
-    memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 768MB'})
+    time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
+    memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 768MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
     auto_grade = BooleanField('Auto Grade')
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
-    languages = SelectMultipleField('Languages', validators=[DataRequired()])
+    languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
 
     input1file = FileField('Input File 1', validators=[FileAllowed(['txt'])])
     input2file = FileField('Input File 2', validators=[FileAllowed(['txt'])])
@@ -80,43 +80,43 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter at least one input file')
 
     def validate_output1file(self, output1file):
-        if output1file.data is None and self.input1file.data is not None:
+        if output1file.data is None and self.input1file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an output file')
 
     def validate_output2file(self, output2file):
-        if output2file.data is None and self.input2file.data is not None:
+        if output2file.data is None and self.input2file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an output file')
 
     def validate_output3file(self, output3file):
-        if output3file.data is None and self.input3file.data is not None:
+        if output3file.data is None and self.input3file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an output file')
 
     def validate_output4file(self, output4file):
-        if output4file.data is None and self.input4file.data is not None:
+        if output4file.data is None and self.input4file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an output file')
 
     def validate_output5file(self, output5file):
-        if output5file.data is None and self.input5file.data is not None:
+        if output5file.data is None and self.input5file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an output file')
 
     def validate_input1file(self, input1file):
-        if input1file.data is None and self.output1file.data is not None:
+        if input1file.data is None and self.output1file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an input file')
 
     def validate_input2file(self, input2file):
-        if input2file.data is None and self.output2file.data is not None:
+        if input2file.data is None and self.output2file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an input file')
 
     def validate_input3file(self, input3file):
-        if input3file.data is None and self.output3file.data is not None:
+        if input3file.data is None and self.output3file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an input file')
 
     def validate_input4file(self, input4file):
-        if input4file.data is None and self.output4file.data is not None:
+        if input4file.data is None and self.output4file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an input file')
 
     def validate_input5file(self, input5file):
-        if input5file.data is None and self.output5file.data is not None:
+        if input5file.data is None and self.output5file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an input file')
 
 

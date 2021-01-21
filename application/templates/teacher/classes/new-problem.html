@@ -20,7 +20,7 @@
     <section class="section">
 
         <div class="container">
-            <form action="" method="post">
+            <form action="" method="post" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 <div class="field">
                     <div class="control">
@@ -55,7 +55,6 @@
                         {% endif %}
                     </div>
                 </div>
-
 
                 <div class="field is-grouped is-grouped-multiline">
                     <div class="control">
@@ -98,6 +97,7 @@
                         {% endif %}
                     </div>
                 </div>
+
                 <div class="field">
                     <div class="select is-multiple">
                         {{ form.languages.label(class="label") }}
@@ -114,6 +114,10 @@
                     <label class="checkbox mb-3">
                         {{ form.auto_grade(class="checkbox", id="auto-grade-checkbox", onchange="show_auto_grade(this)") }}
                         {{ form.auto_grade.label() }}
+                        {% for error in form.auto_grade.errors %}
+                            <p class="help is-danger">{{ error }}</p>
+                        {% endfor %}
+
                     </label>
                 </div>
                 <div class="columns" id="input-and-output" style="display: none;">
@@ -441,6 +445,13 @@
     </section>
 
     <script>
+        window.onload = function() {
+            if (document.getElementById('auto-grade-checkbox').checked) {
+                document.getElementById('input-and-output').style.display = ''
+            } else {
+                document.getElementById('input-and-output').style.display = 'none'
+            }
+        }
         function show_auto_grade(elem) {
             if (elem.checked) {
                 document.getElementById('input-and-output').style.display = ''
