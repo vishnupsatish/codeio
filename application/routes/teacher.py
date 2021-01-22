@@ -169,3 +169,23 @@ def teacher_class_new_problem(identifier):
         return redirect(url_for('teacher_class_home', identifier=identifier))
 
     return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier)
+
+
+@app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>', methods=['GET', 'POST'])
+def teacher_class_problem(class_identifier, problem_identifier):
+    class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
+    input_presigned_urls = []
+    output_presigned_urls = []
+    for input_file in problem.input_files:
+        input_presigned_urls.append(
+            s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': input_file.file_path},
+                                             ExpiresIn=3600))
+
+    for output_file in problem.output_files:
+        output_presigned_urls.append(
+            s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': output_file.file_path},
+                                             ExpiresIn=3600))
+
+    return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
+                           input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls)
