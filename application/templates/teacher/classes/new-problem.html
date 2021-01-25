@@ -20,6 +20,7 @@
     <section class="section">
 
         <div class="container">
+            <h3 class="is-3 title">New Problem</h3>
             <form action="" method="post" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 <div class="field">
@@ -99,8 +100,8 @@
                 </div>
 
                 <div class="field">
+                    {{ form.languages.label(class="label") }}
                     <div class="select is-multiple">
-                        {{ form.languages.label(class="label") }}
                         {{ form.languages(class="select is-multiple") }}
                     </div>
                 </div>
@@ -126,7 +127,7 @@
                         <div class="field">
                             {{ form.input1file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="input1filediv">
 
                                 <label class="file-label">
                                     {#                        <input class="file-input" type="file" name="resume">#}
@@ -156,7 +157,7 @@
                         <div class="field">
                             {{ form.input2file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="input2filediv">
 
                                 <label class="file-label">
                                     {#                        <input class="file-input" type="file" name="resume">#}
@@ -186,7 +187,7 @@
                         <div class="field">
                             {{ form.input3file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="input3filediv">
 
                                 <label class="file-label">
                                     {#                        <input class="file-input" type="file" name="resume">#}
@@ -216,7 +217,7 @@
                         <div class="field">
                             {{ form.input4file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="input4filediv">
 
                                 <label class="file-label">
                                     {#                        <input class="file-input" type="file" name="resume">#}
@@ -246,7 +247,7 @@
                         <div class="field">
                             {{ form.input5file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="input5filediv">
 
                                 <label class="file-label">
                                     {#                        <input class="file-input" type="file" name="resume">#}
@@ -282,7 +283,7 @@
                         <div class="field">
                             {{ form.output1file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="output1filediv">
 
                                 <label class="file-label">
                                     {{ form.output1file(class="file-input", id="output1file") }}
@@ -313,7 +314,7 @@
                         <div class="field">
                             {{ form.output2file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="output2filediv">
 
                                 <label class="file-label">
                                     {{ form.output2file(class="file-input", id="output2file") }}
@@ -344,7 +345,7 @@
                         <div class="field">
                             {{ form.output3file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="output3filediv">
 
                                 <label class="file-label">
                                     {{ form.output3file(class="file-input", id="output3file") }}
@@ -375,7 +376,7 @@
                         <div class="field">
                             {{ form.output4file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="output4filediv">
 
                                 <label class="file-label">
                                     {{ form.output4file(class="file-input", id="output4file") }}
@@ -406,7 +407,7 @@
                         <div class="field">
                             {{ form.output5file.label(class="label") }}
 
-                            <div class="file has-name">
+                            <div class="file has-name" id="output5filediv">
 
                                 <label class="file-label">
                                     {{ form.output5file(class="file-input", id="output5file") }}
@@ -438,25 +439,106 @@
 
                     </div>
                 </div>
-            {{ form.submit(class="button is-info") }}
+                {{ form.submit(class="button is-info") }}
             </form>
         </div>
 
     </section>
 
     <script>
-        window.onload = function() {
+        window.onload = function () {
             if (document.getElementById('auto-grade-checkbox').checked) {
                 document.getElementById('input-and-output').style.display = ''
             } else {
                 document.getElementById('input-and-output').style.display = 'none'
             }
         }
+
         function show_auto_grade(elem) {
             if (elem.checked) {
                 document.getElementById('input-and-output').style.display = ''
             } else {
                 document.getElementById('input-and-output').style.display = 'none'
+            }
+        }
+
+        const fileInput1 = document.querySelector('#input1filediv input[type=file]');
+        fileInput1.onchange = () => {
+            if (fileInput.files.length > 0) {
+                const fileName = document.querySelector('#input1filediv .file-name');
+                fileName.textContent = fileInput.files[0].name;
+            }
+        }
+
+        const fileInput2 = document.querySelector('#input2filediv input[type=file]');
+        fileInput2.onchange = () => {
+            if (fileInput2.files.length > 0) {
+                const fileName = document.querySelector('#input2filediv .file-name');
+                fileName.textContent = fileInput2.files[0].name;
+            }
+        }
+
+        const fileInput3 = document.querySelector('#input3filediv input[type=file]');
+        fileInput3.onchange = () => {
+            if (fileInput3.files.length > 0) {
+                const fileName = document.querySelector('#input3filediv .file-name');
+                fileName.textContent = fileInput3.files[0].name;
+            }
+        }
+
+        const fileInput4 = document.querySelector('#input4filediv input[type=file]');
+        fileInput4.onchange = () => {
+            if (fileInput4.files.length > 0) {
+                const fileName = document.querySelector('#input4filediv .file-name');
+                fileName.textContent = fileInput4.files[0].name;
+            }
+        }
+
+        const fileInput5 = document.querySelector('#input5filediv input[type=file]');
+        fileInput5.onchange = () => {
+            if (fileInput5.files.length > 0) {
+                const fileName = document.querySelector('#input5filediv .file-name');
+                fileName.textContent = fileInput5.files[0].name;
+            }
+        }
+
+        const fileInput6 = document.querySelector('#output1filediv input[type=file]');
+        fileInput6.onchange = () => {
+            if (fileInput6.files.length > 0) {
+                const fileName = document.querySelector('#output1filediv .file-name');
+                fileName.textContent = fileInput6.files[0].name;
+            }
+        }
+
+        const fileInput7 = document.querySelector('#output2filediv input[type=file]');
+        fileInput7.onchange = () => {
+            if (fileInput7.files.length > 0) {
+                const fileName = document.querySelector('#output2filediv .file-name');
+                fileName.textContent = fileInput7.files[0].name;
+            }
+        }
+
+        const fileInput8 = document.querySelector('#output3filediv input[type=file]');
+        fileInput8.onchange = () => {
+            if (fileInput8.files.length > 0) {
+                const fileName = document.querySelector('#output3filediv .file-name');
+                fileName.textContent = fileInput8.files[0].name;
+            }
+        }
+
+        const fileInput9 = document.querySelector('#output4filediv input[type=file]');
+        fileInput9.onchange = () => {
+            if (fileInput9.files.length > 0) {
+                const fileName = document.querySelector('#output4filediv .file-name');
+                fileName.textContent = fileInput9.files[0].name;
+            }
+        }
+
+        const fileInput10 = document.querySelector('#output5filediv input[type=file]');
+        fileInput10.onchange = () => {
+            if (fileInput10.files.length > 0) {
+                const fileName = document.querySelector('#output5filediv .file-name');
+                fileName.textContent = fileInput10.files[0].name;
             }
         }
     </script>

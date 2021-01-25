@@ -1,0 +1,108 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    <section class="section">
+
+        <div class="container">
+
+            <div class="columns">
+                <div class="column is-10">
+                    <h2 class="title is-2">{{ problem.title }}</h2>
+                    <p class="mb-6">{{ problem.description }}</p>
+                    <h3 class="title is-3">Submit</h3>
+
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="field">
+                            {{ form.language.label(class="label") }}
+                            <div class="select">
+                                {{ form.language(class="select") }}
+                            </div>
+                        </div>
+
+
+                        <div class="field">
+                            {{ form.file.label(class="label") }}
+
+                            <div class="file has-name" id="submit-file">
+
+                                <label class="file-label">
+                                    {#                        <input class="file-input" type="file" name="resume">#}
+                                    {{ form.file(class="file-input", id="input1file") }}
+
+                                    <span class="file-cta has-background-white">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Choose a file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name has-background-white">
+                                        No file chosen
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.file.errors %}
+                                <div class="help is-danger">
+                                    {% for error in form.file.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {{ form.submit(class="button is-info") }}
+
+                    </form>
+
+
+                </div>
+                <div class="column has-background-white">
+                    <h4 class="title is-4">Specifications</h4>
+                    <p><b>Time limit</b>: {{ problem.time_limit }} seconds</p>
+                    <br>
+                    <p><b>Memory limit</b>: {{ problem.memory_limit }} MB</p>
+                    <br>
+                    <p>Worth {{ problem.total_marks }} points</p>
+                    <br>
+                    <p><b>Languages allowed</b>:</p>
+                    {% for l in problem.languages %}
+                        <p>{{ l.name }}</p>
+                    {% endfor %}
+                    <br>
+                    <p><b>Allow multiple submissions</b>: {{ problem.allow_multiple_submissions }}</p>
+                    <br>
+                    <p><b>Auto grade</b>: {{ problem.auto_grade }}</p>
+                    <br>
+                    <p><b>Created at</b>: {{ problem.create_date_time.strftime('%A, %B %d, %I:%M %p %z') }}</p>
+                    <br>
+                    <p><b>Creator</b>: {{ problem.user.name }} ({{ problem.user.email }})</p>
+                </div>
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        const fileInput = document.querySelector('#submit-file input[type=file]');
+        fileInput.onchange = () => {
+            if (fileInput.files.length > 0) {
+                const fileName = document.querySelector('#submit-file .file-name');
+                fileName.textContent = fileInput.files[0].name;
+            }
+        }
+    </script>
+{% endblock %}

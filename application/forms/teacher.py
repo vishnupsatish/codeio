@@ -124,3 +124,8 @@ class NewClassForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
     description = TextAreaField('Description', validators=[Length(max=100)])
     submit = InlineButtonWidget('Create Class')
+
+
+class NewStudentForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
+    submit = InlineButtonWidget('Create Student')

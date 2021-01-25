@@ -1,6 +1,7 @@
 from application.models.general import Language, Submission, InputFile, OutputFile
 from application import db
 
+
 def get_languages_form():
     langs = Language.query.all()
     languages = []

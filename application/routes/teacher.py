@@ -30,6 +30,7 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 UNSUCCESSFUL_LOGIN_MESSAGE = 'Login Unsuccessful. Please check email and password'
 NOT_LOGGED_IN_MESSAGE = 'You must be logged in to view that page.'
 CLASS_CREATED_MESSAGE = 'The class has been created successfully.'
+STUDENT_CREATED_MESSAGE = 'The student has been created successfully.'
 
 bucket_name = 'code-execution-grade-10'
 
@@ -92,13 +93,21 @@ def teacher_class_home(identifier):
     return render_template('teacher/classes/home.html', problems=problems, class_=class_, identifier=identifier, u=u)
 
 
-@app.route('/class/<string:identifier>/students')
+@app.route('/class/<string:identifier>/students', methods=['GET', 'POST'])
 def teacher_class_students(identifier):
     if not current_user.is_authenticated:
         flash(NOT_LOGGED_IN_MESSAGE, 'danger')
         return redirect(url_for('teacher_login'))
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
-    return render_template('teacher/classes/students.html', identifier=identifier)
+    form = NewStudentForm()
+    if form.validate_on_submit():
+        student = Student(name=form.name.data, identifier=token_urlsafe(4), class_=class_)
+        db.session.add(student)
+        db.session.commit()
+        flash(STUDENT_CREATED_MESSAGE, 'success')
+        return redirect(url_for('teacher_class_students', identifier=identifier))
+    students = class_.students
+    return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_, students=students)
 
 
 @app.route('/class/<string:identifier>/new-problem', methods=['GET', 'POST'])
@@ -168,7 +177,7 @@ def teacher_class_new_problem(identifier):
         flash('The problem has been created successfully.', 'success')
         return redirect(url_for('teacher_class_home', identifier=identifier))
 
-    return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier)
+    return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier, class_=class_)
 
 
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>', methods=['GET', 'POST'])
@@ -188,4 +197,4 @@ def teacher_class_problem(class_identifier, problem_identifier):
                                              ExpiresIn=3600))
 
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
-                           input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls)
+                           input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls, class_=class_)

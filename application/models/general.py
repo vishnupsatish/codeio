@@ -9,10 +9,10 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class_student_association_table = db.Table('class_student_association', db.Model.metadata,
-                                           db.Column('class_id', db.Integer, db.ForeignKey('class_.id')),
-                                           db.Column('student_id', db.Integer, db.ForeignKey('student.id'))
-                                           )
+# class_student_association_table = db.Table('class_student_association', db.Model.metadata,
+#                                            db.Column('class_id', db.Integer, db.ForeignKey('class_.id')),
+#                                            db.Column('student_id', db.Integer, db.ForeignKey('student.id'))
+#                                            )
 
 problem_language_association_table = db.Table('problem_language_association', db.Model.metadata,
                                               db.Column('problem_id', db.Integer, db.ForeignKey('problem.id')),
@@ -36,7 +36,9 @@ class User(db.Model, UserMixin):
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    identifier = db.Column(db.String, nullable=False)
     submissions = db.relationship('Submission', backref='student', lazy=True)
+    class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
 
 
 class Class_(db.Model):
@@ -46,8 +48,10 @@ class Class_(db.Model):
     description = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     problems = db.relationship('Problem', backref='class_', lazy=True)
-    students = db.relationship('Student', secondary=class_student_association_table, lazy=True,
-                               backref='classes_')
+    # students = db.relationship('Student', secondary=class_student_association_table, lazy=True,
+    #                            backref='classes_')
+    students = db.relationship('Student', backref='class_', lazy=True)
+
 
 
 class Problem(db.Model):

@@ -17,22 +17,50 @@
 
         <div class="container">
 
+            <h3 class="title is-3">Students
+            </h3>
+
+            <div class="box">
+                <h3 class="title is-4">New Student</h3>
+                <form action="" method="post">
+                    {{ form.hidden_tag() }}
+
+                    <div class="field">
+                        {{ form.name.label(class="label") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="input") }}
+                        {% endif %}
+                    </div>
+
+
+                    {{ form.submit(class="button is-info") }}
+                </form>
+
+            </div>
+
             <table class="table is-striped is-hoverable is-fullwidth">
                 <thead>
                     <tr>
-                        <th>Number</th>
                         <th>Name</th>
                         <th>Code</th>
                         <th>Average mark</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for student in students %}
                     <tr>
-                        <th>1</th>
-                        <td>Vishnu S.</td>
-                        <td>HbdjvN</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.identifier }}</td>
                         <td>100%</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
 
