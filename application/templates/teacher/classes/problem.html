@@ -17,6 +17,8 @@
 
         <div class="container">
 
+        <div class="box mb-6">Send this link to your students: <a href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Here</a></div>
+
             <div class="columns">
                 <div class="column is-10">
                     <h2 class="title is-2">{{ problem.title }}</h2>

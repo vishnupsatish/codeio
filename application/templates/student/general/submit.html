@@ -22,6 +22,8 @@
                     <h3 class="title is-3">Submit</h3>
 
                     <form action="" method="post" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
                         <div class="field">
                             {{ form.language.label(class="label") }}
                             <div class="select">
