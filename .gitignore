@@ -2,3 +2,4 @@ application/settingssecrets.py
 **/__pycache__/
 **/.idea
 application/site.db
+dump.rdb

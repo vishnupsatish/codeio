@@ -1,0 +1,52 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    <section class="section">
+
+        <div class="container">
+
+            <h2 class="title is-2">Submission</h2>
+
+            <h3 class="title is-3">Results</h3>
+
+            <p id="result"></p>
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script>
+        function httpGetAsync(times)
+        {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
+                    console.log(xmlHttp.responseText);
+            }
+            xmlHttp.open("GET", "/status/{{ task_id }}", true);
+            xmlHttp.send(null);
+
+            if (times < 12000) {
+                setTimeout(function() {httpGetAsync(times + 3000)}, 3000);
+            }
+        }
+
+        httpGetAsync(0);
+
+
+    </script>
+
+{% endblock %}

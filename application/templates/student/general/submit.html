@@ -11,6 +11,17 @@
 
 {% block content %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+
+                <div class="notification is-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <section class="section">
 
         <div class="container">
@@ -20,6 +31,8 @@
                     <h2 class="title is-2">{{ problem.title }}</h2>
                     <p class="mb-6">{{ problem.description }}</p>
                     <h3 class="title is-3">Submit</h3>
+
+                    {% if student_can_submit %}
 
                     <form action="" method="post" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
@@ -66,6 +79,16 @@
 
                     </form>
 
+                {% endif %}
+
+
+                {% if submissions|length > 0 %}
+                    <h3 class="title is-3 mt-6">Your submissions</h3>
+                {% for i in range(submissions|length) %}
+                    <a href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i }}</a>
+                {% endfor %}
+                {% endif %}
+
 
                 </div>
                 <div class="column has-background-white">
@@ -106,5 +129,6 @@
                 fileName.textContent = fileInput.files[0].name;
             }
         }
+
     </script>
 {% endblock %}

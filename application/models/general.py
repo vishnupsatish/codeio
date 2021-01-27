@@ -78,6 +78,7 @@ class Language(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String, nullable=False)
+    file_extension = db.Column(db.String, nullable=False)
     submissions = db.relationship('Submission', backref='language', lazy=True)
 
 
@@ -103,10 +104,10 @@ class OutputFile(db.Model):
 
 class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String, nullable=False)
     file_path = db.Column(db.String, nullable=False)
-    file_name = db.Column(db.String, nullable=False)
-    date_time = db.Column(db.DateTime, nullable=False)
-    file_size = db.Column(db.String)
+    date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    file_size = db.Column(db.Integer)
     marks = db.Column(db.Integer)
     results = db.relationship('Result', backref='submission', lazy=True)
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
