@@ -85,7 +85,7 @@
                 {% if submissions|length > 0 %}
                     <h3 class="title is-3 mt-6">Your submissions</h3>
                 {% for i in range(submissions|length) %}
-                    <a href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i }}</a>
+                    <p><a href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i + 1 }}</a></p>
                 {% endfor %}
                 {% endif %}
 

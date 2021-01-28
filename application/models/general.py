@@ -123,12 +123,24 @@ class Result(db.Model):
     token = db.Column(db.String, nullable=False)
     stderr = db.Column(db.String)
     stdout = db.Column(db.String)
-    message = db.Column(db.String)
     time = db.Column(db.String)
     memory = db.Column(db.Integer)
     compile_output = db.Column(db.String)
+    expected_output = db.Column(db.String)
+    correct = db.Column(db.Boolean)
 
-    status_id = db.Column(db.Integer)
-    status_description = db.Column(db.String)
+    marks = db.Column(db.Integer)
+    marks_out_of = db.Column(db.Integer)
+
+    # status_id = db.Column(db.Integer)
+    # status_description = db.Column(db.String)
 
     submission_id = db.Column(db.Integer, db.ForeignKey('submission.id'), nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False)
+
+
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    results = db.relationship('Result', backref='status', lazy=True)

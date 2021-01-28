@@ -464,9 +464,9 @@
 
         const fileInput1 = document.querySelector('#input1filediv input[type=file]');
         fileInput1.onchange = () => {
-            if (fileInput.files.length > 0) {
+            if (fileInput1.files.length > 0) {
                 const fileName = document.querySelector('#input1filediv .file-name');
-                fileName.textContent = fileInput.files[0].name;
+                fileName.textContent = fileInput1.files[0].name;
             }
         }
 

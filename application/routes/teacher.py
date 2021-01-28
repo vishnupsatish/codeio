@@ -88,7 +88,7 @@ def teacher_class_home(identifier):
         flash(NOT_LOGGED_IN_MESSAGE, 'danger')
         return redirect(url_for('teacher_login'))
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
-    problems = Problem.query.filter_by(class_=class_).all()
+    problems = Problem.query.filter_by(class_=class_).order_by(Problem.create_date_time.desc()).all()
     u = get_unique_students_problem(problems)
     return render_template('teacher/classes/home.html', problems=problems, class_=class_, identifier=identifier, u=u)
 

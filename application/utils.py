@@ -56,7 +56,10 @@ def upload_input_output_file(num, input_file_object, output_file_object, class_,
 
 
 def upload_submission_file(language, submission_file_object, class_, problem, s3, bucket_name, student,
-                           uuid=str(uuid.uuid4())):
+                           uuid_=None):
+    if uuid_ is None:
+        uuid_ = str(uuid.uuid4())
+
     submission_file_data = submission_file_object.read()
     if len(submission_file_data) / 1000000 > 1:
         return 'The maximum file size you can add is 1 megabyte.'
@@ -64,10 +67,16 @@ def upload_submission_file(language, submission_file_object, class_, problem, s3
     language = Language.query.filter_by(number=language).first()
     submission_file_path = f'classes/{class_.identifier}/problems/{problem.identifier}/submissions/{secure_filename(student.name)}-{student.id}-{int(tm.time())}.{language.file_extension}'
     mimetype = guess_type(submission_file_path)[0]
+    if mimetype is None:
+        mimetype = 'text/plain'
     s3_object = s3.Object(bucket_name, submission_file_path)
     s3_object.put(Body=submission_file_data, ContentType=mimetype)
 
+
+
     submission = Submission(file_path=submission_file_path, file_size=len(submission_file_data), problem=problem,
-                            student=student, language=language, uuid=uuid)
+                            student=student, language=language, uuid=uuid_)
     db.session.add(submission)
     db.session.commit()
+
+    return submission, uuid_
