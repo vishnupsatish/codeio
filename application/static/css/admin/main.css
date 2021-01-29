@@ -9,3 +9,7 @@ html {
 .card-hover-effect {
     transition: 0.3s;
 }
+
+.dontshow {
+    display: none;
+}

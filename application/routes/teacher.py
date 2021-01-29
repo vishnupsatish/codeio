@@ -31,6 +31,9 @@ UNSUCCESSFUL_LOGIN_MESSAGE = 'Login Unsuccessful. Please check email and passwor
 NOT_LOGGED_IN_MESSAGE = 'You must be logged in to view that page.'
 CLASS_CREATED_MESSAGE = 'The class has been created successfully.'
 STUDENT_CREATED_MESSAGE = 'The student has been created successfully.'
+TOO_LOW_HIGH_TIME_LIMIT_MESSAGE = 'The time limit must be greater than 1 second and no greater than 5 seconds.'
+TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE = 'The memory limit must be greater than 3 MB and no greater than 768 MB.'
+
 
 bucket_name = 'code-execution-grade-10'
 
@@ -124,7 +127,17 @@ def teacher_class_new_problem(identifier):
         description = form.description.data
 
         time_limit = form.time_limit.data
+
+        if time_limit < 1 or time_limit > 5:
+            flash(TOO_LOW_HIGH_TIME_LIMIT_MESSAGE, 'danger')
+            return redirect(url_for('teacher_class_new_problem', identifier=identifier))
+
         memory_limit = form.memory_limit.data
+
+        if memory_limit < 3 or memory_limit > 768:
+            flash(TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE, 'danger')
+            return redirect(url_for('teacher_class_new_problem', identifier=identifier))
+
         marks_out_of = form.total_marks.data
 
         languages = form.languages.data
@@ -160,16 +173,16 @@ def teacher_class_new_problem(identifier):
             inout1 = upload_input_output_file(1, input1file, output1file, class_, problem, s3, bucket_name)
             if inout1 is not None:
                 flash(inout1, 'danger')
-            inout2 = upload_input_output_file(1, input2file, output2file, class_, problem, s3, bucket_name)
+            inout2 = upload_input_output_file(2, input2file, output2file, class_, problem, s3, bucket_name)
             if inout2 is not None:
                 flash(inout2, 'danger')
-            inout3 = upload_input_output_file(1, input3file, output3file, class_, problem, s3, bucket_name)
+            inout3 = upload_input_output_file(3, input3file, output3file, class_, problem, s3, bucket_name)
             if inout3 is not None:
                 flash(inout3, 'danger')
-            inout4 = upload_input_output_file(1, input4file, output4file, class_, problem, s3, bucket_name)
+            inout4 = upload_input_output_file(4, input4file, output4file, class_, problem, s3, bucket_name)
             if inout4 is not None:
                 flash(inout4, 'danger')
-            inout5 = upload_input_output_file(1, input5file, output5file, class_, problem, s3, bucket_name)
+            inout5 = upload_input_output_file(5, input5file, output5file, class_, problem, s3, bucket_name)
             if inout5 is not None:
                 flash(inout5, 'danger')
 

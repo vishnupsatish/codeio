@@ -2,6 +2,7 @@ import datetime as dt
 from application import db, login_manager, app
 from flask_login import UserMixin
 
+
 # IMPORTANT: ALL TIME ARE STORED IN EPOCH SECONDS, MUST CONVERT TO USER'S LOCAL TIME ZONE
 
 @login_manager.user_loader
@@ -51,7 +52,6 @@ class Class_(db.Model):
     # students = db.relationship('Student', secondary=class_student_association_table, lazy=True,
     #                            backref='classes_')
     students = db.relationship('Student', backref='class_', lazy=True)
-
 
 
 class Problem(db.Model):
@@ -129,8 +129,8 @@ class Result(db.Model):
     expected_output = db.Column(db.String)
     correct = db.Column(db.Boolean)
 
-    marks = db.Column(db.Integer)
-    marks_out_of = db.Column(db.Integer)
+    marks = db.Column(db.Float)
+    marks_out_of = db.Column(db.Float)
 
     # status_id = db.Column(db.Integer)
     # status_description = db.Column(db.String)

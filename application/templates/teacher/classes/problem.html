@@ -13,7 +13,15 @@
 
     {% include "teacher/templates/class_navbar.html" %}
 
-    <section class="section">
+
+    <div class="tabs is-centered is-fullwidth is-toggle is-large">
+        <ul>
+            <li id="problem-info-button" class="is-active"><a onclick="toggle_problem_view(this, 'student-submissions', 'problem-info')">Problem Info</a></li>
+            <li id="student-submissions-button"><a onclick="toggle_problem_view(this, 'problem-info', 'student-submissions')">Student Submissions</a></li>
+        </ul>
+    </div>
+
+    <section class="section" id="problem-info">
 
         <div class="container">
 
@@ -31,12 +39,12 @@
                     <div class="columns">
                         <div class="column is-narrow">
                             {% for i in range(input_presigned_urls|length) %}
-                                <a target="_blank" href="{{ input_presigned_urls[i] }}">Input {{ i }}</a>
+                                <p><a target="_blank" href="{{ input_presigned_urls[i] }}">Input {{ i }}</a></p>
                             {% endfor %}
                         </div>
                         <div class="column is-narrow">
                             {% for i in range(output_presigned_urls|length) %}
-                                <a target="_blank" href="{{ output_presigned_urls[i] }}">Output {{ i }}</a>
+                                <p><a target="_blank" href="{{ output_presigned_urls[i] }}">Output {{ i }}</a></p>
                             {% endfor %}
                         </div>
                     </div>
@@ -71,5 +79,30 @@
     </section>
 
 
+    <section class="section dontshow" id="student-submissions">
+
+        <div class="container">
+
+
+            <h2 class="title is-2">Student Submissions</h2>
+
+
+        </div>
+
+    </section>
+
+
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script>
+    function toggle_problem_view(elem, to_remove, to_add) {
+        elem.parentElement.classList.add('is-active')
+        document.getElementById(`${to_remove}-button`).classList.remove('is-active')
+        document.getElementById(to_remove).classList.add('dontshow')
+        document.getElementById(to_add).classList.remove('dontshow')
+
+    }
+    </script>
+
 {% endblock %}
