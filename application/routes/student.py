@@ -35,6 +35,12 @@ def student_login():
     return render_template('student/general/login.html', form=form)
 
 
+@app.route('/student-logout')
+def student_logout():
+    del session['student_id']
+    return "<p>You have been logged out. You may now close this tab</p>"
+
+
 @app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit', methods=['GET', 'POST'])
 def student_submit_problem(class_identifier, problem_identifier):
     if 'student_id' not in session:
@@ -88,7 +94,7 @@ def student_submit_problem(class_identifier, problem_identifier):
         return redirect(url_for('student_submission', task_id=task.id))
 
     return render_template('student/general/submit.html', problem=problem, class_=class_, form=form,
-                           student_can_submit=student_can_submit, submissions=submissions)
+                           student_can_submit=student_can_submit, submissions=submissions, student=student)
 
 
 @celery.task(bind=True)

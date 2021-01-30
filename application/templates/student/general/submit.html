@@ -11,6 +11,52 @@
 
 {% block content %}
 
+
+
+
+
+
+
+
+
+    <nav class="navbar has-shadow is-spaced" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item">
+                <p class="title is-4">
+                TeachCoding</p>
+            </a>
+
+        </div>
+
+        <div class="navbar-menu">
+
+            <div class="navbar-end">
+                <p class="navbar-item">
+                    Hi {{ student.name }}
+                </p>
+
+                <a class="navbar-item" href="{{ url_for('student_logout') }}">
+                        Log out
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
