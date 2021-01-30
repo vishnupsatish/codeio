@@ -169,7 +169,7 @@ def teacher_class_new_problem(identifier):
                           allow_multiple_submissions=allow_multiple_submissions, auto_grade=auto_grade,
                           identifier=token_urlsafe(8), class_=class_)
         if time_limit:
-            problem.time_limit = time
+            problem.time_limit = time_limit
         if memory_limit:
             problem.memory_limit = memory_limit
 
@@ -229,3 +229,27 @@ def teacher_class_problem(class_identifier, problem_identifier):
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
                            input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
                            class_=class_, student_submissions=student_submissions)
+
+
+@app.route('/teacher/submission/<task_id>')
+def teacher_student_submission(task_id):
+    if not current_user.is_authenticated:
+        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
+        return redirect(url_for('teacher_login'))
+
+    submission = Submission.query.filter_by(uuid=task_id).first_or_404()
+    problem = submission.problem
+
+    presigned_url = s3_client.generate_presigned_url('get_object',
+                                                     Params={'Bucket': bucket_name, 'Key': submission.file_path},
+                                                     ExpiresIn=3600)
+    if not problem.auto_grade:
+        return render_template('teacher/classes/submission-plain.html', submission=submission,
+                               presigned_url=presigned_url, class_=submission.problem.class_)
+
+    results = submission.results
+
+
+
+    return render_template('teacher/classes/submission.html', task_id=task_id, submission=submission,
+                           time=problem.time_limit, presigned_url=presigned_url, results=results, class_=submission.problem.class_)

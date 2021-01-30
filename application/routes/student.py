@@ -76,6 +76,8 @@ def student_submit_problem(class_identifier, problem_identifier):
                                         problem_identifier=problem_identifier))
 
             flash('Your file has been submitted successfully.', 'success')
+            submission_file.marks = problem.total_marks
+            db.session.commit()
             return redirect(url_for('student_submit_problem', class_identifier=class_identifier,
                                     problem_identifier=problem_identifier))
 
@@ -125,7 +127,7 @@ def student_judge_code(self, language, file, problem, student, submission):
 
     print(judge0_tokens)
 
-    sleep(problem.time_limit + 2)
+    sleep(2)
 
     tokens = ''
 
@@ -134,48 +136,53 @@ def student_judge_code(self, language, file, problem, student, submission):
 
     tokens += judge0_tokens[-1]['token']
 
-    result = json.loads(get(
-        f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=false&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
-        headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN}).text)
+    while True:
+        result = json.loads(get(
+            f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=false&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
+            headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN}).text)
 
-    print(result)
+        print(result)
 
-    result['total_marks_earned'] = 0
-    result['total_marks'] = problem.total_marks
+        result['total_marks_earned'] = 0
+        result['total_marks'] = problem.total_marks
 
-    for i, s in enumerate(result['submissions']):
-        inp = problem.input_files[i]
-        out = problem.output_files[i]
-        time = s['time']
-        memory = s['memory']
-        stderr = s['stderr']
-        stdout = s['stdout']
-        token = s['token']
-        compile_output = s['compile_output']
-        expected_output = s['expected_output']
-        status = Status.query.filter_by(number=s['status']['id']).first()
-        correct = True if status.number == 3 else False
-        total_marks = problem.total_marks / len(problem.input_files)
-        marks = problem.total_marks / len(problem.input_files) if correct else 0
-        result['submissions'][i]['correct'] = correct
-        result['submissions'][i]['status'] = status.name
-        result['submissions'][i]['total_marks'] = total_marks
-        result['submissions'][i]['marks'] = marks
-        result['total_marks_earned'] += marks
-        del result['submissions'][i]['expected_output']
-        r = Result(input_file=inp, output_file=out, submission=submission, token=token, stderr=stderr, stdout=stdout,
-                   memory=memory, compile_output=compile_output, time=time, expected_output=expected_output,
-                   correct=correct, status=status, marks_out_of=total_marks, marks=marks)
+        for i, s in enumerate(result['submissions']):
+            if s['status']['id'] == 2:
+                sleep(2)
+                continue
 
-        db.session.add(r)
+            inp = problem.input_files[i]
+            out = problem.output_files[i]
+            time = s['time']
+            memory = s['memory']
+            stderr = s['stderr']
+            stdout = s['stdout']
+            token = s['token']
+            compile_output = s['compile_output']
+            expected_output = s['expected_output']
+            status = Status.query.filter_by(number=s['status']['id']).first()
+            correct = True if status.number == 3 else False
+            total_marks = problem.total_marks / len(problem.input_files)
+            marks = problem.total_marks / len(problem.input_files) if correct else 0
+            result['submissions'][i]['correct'] = correct
+            result['submissions'][i]['status'] = status.name
+            result['submissions'][i]['total_marks'] = total_marks
+            result['submissions'][i]['marks'] = marks
+            result['total_marks_earned'] += marks
+            del result['submissions'][i]['expected_output']
+            r = Result(input_file=inp, output_file=out, submission=submission, token=token, stderr=stderr, stdout=stdout,
+                       memory=memory, compile_output=compile_output, time=time, expected_output=expected_output,
+                       correct=correct, status=status, marks_out_of=total_marks, marks=marks)
 
-    submission.marks = result['total_marks_earned']
+            db.session.add(r)
 
-    db.session.commit()
+        submission.marks = result['total_marks_earned']
 
-    self.state = 'SUCCESS'
+        db.session.commit()
 
-    return result
+        self.state = 'SUCCESS'
+
+        return result
 
 
 @app.route('/status/<task_id>')

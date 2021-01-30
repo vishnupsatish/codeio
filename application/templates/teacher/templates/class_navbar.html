@@ -36,14 +36,14 @@
     <div class="navbar-menu" id="navbar-template-mobile-open">
 
         <div class="navbar-start">
-            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('teacher_class_home', identifier=identifier) }}">
+            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">
                 <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
                      src="https://res.cloudinary.com/dnwczwamg/image/upload/m-lms/required-images/home_knjayz.png"
                      alt="">
                 <p class="has-text-centered">Home</p>
             </a>
 
-            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('teacher_class_students', identifier=identifier) }}">
+            <a class="navbar-item mx-5" style="display: block;" href="{{ url_for('teacher_class_students', identifier=class_.identifier) }}">
                 <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
                      src="https://res.cloudinary.com/dnwczwamg/image/upload/v1601428855/cc-lms/required-images/user_bem18t.png">
                 <p class="has-text-centered">Students</p>

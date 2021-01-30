@@ -1,0 +1,57 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+
+            <h2 class="title is-2">Submission of <a href="{{ url_for('teacher_class_problem', class_identifier=submission.problem.class_.identifier, problem_identifier=submission.problem.identifier) }}">{{ submission.problem.title }}</a></h2>
+            <a href="{{ presigned_url }}">View code</a>
+
+            <h3 class="title is-3 mt-6">Results</h3>
+
+
+            {% for result in results %}
+
+                {% if result.status.name == 'Accepted' %}
+                    {% set result_text_colour = 'has-text-success' %}
+                {% else %}
+                    {% set result_text_colour = 'has-text-danger' %}
+                {% endif %}
+
+            <h5 class="title is-5 result-text"><span class="{{ result_text_colour }}">{{ result.status.name }}</span> - {{ result.time }} seconds - {{ result.memory / 1000 }} MB - {{ result.marks }}/{{ result.marks_out_of }}</h5>
+
+            {% endfor %}
+
+            <h5 class="title is-5 result-text">Total: {{ submission.marks }}/{{ submission.problem.total_marks }}</h5>
+
+            <h3 class="title is-3 mt-6">Details</h3>
+            <p><b>Submission by</b>: {{ submission.student.name }}</p>
+            <br>
+            <p><b>Teacher</b>: {{ submission.student.class_.user.name }} - {{ submission.student.class_.user.email }}</p>
+            <br>
+            <p><b>Language</b>: {{ submission.language.name }}</p>
+            <br>
+            <p><b>Direct link (temporary)</b>: {{ presigned_url }}</p>
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+{% endblock %}

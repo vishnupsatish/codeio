@@ -29,7 +29,7 @@
         <div class="container">
 
             <div class="box mb-6">Send this link to your students: <a
-                    href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Here</a>
+                    href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}</a>
             </div>
 
             <div class="columns">
@@ -37,7 +37,10 @@
                     <h2 class="title is-2">{{ problem.title }}</h2>
                     <p class="mb-6">{{ problem.description }}</p>
 
+
+                {% if problem.auto_grade %}
                     <h3 class="title is-3">Inputs and Outputs</h3>
+                {% endif %}
 
                     <div class="columns">
                         <div class="column is-narrow">
@@ -93,6 +96,7 @@
 
                     {% for stud in student_submissions %}
                         {% for subm in student_submissions[stud] %}
+                            <a href="{{ url_for('teacher_student_submission', task_id=subm.uuid) }}">
                             <div class="card mb-2">
 
 
@@ -112,6 +116,7 @@
                                         </div>
 
 
+
                                         <div class="column" style="margin-top: auto; margin-bottom: auto;">
                                             <h4 class="title is-4">{{ subm.marks }}/{{ problem.total_marks }}</h4>
                                         </div>
@@ -119,6 +124,7 @@
 
                                 </div>
                             </div>
+                            </a>
                         {% endfor %}
                         <br>
                     {% endfor %}
@@ -127,7 +133,15 @@
 
                 <div class="column">
                     <h3 class="title is-3">Not Submitted</h3>
-
+                    {% for stud in student_submissions %}
+                        {% if not student_submissions[stud] %}
+                            <div class="card has-background-danger-light">
+                            <div class="card-content">
+                                <h4 class="title is-4">{{ stud.name }}</h4>
+                            </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
 
                 </div>
             </div>

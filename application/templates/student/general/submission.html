@@ -54,12 +54,12 @@
                         for (const result of results['result']['submissions']) {
                             let colour = '';
                             if (result['status'] === 'Accepted') {
-                                colour = 'green';
+                                colour = 'has-text-success';
                             }
                             else {
-                                colour = 'red';
+                                colour = 'has-text-danger';
                             }
-                            document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text"><span style="color: ${colour};">${result['status']}</span> - ${result['time']} seconds - ${result['memory'] / 1000} MB - ${result['marks']}/${result['total_marks']}</h5>`)
+                            document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text"><span class="${colour}">${result['status']}</span> - ${result['time']} seconds - ${result['memory'] / 1000} MB - ${result['marks']}/${result['total_marks']}</h5>`)
                         }
                         console.log(results);
                         document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text">Total: ${results['result']['total_marks_earned']}/${results['result']['total_marks']}</h5>`)
@@ -72,8 +72,8 @@
                 xmlHttp.send(null);
             }
 
-            if (times < {{ time * 2000 + 4000 }}) {
-                setTimeout(function() {httpGetAsync(times + {{ time * 1000 + 3000 }})}, {{ time * 1000 + 3000 }});
+            if (times < {{ 2 * 2000 + 4000 }}) {
+                setTimeout(function() {httpGetAsync(times + {{ 2 * 1000 + 3000 }})}, {{ 2 * 1000 + 3000 }});
             }
         }
 
