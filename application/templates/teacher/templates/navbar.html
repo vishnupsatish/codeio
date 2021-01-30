@@ -31,25 +31,10 @@
         </div>
 
         <div id="navbar-mobile-open" class="navbar-menu">
-            {#            <div class="navbar-start">#}
-            {##}
-            {##}
-            {#                <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">#}
-            {#                <span class="icon">#}
-            {#                    <i class="fas fa-home"></i>#}
-            {#                </span>#}
-            {#                    &nbsp;&nbsp;Home#}
-            {#                </a>#}
-            {##}
-            {#                <a class="navbar-item" href="{{ url_for('teacher_classes') }}">#}
-            {#                <span class="icon">#}
-            {#                    <i class="fab fa-leanpub"></i>#}
-            {#                </span>#}
-            {#                    &nbsp;&nbsp;Classes#}
-            {#                </a>#}
-            {##}
-            {##}
-            {#            </div>#}
+
+            <div class="navbar-start">
+                <a href="{{ url_for('teacher_dashboard') }}" class="navbar-item">Home</a>
+            </div>
 
             <div class="navbar-end">
 
@@ -62,11 +47,11 @@
                     </span>
                 </a>
 
-                <a class="navbar-item">
-                    Username&nbsp;&nbsp;
-                    <img style="vertical-align: middle;" class="is-rounded"
-                         src="https://bulma.io/images/placeholders/128x128.png">
-                </a>
+{#                <a class="navbar-item">#}
+{#                    Username&nbsp;&nbsp;#}
+{#                    <img style="vertical-align: middle;" class="is-rounded"#}
+{#                         src="https://bulma.io/images/placeholders/128x128.png">#}
+{#                </a>#}
 
                 <a href="{{ url_for('logout') }}" class="navbar-item">Log Out</a>
             </div>

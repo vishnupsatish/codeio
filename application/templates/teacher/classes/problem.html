@@ -45,12 +45,12 @@
                     <div class="columns">
                         <div class="column is-narrow">
                             {% for i in range(input_presigned_urls|length) %}
-                                <p><a target="_blank" href="{{ input_presigned_urls[i] }}">Input {{ i }}</a></p>
+                                <p><a target="_blank" href="{{ input_presigned_urls[i] }}">Input {{ i + 1 }}</a></p>
                             {% endfor %}
                         </div>
                         <div class="column is-narrow">
                             {% for i in range(output_presigned_urls|length) %}
-                                <p><a target="_blank" href="{{ output_presigned_urls[i] }}">Output {{ i }}</a></p>
+                                <p><a target="_blank" href="{{ output_presigned_urls[i] }}">Output {{ i + 1 }}</a></p>
                             {% endfor %}
                         </div>
                     </div>

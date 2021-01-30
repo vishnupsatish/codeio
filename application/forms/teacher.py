@@ -119,6 +119,16 @@ class NewProblemForm(FlaskForm):
         if input5file.data is None and self.output5file.data is not None and self.auto_grade.data is True:
             raise ValidationError('Please enter an input file')
 
+    def validate_memory_limit(self, memory_limit):
+        if memory_limit.data:
+            if memory_limit.data < 3 or memory_limi.data > 512:
+                raise ValidationError('The memory limit must be greater than 3 MB and no greater than 512 MB')
+
+    def validate_time_limit(self, time_limit):
+        if time_limit.data:
+            if time_limit.data < 1 or time_limit.data > 5:
+                raise ValidationError('The time limit must be greater than 1 second and no greater than 5 seconds', 'danger')
+
 
 class NewClassForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
@@ -129,3 +139,16 @@ class NewClassForm(FlaskForm):
 class NewStudentForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
     submit = InlineButtonWidget('Create Student')
+
+
+class UpdateMarkForm(FlaskForm):
+    mark = DecimalField('Mark', validators=[DataRequired()])
+    submit = InlineButtonWidget('Update Mark')
+
+    def __init__(self, problem_marks):
+        self.problem_marks = problem_marks
+        super(UpdateMarkForm, self).__init__()
+
+    def validate_mark(self, mark):
+        if mark.data > self.problem_marks:
+            raise ValidationError(f'Must be less than or equal to {self.problem_marks}')

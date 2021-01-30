@@ -34,6 +34,7 @@ STUDENT_CREATED_MESSAGE = 'The student has been created successfully.'
 PROBLEM_CREATED_MESSAGE = 'The problem has been created successfully.'
 TOO_LOW_HIGH_TIME_LIMIT_MESSAGE = 'The time limit must be greater than 1 second and no greater than 5 seconds.'
 TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE = 'The memory limit must be greater than 3 MB and no greater than 512 MB.'
+MARK_UPDATED_MESSAGE = 'The mark has been updated.'
 
 bucket_name = 'code-execution-grade-10'
 
@@ -115,8 +116,22 @@ def teacher_class_students(identifier):
         flash(STUDENT_CREATED_MESSAGE, 'success')
         return redirect(url_for('teacher_class_students', identifier=identifier))
     students = class_.students
+
+    marks = {}
+
+    for student in students:
+        submissions = student.submissions
+        marks_received = sum(s.marks for s in submissions)
+        total_marks = sum(s.problem.total_marks for s in submissions)
+
+        if total_marks != 0:
+            marks[student] = (marks_received, total_marks, f'{marks_received // total_marks * 100}%')
+        else:
+            marks[student] = (marks_received, total_marks, 'N/A')
+
+
     return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
-                           students=students)
+                               students=students, marks=marks)
 
 
 @app.route('/class/<string:identifier>/new-problem', methods=['GET', 'POST'])
@@ -134,17 +149,7 @@ def teacher_class_new_problem(identifier):
 
         time_limit = form.time_limit.data
 
-        if time_limit:
-            if time_limit < 1 or time_limit > 5:
-                flash(TOO_LOW_HIGH_TIME_LIMIT_MESSAGE, 'danger')
-                return redirect(url_for('teacher_class_new_problem', identifier=identifier))
-
         memory_limit = form.memory_limit.data
-
-        if memory_limit:
-            if memory_limit < 3 or memory_limit > 512:
-                flash(TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE, 'danger')
-                return redirect(url_for('teacher_class_new_problem', identifier=identifier))
 
         marks_out_of = form.total_marks.data
 
@@ -221,7 +226,8 @@ def teacher_class_problem(class_identifier, problem_identifier):
 
     for student in class_.students:
         student_submissions[student] = []
-        for submission in sorted(list(set(problem.submissions) & set(student.submissions)), key=lambda x: x.date_time, reverse=True):
+        for submission in sorted(list(set(problem.submissions) & set(student.submissions)), key=lambda x: x.date_time,
+                                 reverse=True):
             student_submissions[student].append(submission)
 
     print(student_submissions)
@@ -231,7 +237,7 @@ def teacher_class_problem(class_identifier, problem_identifier):
                            class_=class_, student_submissions=student_submissions)
 
 
-@app.route('/teacher/submission/<task_id>')
+@app.route('/teacher/submission/<task_id>', methods=['GET', 'POST'])
 def teacher_student_submission(task_id):
     if not current_user.is_authenticated:
         flash(NOT_LOGGED_IN_MESSAGE, 'danger')
@@ -240,16 +246,25 @@ def teacher_student_submission(task_id):
     submission = Submission.query.filter_by(uuid=task_id).first_or_404()
     problem = submission.problem
 
+    form = UpdateMarkForm(problem.total_marks)
+
+    if form.validate_on_submit():
+        mark = form.mark.data
+        submission.marks = float(mark)
+        db.session.commit()
+        flash(MARK_UPDATED_MESSAGE, 'success')
+
+    form.mark.data = submission.marks
+
     presigned_url = s3_client.generate_presigned_url('get_object',
                                                      Params={'Bucket': bucket_name, 'Key': submission.file_path},
                                                      ExpiresIn=3600)
     if not problem.auto_grade:
         return render_template('teacher/classes/submission-plain.html', submission=submission,
-                               presigned_url=presigned_url, class_=submission.problem.class_)
+                               presigned_url=presigned_url, class_=submission.problem.class_, form=form)
 
     results = submission.results
 
-
-
     return render_template('teacher/classes/submission.html', task_id=task_id, submission=submission,
-                           time=problem.time_limit, presigned_url=presigned_url, results=results, class_=submission.problem.class_)
+                           time=problem.time_limit, presigned_url=presigned_url, results=results,
+                           class_=submission.problem.class_, form=form)

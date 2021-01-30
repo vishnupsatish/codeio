@@ -50,7 +50,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Code</th>
-                        <th>Average mark</th>
+                        <th>Course Mark</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,7 +58,7 @@
                     <tr>
                         <td>{{ student.name }}</td>
                         <td>{{ student.identifier }}</td>
-                        <td>100%</td>
+                        <td>{{ marks[student][0] }}/{{ marks[student][1] }} or {{ marks[student][2] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

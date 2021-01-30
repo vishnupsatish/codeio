@@ -41,7 +41,8 @@ def student_logout():
     return "<p>You have been logged out. You may now close this tab</p>"
 
 
-@app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit', methods=['GET', 'POST'])
+@app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit',
+           methods=['GET', 'POST'])
 def student_submit_problem(class_identifier, problem_identifier):
     if 'student_id' not in session:
         return redirect(
@@ -170,7 +171,8 @@ def student_judge_code(self, language, file, problem, student, submission):
             result['submissions'][i]['marks'] = marks
             result['total_marks_earned'] += marks
             del result['submissions'][i]['expected_output']
-            r = Result(input_file=inp, output_file=out, submission=submission, token=token, stderr=stderr, stdout=stdout,
+            r = Result(input_file=inp, output_file=out, submission=submission, token=token, stderr=stderr,
+                       stdout=stdout,
                        memory=memory, compile_output=compile_output, time=time, expected_output=expected_output,
                        correct=correct, status=status, marks_out_of=total_marks, marks=marks)
 
@@ -182,7 +184,9 @@ def student_judge_code(self, language, file, problem, student, submission):
 
         self.state = 'SUCCESS'
 
-        return result
+        print('hi')
+
+        return result, submission.id
 
 
 @app.route('/status/<task_id>')
@@ -191,7 +195,14 @@ def task_status(task_id):
     print(task.state)
 
     if task.state == 'SUCCESS':
-        result = task.get()
+        print(task.get())
+
+        result, submission_id = task.get()
+
+        submission = Submission.query.filter_by(id=submission_id).first()
+
+        result['total_marks_earned'] = submission.marks
+
         return jsonify({'state': task.state, 'result': result})
 
     return jsonify({'state': task.state})
