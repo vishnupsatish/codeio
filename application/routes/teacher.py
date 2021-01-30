@@ -31,11 +31,16 @@ UNSUCCESSFUL_LOGIN_MESSAGE = 'Login Unsuccessful. Please check email and passwor
 NOT_LOGGED_IN_MESSAGE = 'You must be logged in to view that page.'
 CLASS_CREATED_MESSAGE = 'The class has been created successfully.'
 STUDENT_CREATED_MESSAGE = 'The student has been created successfully.'
+PROBLEM_CREATED_MESSAGE = 'The problem has been created successfully.'
 TOO_LOW_HIGH_TIME_LIMIT_MESSAGE = 'The time limit must be greater than 1 second and no greater than 5 seconds.'
-TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE = 'The memory limit must be greater than 3 MB and no greater than 768 MB.'
-
+TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE = 'The memory limit must be greater than 3 MB and no greater than 512 MB.'
 
 bucket_name = 'code-execution-grade-10'
+
+
+@app.route('/')
+def teacher_redirect_to_dashboard():
+    return redirect(url_for('teacher_dashboard'))
 
 
 @app.route('/logout')
@@ -110,7 +115,8 @@ def teacher_class_students(identifier):
         flash(STUDENT_CREATED_MESSAGE, 'success')
         return redirect(url_for('teacher_class_students', identifier=identifier))
     students = class_.students
-    return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_, students=students)
+    return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
+                           students=students)
 
 
 @app.route('/class/<string:identifier>/new-problem', methods=['GET', 'POST'])
@@ -128,15 +134,17 @@ def teacher_class_new_problem(identifier):
 
         time_limit = form.time_limit.data
 
-        if time_limit < 1 or time_limit > 5:
-            flash(TOO_LOW_HIGH_TIME_LIMIT_MESSAGE, 'danger')
-            return redirect(url_for('teacher_class_new_problem', identifier=identifier))
+        if time_limit:
+            if time_limit < 1 or time_limit > 5:
+                flash(TOO_LOW_HIGH_TIME_LIMIT_MESSAGE, 'danger')
+                return redirect(url_for('teacher_class_new_problem', identifier=identifier))
 
         memory_limit = form.memory_limit.data
 
-        if memory_limit < 3 or memory_limit > 768:
-            flash(TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE, 'danger')
-            return redirect(url_for('teacher_class_new_problem', identifier=identifier))
+        if memory_limit:
+            if memory_limit < 3 or memory_limit > 512:
+                flash(TOO_LOW_HIGH_MEMORY_LIMIT_MESSAGE, 'danger')
+                return redirect(url_for('teacher_class_new_problem', identifier=identifier))
 
         marks_out_of = form.total_marks.data
 
@@ -187,7 +195,7 @@ def teacher_class_new_problem(identifier):
                 flash(inout5, 'danger')
 
         db.session.commit()
-        flash('The problem has been created successfully.', 'success')
+        flash(PROBLEM_CREATED_MESSAGE, 'success')
         return redirect(url_for('teacher_class_home', identifier=identifier))
 
     return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier, class_=class_)
@@ -209,5 +217,15 @@ def teacher_class_problem(class_identifier, problem_identifier):
             s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': output_file.file_path},
                                              ExpiresIn=3600))
 
+    student_submissions = {}
+
+    for student in class_.students:
+        student_submissions[student] = []
+        for submission in sorted(list(set(problem.submissions) & set(student.submissions)), key=lambda x: x.date_time, reverse=True):
+            student_submissions[student].append(submission)
+
+    print(student_submissions)
+
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
-                           input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls, class_=class_)
+                           input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
+                           class_=class_, student_submissions=student_submissions)

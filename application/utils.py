@@ -66,9 +66,10 @@ def upload_submission_file(language, submission_file_object, class_, problem, s3
 
     language = Language.query.filter_by(number=language).first()
     submission_file_path = f'classes/{class_.identifier}/problems/{problem.identifier}/submissions/{secure_filename(student.name)}-{student.id}-{int(tm.time())}.{language.file_extension}'
-    mimetype = guess_type(submission_file_path)[0]
-    if mimetype is None:
-        mimetype = 'text/plain'
+    # mimetype = guess_type(submission_file_path)[0]
+    # if mimetype is None:
+    #     mimetype = 'text/plain'
+    mimetype = 'text/plain'
     s3_object = s3.Object(bucket_name, submission_file_path)
     s3_object.put(Body=submission_file_data, ContentType=mimetype)
 

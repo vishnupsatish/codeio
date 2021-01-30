@@ -16,8 +16,11 @@
 
     <div class="tabs is-centered is-fullwidth is-toggle is-large">
         <ul>
-            <li id="problem-info-button" class="is-active"><a onclick="toggle_problem_view(this, 'student-submissions', 'problem-info')">Problem Info</a></li>
-            <li id="student-submissions-button"><a onclick="toggle_problem_view(this, 'problem-info', 'student-submissions')">Student Submissions</a></li>
+            <li id="problem-info-button" class="is-active"><a
+                    onclick="toggle_problem_view(this, 'student-submissions', 'problem-info')">Problem Info</a></li>
+            <li id="student-submissions-button"><a
+                    onclick="toggle_problem_view(this, 'problem-info', 'student-submissions')">Student Submissions</a>
+            </li>
         </ul>
     </div>
 
@@ -84,8 +87,40 @@
         <div class="container">
 
 
-            <h2 class="title is-2">Student Submissions</h2>
+            <div class="columns">
+                <div class="column">
+                    <h3 class="title is-3">Submissions</h3>
 
+                    {% for stud in student_submissions %}
+                        {% for subm in student_submissions[stud] %}
+                            <div class="card mb-2">
+                                <div class="card-content">
+                                    <div class="columns is-mobile">
+                                        <div class="column is-9-desktop  is-8-mobile">
+                                            <h4 class="title is-4">Submission by {{ subm.student.name }}</h4>
+                                            <p>{{ subm.date_time.strftime('%m/%d/%Y - %-I:%M %p') }} UTC</p>
+                                        </div>
+
+
+                                        <div class="column" style="margin-top: auto; margin-bottom: auto">
+                                            <h4 class="title is-4">12/12</h4>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <br>
+                    {% endfor %}
+
+                </div>
+
+                <div class="column">
+                    <h3 class="title is-3">Not Submitted</h3>
+
+
+                </div>
+            </div>
 
         </div>
 
@@ -96,13 +131,13 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <script>
-    function toggle_problem_view(elem, to_remove, to_add) {
-        elem.parentElement.classList.add('is-active')
-        document.getElementById(`${to_remove}-button`).classList.remove('is-active')
-        document.getElementById(to_remove).classList.add('dontshow')
-        document.getElementById(to_add).classList.remove('dontshow')
+        function toggle_problem_view(elem, to_remove, to_add) {
+            elem.parentElement.classList.add('is-active')
+            document.getElementById(`${to_remove}-button`).classList.remove('is-active')
+            document.getElementById(to_remove).classList.add('dontshow')
+            document.getElementById(to_add).classList.remove('dontshow')
 
-    }
+        }
     </script>
 
 {% endblock %}

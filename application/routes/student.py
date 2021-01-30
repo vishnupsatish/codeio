@@ -35,7 +35,7 @@ def student_login():
     return render_template('student/general/login.html', form=form)
 
 
-@app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/submit', methods=['GET', 'POST'])
+@app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit', methods=['GET', 'POST'])
 def student_submit_problem(class_identifier, problem_identifier):
     if 'student_id' not in session:
         return redirect(
@@ -163,6 +163,8 @@ def student_judge_code(self, language, file, problem, student, submission):
 
         db.session.add(r)
 
+    submission.marks = result['total_marks_earned']
+
     db.session.commit()
 
     self.state = 'SUCCESS'
@@ -182,7 +184,7 @@ def task_status(task_id):
     return jsonify({'state': task.state})
 
 
-@app.route('/submission/<task_id>')
+@app.route('/student/submission/<task_id>')
 def student_submission(task_id):
     if 'student_id' not in session:
         return abort(404)

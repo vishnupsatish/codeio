@@ -55,7 +55,7 @@ class NewProblemForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
     description = TextAreaField('Description - Supports Markdown formatting', validators=[DataRequired(), Length(min=2, max=400)])
     time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
-    memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 768MB'}, validators=[Optional()])
+    memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
     auto_grade = BooleanField('Auto Grade')
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])

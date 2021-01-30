@@ -60,7 +60,7 @@ class Problem(db.Model):
     title = db.Column(db.String(45), nullable=False)
     description = db.Column(db.String, nullable=False)
     time_limit = db.Column(db.Float, nullable=False, default=5)
-    memory_limit = db.Column(db.Integer, nullable=False, default=768)
+    memory_limit = db.Column(db.Integer, nullable=False, default=512)
     total_marks = db.Column(db.Integer, nullable=False)
     auto_grade = db.Column(db.Boolean, nullable=False, default=False)
     allow_multiple_submissions = db.Column(db.Boolean, nullable=False, default=False)
