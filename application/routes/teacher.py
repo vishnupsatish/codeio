@@ -125,13 +125,12 @@ def teacher_class_students(identifier):
         total_marks = sum(s.problem.total_marks for s in submissions)
 
         if total_marks != 0:
-            marks[student] = (marks_received, total_marks, f'{marks_received // total_marks * 100}%')
+            marks[student] = (marks_received, total_marks, f'{round(marks_received / total_marks * 100, 2)}%')
         else:
             marks[student] = (marks_received, total_marks, 'N/A')
 
-
     return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
-                               students=students, marks=marks)
+                           students=students, marks=marks)
 
 
 @app.route('/class/<string:identifier>/new-problem', methods=['GET', 'POST'])
@@ -208,6 +207,10 @@ def teacher_class_new_problem(identifier):
 
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>', methods=['GET', 'POST'])
 def teacher_class_problem(class_identifier, problem_identifier):
+    if not current_user.is_authenticated:
+        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
+        return redirect(url_for('teacher_login'))
+
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
     input_presigned_urls = []
@@ -232,9 +235,24 @@ def teacher_class_problem(class_identifier, problem_identifier):
 
     print(student_submissions)
 
+    show_student_submissions = 'dontshow'
+    show_problem_info = ''
+
+    active_student_submissions = ''
+    active_show_problem = 'is-active'
+
+    if request.args.get('show_student_submissions'):
+        active_student_submissions = 'is-active'
+        active_show_problem = ''
+        show_student_submissions = ''
+        show_problem_info = 'dontshow'
+
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
                            input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
-                           class_=class_, student_submissions=student_submissions)
+                           class_=class_, student_submissions=student_submissions, base_url=request.host_url[:-1],
+                           active_student_submissions=active_student_submissions,
+                           show_student_submissions=show_student_submissions, show_problem_info=show_problem_info,
+                           active_show_problem=active_show_problem)
 
 
 @app.route('/teacher/submission/<task_id>', methods=['GET', 'POST'])

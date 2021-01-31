@@ -121,7 +121,7 @@ class NewProblemForm(FlaskForm):
 
     def validate_memory_limit(self, memory_limit):
         if memory_limit.data:
-            if memory_limit.data < 3 or memory_limi.data > 512:
+            if memory_limit.data < 3 or memory_limit.data > 512:
                 raise ValidationError('The memory limit must be greater than 3 MB and no greater than 512 MB')
 
     def validate_time_limit(self, time_limit):

@@ -73,8 +73,6 @@ def upload_submission_file(language, submission_file_object, class_, problem, s3
     s3_object = s3.Object(bucket_name, submission_file_path)
     s3_object.put(Body=submission_file_data, ContentType=mimetype)
 
-
-
     submission = Submission(file_path=submission_file_path, file_size=len(submission_file_data), problem=problem,
                             student=student, language=language, uuid=uuid_)
     db.session.add(submission)

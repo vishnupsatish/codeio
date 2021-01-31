@@ -137,6 +137,8 @@ def student_judge_code(self, language, file, problem, student, submission):
 
     tokens += judge0_tokens[-1]['token']
 
+    not_done = False
+
     while True:
         result = json.loads(get(
             f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=false&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
@@ -147,11 +149,12 @@ def student_judge_code(self, language, file, problem, student, submission):
         result['total_marks_earned'] = 0
         result['total_marks'] = problem.total_marks
 
-        for i, s in enumerate(result['submissions']):
-            if s['status']['id'] == 2:
-                sleep(2)
-                continue
+        if 1 in [s['status']['id'] for s in result['submissions']] or 2 in [s['status']['id'] for s in
+                                                                            result['submissions']]:
+            sleep(2)
+            continue
 
+        for i, s in enumerate(result['submissions']):
             inp = problem.input_files[i]
             out = problem.output_files[i]
             time = s['time']

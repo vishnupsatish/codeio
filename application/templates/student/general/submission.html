@@ -72,8 +72,8 @@
                 xmlHttp.send(null);
             }
 
-            if (times < {{ 2 * 2000 + 4000 }}) {
-                setTimeout(function() {httpGetAsync(times + {{ 2 * 1000 + 3000 }})}, {{ 2 * 1000 + 3000 }});
+            if (times < 35000) {
+                setTimeout(function() {httpGetAsync(times + 4000)}, 4000);
             }
         }
 

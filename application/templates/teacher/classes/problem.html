@@ -16,20 +16,20 @@
 
     <div class="tabs is-centered is-fullwidth is-toggle is-large">
         <ul>
-            <li id="problem-info-button" class="is-active"><a
+            <li id="problem-info-button" class="{{ active_show_problem }}"><a
                     onclick="toggle_problem_view(this, 'student-submissions', 'problem-info')">Problem Info</a></li>
-            <li id="student-submissions-button"><a
+            <li id="student-submissions-button" class="{{ active_student_submissions }}"><a
                     onclick="toggle_problem_view(this, 'problem-info', 'student-submissions')">Student Submissions</a>
             </li>
         </ul>
     </div>
 
-    <section class="section" id="problem-info">
+    <section class="section {{ show_problem_info }}" id="problem-info">
 
         <div class="container">
 
-            <div class="box mb-6">Send this link to your students: <a
-                    href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}</a>
+            <div class="box mb-6"><p>Send this link to your students:</p>
+                <h4 class="title is-4"><a target="_blank" href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">{{ base_url }}{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}</a></h4>
             </div>
 
             <div class="columns">
@@ -85,7 +85,7 @@
     </section>
 
 
-    <section class="section dontshow" id="student-submissions">
+    <section class="section {{ show_student_submissions }}" id="student-submissions">
 
         <div class="container">
 
@@ -154,7 +154,23 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <script>
+
+        const base_url = new URL(window.location.href.split('?')[0]);
+        
+        console.log(base_url)
+
+
         function toggle_problem_view(elem, to_remove, to_add) {
+            console.log(to_add)
+            const urlParams = new URLSearchParams(window.location.search)
+            if (to_add === 'student-submissions') {
+                urlParams.set('show_student_submissions', 'true')
+                window.location.search = urlParams;
+            }
+            else {
+                urlParams.delete('show_student_submissions')
+                window.location.search = urlParams;
+            }
             elem.parentElement.classList.add('is-active')
             document.getElementById(`${to_remove}-button`).classList.remove('is-active')
             document.getElementById(to_remove).classList.add('dontshow')
