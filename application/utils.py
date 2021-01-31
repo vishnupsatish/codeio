@@ -21,10 +21,13 @@ def get_unique_students_problem(problems):
     for p in problems:
         u[p] = []
         submissions = Submission.query.filter_by(problem=p).all()
+        print(submissions)
         for s in submissions:
             if s.student.identifier not in u[p]:
                 u[p].append(s.student.identifier)
+        print(u)
         u[p] = len(u[p])
+
     return u
 
 

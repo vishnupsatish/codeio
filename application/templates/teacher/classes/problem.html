@@ -108,7 +108,7 @@
                                     {% set submission_background_class = 'has-background-warning-light' %}
                                 {% endif %}
 
-                                <div class="card-content {{ submission_background_class }}">
+                                <div class="card-content card-hover-effect {{ submission_background_class }}">
                                     <div class="columns is-mobile">
                                         <div class="column is-9-desktop is-8-mobile">
                                             <h4 class="title is-4">Submission by {{ subm.student.name }}</h4>
@@ -135,7 +135,7 @@
                     <h3 class="title is-3">Not Submitted</h3>
                     {% for stud in student_submissions %}
                         {% if not student_submissions[stud] %}
-                            <div class="card has-background-danger-light">
+                            <div class="card has-background-danger-light mb-2">
                             <div class="card-content">
                                 <h4 class="title is-4">{{ stud.name }}</h4>
                             </div>

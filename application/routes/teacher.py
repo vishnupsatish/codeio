@@ -27,8 +27,7 @@ s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
                          aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name='ca-central-1')
 
-UNSUCCESSFUL_LOGIN_MESSAGE = 'Login Unsuccessful. Please check email and password'
-NOT_LOGGED_IN_MESSAGE = 'You must be logged in to view that page.'
+UNSUCCESSFUL_LOGIN_MESSAGE = 'Login Unsuccessful. Please check your email and password'
 CLASS_CREATED_MESSAGE = 'The class has been created successfully.'
 STUDENT_CREATED_MESSAGE = 'The student has been created successfully.'
 PROBLEM_CREATED_MESSAGE = 'The problem has been created successfully.'
@@ -60,26 +59,25 @@ def teacher_login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             return redirect(url_for('teacher_dashboard')) if not request.args.get('next') else redirect(
-                url_for(request.args.get('next')))
+                request.args.get('next'))
         else:
             flash(UNSUCCESSFUL_LOGIN_MESSAGE, 'danger')
     return render_template('teacher/general/login.html', form=form)
 
 
 @app.route('/dashboard')
+@login_required
 def teacher_dashboard():
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login', next='teacher_dashboard'))
+    # if not current_user.is_authenticated:
+    #     flash(NOT_LOGGED_IN_MESSAGE, 'danger')
+    #     return redirect(url_for('teacher_login', next='teacher_dashboard'))
     classes_ = Class_.query.filter_by(user=current_user).all()
     return render_template('teacher/general/dashboard.html', classes_=classes_)
 
 
 @app.route('/new-class', methods=['GET', 'POST'])
+@login_required
 def new_class():
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login', next='new_class'))
     form = NewClassForm()
     if form.validate_on_submit():
         class_ = Class_(name=form.name.data, description=form.description.data, user=current_user,
@@ -92,10 +90,8 @@ def new_class():
 
 
 @app.route('/class/<string:identifier>/home')
+@login_required
 def teacher_class_home(identifier):
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login'))
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
     problems = Problem.query.filter_by(class_=class_).order_by(Problem.create_date_time.desc()).all()
     u = get_unique_students_problem(problems)
@@ -103,10 +99,8 @@ def teacher_class_home(identifier):
 
 
 @app.route('/class/<string:identifier>/students', methods=['GET', 'POST'])
+@login_required
 def teacher_class_students(identifier):
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login'))
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
     form = NewStudentForm()
     if form.validate_on_submit():
@@ -134,10 +128,8 @@ def teacher_class_students(identifier):
 
 
 @app.route('/class/<string:identifier>/new-problem', methods=['GET', 'POST'])
+@login_required
 def teacher_class_new_problem(identifier):
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login'))
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
     form = NewProblemForm()
     form.languages.choices = get_languages_form()
@@ -206,11 +198,8 @@ def teacher_class_new_problem(identifier):
 
 
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>', methods=['GET', 'POST'])
+@login_required
 def teacher_class_problem(class_identifier, problem_identifier):
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login'))
-
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
     input_presigned_urls = []
@@ -256,13 +245,13 @@ def teacher_class_problem(class_identifier, problem_identifier):
 
 
 @app.route('/teacher/submission/<task_id>', methods=['GET', 'POST'])
+@login_required
 def teacher_student_submission(task_id):
-    if not current_user.is_authenticated:
-        flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-        return redirect(url_for('teacher_login'))
-
     submission = Submission.query.filter_by(uuid=task_id).first_or_404()
     problem = submission.problem
+
+    if problem.user != current_user:
+        abort(404)
 
     form = UpdateMarkForm(problem.total_marks)
 

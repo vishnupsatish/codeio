@@ -1,15 +1,14 @@
-import os
-import secrets
 import json
 import boto3
+from functools import wraps
 from time import sleep
 from requests import get, post
 from flask import render_template, url_for, jsonify, flash, redirect, request, abort, session
-from application import app, db, bcrypt, celery
+from application import app, db, celery
 from application.forms.student import *
 from application.models.general import *
 from application.utils import upload_submission_file
-from flask_login import login_user, current_user, logout_user, login_required
+# from flask_login import login_user, current_user, logout_user, login_required
 from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -19,6 +18,46 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 
 bucket_name = 'code-execution-grade-10'
 
+STUDENT_NOT_FOUND_MESSAGE = 'Student not found. Please check your code and whether you are authorized to see the problem.'
+STUDENT_NOT_AUTHORIZED_TO_VIEW_MESSAGE = 'You are not authorized to see the problem. Please enter your student code.'
+FILE_SUBMITTED_MESSAGE = 'Your file has been submitted successfully.'
+LOGIN_TO_SUBMIT_MESSAGE = 'Please enter your student code and log in to submit.'
+
+
+def abort_student_not_found(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        if 'student_id' not in session:
+            abort(404)
+
+        return f(*args, **kwargs)
+
+    return decorator
+
+
+def login_student_not_found(f):
+    @wraps(f)
+    def decorator(class_identifier, problem_identifier, *args, **kwargs):
+        print(class_identifier)
+        if 'student_id' not in session:
+            flash(LOGIN_TO_SUBMIT_MESSAGE, 'info')
+            return redirect(
+                url_for('student_login', class_identifier=class_identifier, problem_identifier=problem_identifier))
+
+        class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+
+        student = Student.query.filter_by(identifier=session['student_id'], class_=class_).first()
+
+        if not student:
+            del session['student_id']
+            flash(STUDENT_NOT_AUTHORIZED_TO_VIEW_MESSAGE, 'danger')
+            return redirect(
+                url_for('student_login', class_identifier=class_identifier, problem_identifier=problem_identifier))
+
+        return f(*args, **kwargs)
+
+    return decorator
+
 
 @app.route('/student-login', methods=['GET', 'POST'])
 def student_login():
@@ -26,12 +65,13 @@ def student_login():
     if form.validate_on_submit():
         student_identifier = form.code.data
         student = Student.query.filter_by(identifier=student_identifier).first()
-        if student:
+        class_ = Class_.query.filter_by(identifier=request.args.get('class_identifier')).first()
+        if student and student in class_.students:
             session['student_id'] = form.code.data
             return redirect(url_for('student_submit_problem', class_identifier=request.args.get('class_identifier'),
                                     problem_identifier=request.args.get('problem_identifier')))
         else:
-            flash('Student not found. Please check your code.', 'danger')
+            flash(STUDENT_NOT_FOUND_MESSAGE, 'danger')
     return render_template('student/general/login.html', form=form)
 
 
@@ -43,18 +83,8 @@ def student_logout():
 
 @app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit',
            methods=['GET', 'POST'])
+@login_student_not_found
 def student_submit_problem(class_identifier, problem_identifier):
-    if 'student_id' not in session:
-        return redirect(
-            url_for('student_login', class_identifier=class_identifier, problem_identifier=problem_identifier))
-
-    student = Student.query.filter_by(identifier=session['student_id']).first()
-    if not student:
-        del session['student_id']
-        return redirect(
-            url_for('student_login', class_identifier=class_identifier, problem_identifier=problem_identifier))
-
-    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
     problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
     submissions = Submission.query.filter_by(problem=problem, student=student).all()
     student_can_submit = problem.allow_multiple_submissions or len(submissions) == 0
@@ -76,7 +106,7 @@ def student_submit_problem(class_identifier, problem_identifier):
                 return redirect(url_for('student_submit_problem', class_identifier=class_identifier,
                                         problem_identifier=problem_identifier))
 
-            flash('Your file has been submitted successfully.', 'success')
+            flash(FILE_SUBMITTED_MESSAGE, 'success')
             submission_file.marks = problem.total_marks
             db.session.commit()
             return redirect(url_for('student_submit_problem', class_identifier=class_identifier,
@@ -137,8 +167,6 @@ def student_judge_code(self, language, file, problem, student, submission):
 
     tokens += judge0_tokens[-1]['token']
 
-    not_done = False
-
     while True:
         result = json.loads(get(
             f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=false&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
@@ -166,8 +194,8 @@ def student_judge_code(self, language, file, problem, student, submission):
             expected_output = s['expected_output']
             status = Status.query.filter_by(number=s['status']['id']).first()
             correct = True if status.number == 3 else False
-            total_marks = problem.total_marks / len(problem.input_files)
-            marks = problem.total_marks / len(problem.input_files) if correct else 0
+            total_marks = round(problem.total_marks / len(problem.input_files), 2)
+            marks = round(problem.total_marks / len(problem.input_files), 2) if correct else 0
             result['submissions'][i]['correct'] = correct
             result['submissions'][i]['status'] = status.name
             result['submissions'][i]['total_marks'] = total_marks
@@ -181,7 +209,8 @@ def student_judge_code(self, language, file, problem, student, submission):
 
             db.session.add(r)
 
-        submission.marks = result['total_marks_earned']
+        submission.marks = round(result['total_marks_earned'], 2)
+        result['total_marks_earned'] = submission.marks
 
         db.session.commit()
 
@@ -212,11 +241,10 @@ def task_status(task_id):
 
 
 @app.route('/student/submission/<task_id>')
+@abort_student_not_found
 def student_submission(task_id):
-    if 'student_id' not in session:
-        return abort(404)
-
-    submission = Submission.query.filter_by(uuid=task_id).first_or_404()
+    student = Student.query.filter_by(identifier=session['student_id']).first()
+    submission = Submission.query.filter_by(uuid=task_id, student=student).first_or_404()
     problem = submission.problem
 
     print(problem.auto_grade)
