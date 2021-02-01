@@ -82,3 +82,20 @@ def upload_submission_file(language, submission_file_object, class_, problem, s3
     db.session.commit()
 
     return submission, uuid_
+
+
+def get_student_mark(student, class_):
+    problems = class_.problems
+    marks = [0, 0, '0%']
+    for p in problems:
+        try:
+            max_mark_submissions = max(list(filter(lambda a: a.student == student, p.submissions)), key=lambda s: s.marks)
+        except ValueError:
+            continue
+        marks[0] += max_mark_submissions.marks
+        marks[1] += p.total_marks
+
+    if marks[1] != 0:
+        marks[2] = f'{round(marks[0] / marks[1] * 100, 2)}%'
+
+    return marks

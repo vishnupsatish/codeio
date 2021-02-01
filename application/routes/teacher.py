@@ -1,5 +1,6 @@
 import boto3
 import datetime as dt
+import mistune
 from secrets import token_urlsafe
 from werkzeug.utils import secure_filename
 from flask import render_template, url_for, flash, redirect, request, abort
@@ -68,9 +69,6 @@ def teacher_login():
 @app.route('/dashboard')
 @login_required
 def teacher_dashboard():
-    # if not current_user.is_authenticated:
-    #     flash(NOT_LOGGED_IN_MESSAGE, 'danger')
-    #     return redirect(url_for('teacher_login', next='teacher_dashboard'))
     classes_ = Class_.query.filter_by(user=current_user).all()
     return render_template('teacher/general/dashboard.html', classes_=classes_)
 
@@ -114,14 +112,37 @@ def teacher_class_students(identifier):
     marks = {}
 
     for student in students:
-        submissions = student.submissions
-        marks_received = sum(s.marks for s in submissions)
-        total_marks = sum(s.problem.total_marks for s in submissions)
+        marks[student] = get_student_mark(student, class_)
 
-        if total_marks != 0:
-            marks[student] = (marks_received, total_marks, f'{round(marks_received / total_marks * 100, 2)}%')
-        else:
-            marks[student] = (marks_received, total_marks, 'N/A')
+    # for student in students:
+    #     marks[student] = [0, 0, '0%']
+    #     for p in problems:
+    #         try:
+    #             max_mark_submissions = max(list(filter(lambda a: a.student == student, p.submissions)), key=lambda s: s.marks)
+    #         except ValueError:
+    #             continue
+    #         marks[student][0] += max_mark_submissions.marks
+    #         marks[student][1] += p.total_marks
+    #
+    #     if marks[student][1] != 0:
+    #         marks[student][2] = f'{round(marks[student][0] / marks[student][1] * 100, 2)}%'
+
+    # marks = {}
+    #
+    # for student in students:
+    #     if student in [s.student for s ]
+    #
+    #     highest_submissions = []
+    #     for s in submissions:
+    #         highest_submissions.append(s)
+    #
+    #     # marks_received = sum(m.marks for m in marks_received)
+    #     # total_marks = sum(s.problem.total_marks for s in submissions)
+    #
+    #     if total_marks != 0:
+    #         marks[student] = (marks_received, total_marks, f'{round(marks_received / total_marks * 100, 2)}%')
+    #     else:
+    #         marks[student] = (marks_received, total_marks, 'N/A')
 
     return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
                            students=students, marks=marks)
@@ -137,6 +158,8 @@ def teacher_class_new_problem(identifier):
         title = form.title.data
 
         description = form.description.data
+
+        description_html = mistune.html(description)
 
         time_limit = form.time_limit.data
 
@@ -163,7 +186,7 @@ def teacher_class_new_problem(identifier):
 
         problem = Problem(user=current_user, title=title, description=description, total_marks=marks_out_of,
                           allow_multiple_submissions=allow_multiple_submissions, auto_grade=auto_grade,
-                          identifier=token_urlsafe(8), class_=class_)
+                          identifier=token_urlsafe(8), class_=class_, description_html=description_html)
         if time_limit:
             problem.time_limit = time_limit
         if memory_limit:
@@ -257,9 +280,10 @@ def teacher_student_submission(task_id):
 
     if form.validate_on_submit():
         mark = form.mark.data
-        submission.marks = float(mark)
+        submission.marks = round(float(mark), 2)
         db.session.commit()
         flash(MARK_UPDATED_MESSAGE, 'success')
+        return redirect(url_for('teacher_student_submission', task_id=task_id))
 
     form.mark.data = submission.marks
 

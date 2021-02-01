@@ -59,6 +59,7 @@ class Problem(db.Model):
     identifier = db.Column(db.String, nullable=False)
     title = db.Column(db.String(45), nullable=False)
     description = db.Column(db.String, nullable=False)
+    description_html = db.Column(db.String, nullable=False)
     time_limit = db.Column(db.Float, nullable=False, default=5.0)
     memory_limit = db.Column(db.Integer, nullable=False, default=512)
     total_marks = db.Column(db.Integer, nullable=False)

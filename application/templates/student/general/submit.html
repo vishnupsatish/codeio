@@ -68,7 +68,9 @@
             <div class="columns">
                 <div class="column is-10">
                     <h2 class="title is-2">{{ problem.title }}</h2>
-                    <p class="mb-6">{{ problem.description }}</p>
+                    <div class="content mb-6 mt-6">
+                        {{ problem.description_html|safe }}
+                    </div>
 
                     {% if student_can_submit %}
 
@@ -125,7 +127,7 @@
                         <h3 class="title is-3 mt-6">Your submissions</h3>
                         {% for i in range(submissions|length) %}
                             <p>
-                                <a href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i + 1 }}</a>
+                                <a target="_blank" href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i + 1 }}</a>
                             </p>
                         {% endfor %}
                     {% endif %}

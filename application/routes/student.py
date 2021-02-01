@@ -22,6 +22,7 @@ STUDENT_NOT_FOUND_MESSAGE = 'Student not found. Please check your code and wheth
 STUDENT_NOT_AUTHORIZED_TO_VIEW_MESSAGE = 'You are not authorized to see the problem. Please enter your student code.'
 FILE_SUBMITTED_MESSAGE = 'Your file has been submitted successfully.'
 LOGIN_TO_SUBMIT_MESSAGE = 'Please enter your student code and log in to submit.'
+WRONG_FILE_TYPE_MESSAGE = 'Please submit the correct file type.'
 
 
 def abort_student_not_found(f):
@@ -54,7 +55,7 @@ def login_student_not_found(f):
             return redirect(
                 url_for('student_login', class_identifier=class_identifier, problem_identifier=problem_identifier))
 
-        return f(*args, **kwargs)
+        return f(class_identifier, problem_identifier, *args, **kwargs)
 
     return decorator
 
@@ -77,14 +78,19 @@ def student_login():
 
 @app.route('/student-logout')
 def student_logout():
+    if 'student_id' not in session:
+        return "<p>You have been logged out. You may now close this tab</p>"
     del session['student_id']
-    return "<p>You have been logged out. You may now close this tab</p>"
+    return redirect(url_for('student_logout'))
+
 
 
 @app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit',
            methods=['GET', 'POST'])
 @login_student_not_found
 def student_submit_problem(class_identifier, problem_identifier):
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    student = Student.query.filter_by(identifier=session['student_id'], class_=class_).first()
     problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
     submissions = Submission.query.filter_by(problem=problem, student=student).all()
     student_can_submit = problem.allow_multiple_submissions or len(submissions) == 0
@@ -94,30 +100,35 @@ def student_submit_problem(class_identifier, problem_identifier):
     if form.validate_on_submit():
         file = form.file.data
 
+        print(file.filename.split('.'))
+
         file_data = file.read()
 
         file.seek(0)
 
         if not problem.auto_grade:
-            submission_file, uuid = upload_submission_file(form.language.data, file, class_, problem, s3,
+            submission_file = upload_submission_file(form.language.data, file, class_, problem, s3,
                                                            bucket_name, student)
-            if type(submission_file) is not Submission:
+            if type(submission_file) is not tuple:
                 flash(submission_file, 'danger')
                 return redirect(url_for('student_submit_problem', class_identifier=class_identifier,
                                         problem_identifier=problem_identifier))
 
+            submission_file, uuid = submission_file
             flash(FILE_SUBMITTED_MESSAGE, 'success')
             submission_file.marks = problem.total_marks
             db.session.commit()
             return redirect(url_for('student_submit_problem', class_identifier=class_identifier,
                                     problem_identifier=problem_identifier))
 
-        submission_file, uuid = upload_submission_file(form.language.data, file, class_, problem, s3,
+        submission_file = upload_submission_file(form.language.data, file, class_, problem, s3,
                                                        bucket_name, student)
-        if type(submission_file) is not Submission:
+        if type(submission_file) is not tuple:
             flash(submission_file, 'danger')
             return redirect(url_for('student_submit_problem', class_identifier=class_identifier,
                                     problem_identifier=problem_identifier))
+
+        submission_file, uuid = submission_file
 
         task = student_judge_code.delay(form.language.data, file_data.decode('utf-8'), problem.id, student.id,
                                         submission_file.id)

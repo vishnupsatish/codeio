@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Markup
+from flask import Flask, render_template, Markup, flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
@@ -10,7 +10,7 @@ import time
 from application.models.general import User
 
 
-class InlineButtonWidget(object):
+class InlineButtonWidget:
     html = """
     <button %s type="submit">%s</button>
     """
@@ -53,7 +53,7 @@ class LoginForm(FlaskForm):
 
 class NewProblemForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
-    description = TextAreaField('Description - Supports Markdown formatting', validators=[DataRequired(), Length(min=2, max=400)])
+    description = TextAreaField('Description - Supports Markdown formatting', validators=[DataRequired(), Length(min=2, max=2500)])
     time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
     memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
@@ -77,56 +77,69 @@ class NewProblemForm(FlaskForm):
 
     def validate_auto_grade(self, auto_grade):
         if self.input1file.data is None and auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter at least one input file')
 
     def validate_output1file(self, output1file):
         if output1file.data is None and self.input1file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
 
     def validate_output2file(self, output2file):
         if output2file.data is None and self.input2file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
 
     def validate_output3file(self, output3file):
         if output3file.data is None and self.input3file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
 
     def validate_output4file(self, output4file):
         if output4file.data is None and self.input4file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
 
     def validate_output5file(self, output5file):
         if output5file.data is None and self.input5file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
 
     def validate_input1file(self, input1file):
         if input1file.data is None and self.output1file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
 
     def validate_input2file(self, input2file):
         if input2file.data is None and self.output2file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
 
     def validate_input3file(self, input3file):
         if input3file.data is None and self.output3file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
 
     def validate_input4file(self, input4file):
         if input4file.data is None and self.output4file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
 
     def validate_input5file(self, input5file):
         if input5file.data is None and self.output5file.data is not None and self.auto_grade.data is True:
+            flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
 
     def validate_memory_limit(self, memory_limit):
         if memory_limit.data:
             if memory_limit.data < 3 or memory_limit.data > 512:
+                flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
                 raise ValidationError('The memory limit must be greater than 3 MB and no greater than 512 MB')
 
     def validate_time_limit(self, time_limit):
         if time_limit.data:
             if time_limit.data < 1 or time_limit.data > 5:
+                flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
                 raise ValidationError('The time limit must be greater than 1 second and no greater than 5 seconds', 'danger')
 
 

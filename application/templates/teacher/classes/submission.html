@@ -20,7 +20,7 @@
             <h2 class="title is-2">Submission of
                 <a href="{{ url_for('teacher_class_problem', class_identifier=submission.problem.class_.identifier, problem_identifier=submission.problem.identifier, show_student_submissions='true') }}">{{ submission.problem.title }}</a>
             </h2>
-            <a href="{{ presigned_url }}">View code</a>
+            <a target="_blank" href="{{ presigned_url }}">View code</a>
 
             <h3 class="title is-3 mt-6">Results</h3>
 

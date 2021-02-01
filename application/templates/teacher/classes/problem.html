@@ -35,7 +35,10 @@
             <div class="columns">
                 <div class="column is-10">
                     <h2 class="title is-2">{{ problem.title }}</h2>
-                    <p class="mb-6">{{ problem.description }}</p>
+
+                    <div class="content mb-6 mt-6">
+                    {{ problem.description_html|safe }}
+                    </div>
 
 
                 {% if problem.auto_grade %}

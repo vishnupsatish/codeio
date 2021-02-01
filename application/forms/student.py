@@ -1,14 +1,13 @@
-from flask import Markup
-
+from flask import Markup, flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from application.models.general import User
+from application.models.general import User, Language
 
 
-class InlineButtonWidget(object):
+class InlineButtonWidget:
     html = """
     <button %s type="submit">%s</button>
     """
@@ -33,3 +32,9 @@ class SubmitSolutionForm(FlaskForm):
     language = SelectField('Language', validators=[DataRequired()])
     file = FileField('File', validators=[DataRequired()])
     submit = InlineButtonWidget('Submit')
+
+    def validate_file(self, file):
+        lang = Language.query.filter_by(number=self.language.data).first()
+        if lang.file_extension != file.data.filename.split('.')[-1]:
+            flash('There were some errors uploading your file. Scroll down to view the error(s).', 'danger')
+            raise ValidationError(f'Please upload a .{lang.file_extension} file.')
