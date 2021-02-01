@@ -4,7 +4,7 @@ from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, \
     SelectField, MultipleFileField, IntegerField, DecimalField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional, InputRequired
 from wtforms.fields.html5 import DateField, URLField, TimeField
 import time
 from application.models.general import User
@@ -53,7 +53,8 @@ class LoginForm(FlaskForm):
 
 class NewProblemForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
-    description = TextAreaField('Description - Supports Markdown formatting', validators=[DataRequired(), Length(min=2, max=2500)])
+    description = TextAreaField('Description - Supports Markdown formatting',
+                                validators=[DataRequired(), Length(min=2, max=2500)])
     time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
     memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
@@ -140,7 +141,8 @@ class NewProblemForm(FlaskForm):
         if time_limit.data:
             if time_limit.data < 1 or time_limit.data > 5:
                 flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
-                raise ValidationError('The time limit must be greater than 1 second and no greater than 5 seconds', 'danger')
+                raise ValidationError('The time limit must be greater than 1 second and no greater than 5 seconds',
+                                      'danger')
 
 
 class NewClassForm(FlaskForm):
@@ -155,7 +157,7 @@ class NewStudentForm(FlaskForm):
 
 
 class UpdateMarkForm(FlaskForm):
-    mark = DecimalField('Mark', validators=[DataRequired()])
+    mark = DecimalField('Mark', validators=[InputRequired()])
     submit = InlineButtonWidget('Update Mark')
 
     def __init__(self, problem_marks):
@@ -163,5 +165,31 @@ class UpdateMarkForm(FlaskForm):
         super(UpdateMarkForm, self).__init__()
 
     def validate_mark(self, mark):
-        if mark.data > self.problem_marks:
-            raise ValidationError(f'Must be less than or equal to {self.problem_marks}')
+        if mark.data > self.problem_marks or mark.data < 0:
+            raise ValidationError(f'Must be less than or equal to {self.problem_marks} and greater than 0')
+
+
+class EditProblemForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
+    description = TextAreaField('Description - Supports Markdown formatting',
+                                validators=[DataRequired(), Length(min=2, max=2500)])
+    time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
+    memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
+    allow_multiple_submissions = BooleanField('Allow multiple submissions')
+    total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
+    languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
+
+    submit = InlineButtonWidget('Update Problem')
+
+    def validate_memory_limit(self, memory_limit):
+        if memory_limit.data:
+            if memory_limit.data < 3 or memory_limit.data > 512:
+                flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
+                raise ValidationError('The memory limit must be greater than 3 MB and no greater than 512 MB')
+
+    def validate_time_limit(self, time_limit):
+        if time_limit.data:
+            if time_limit.data < 1 or time_limit.data > 5:
+                flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
+                raise ValidationError('The time limit must be greater than 1 second and no greater than 5 seconds',
+                                      'danger')

@@ -267,6 +267,53 @@ def teacher_class_problem(class_identifier, problem_identifier):
                            active_show_problem=active_show_problem)
 
 
+@app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/edit', methods=['GET', 'POST'])
+@login_required
+def teacher_class_problem_edit(class_identifier, problem_identifier):
+    class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
+    form = EditProblemForm()
+    form.languages.choices = get_languages_form()
+
+    if form.validate_on_submit():
+        if form.memory_limit.data:
+            problem.memory_limit = form.memory_limit.data
+        if form.time_limit.data:
+            problem.time_limit = form.time_limit.data
+        problem.title = form.title.data
+        problem.description = form.description.data
+        problem.description_html = mistune.html(form.description.data)
+        problem.total_marks = form.total_marks.data
+        problem.time_limit = form.time_limit.data
+
+        problem.languages = []
+        for lang in form.languages.data:
+            lang_object = Language.query.filter_by(number=int(lang)).first()
+            problem.languages.append(lang_object)
+
+        problem.allow_multiple_submissions = form.allow_multiple_submissions.data
+
+        db.session.commit()
+
+        flash('The problem has been updated.', 'success')
+
+        return redirect(url_for('teacher_class_problem_edit', class_identifier=class_identifier,
+                                problem_identifier=problem_identifier))
+
+    print(get_languages_form())
+    form.languages.data = [l.number for l in problem.languages]
+    print(form.languages.data)
+    form.title.data = problem.title
+    form.memory_limit.data = problem.memory_limit
+    form.time_limit.data = problem.time_limit
+    form.total_marks.data = problem.total_marks
+    form.description.data = problem.description
+    form.allow_multiple_submissions.data = problem.allow_multiple_submissions
+
+    return render_template('teacher/classes/problem-edit.html', problem=problem, identifier=class_identifier, form=form,
+                           class_=class_)
+
+
 @app.route('/teacher/submission/<task_id>', methods=['GET', 'POST'])
 @login_required
 def teacher_student_submission(task_id):

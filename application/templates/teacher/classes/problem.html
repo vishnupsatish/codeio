@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
 
 
-
 {% endblock %}
 
 {% block content %}
@@ -14,7 +13,7 @@
     {% include "teacher/templates/class_navbar.html" %}
 
 
-    <div class="tabs is-centered is-fullwidth is-toggle is-large">
+    <div class="tabs is-centered is-fullwidth is-toggle is-large mb-0">
         <ul>
             <li id="problem-info-button" class="{{ active_show_problem }}"><a
                     onclick="toggle_problem_view(this, 'student-submissions', 'problem-info')">Problem Info</a></li>
@@ -28,8 +27,14 @@
 
         <div class="container">
 
-            <div class="box mb-6"><p>Send this link to your students:</p>
-                <h4 class="title is-4"><a target="_blank" href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">{{ base_url }}{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}</a></h4>
+            <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}" class="button is-info">Edit Problem</a>
+
+            <div class="box mb-6 mt-4"><p>Send this link to your students:</p>
+                <h4 class="title is-4"><a id="text-to-copy" target="_blank"
+                                          href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">
+                    {{ base_url }}{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}</a>
+                </h4>
+                <button onclick="copy_url()" class="button is-info">Copy</button>
             </div>
 
             <div class="columns">
@@ -37,13 +42,13 @@
                     <h2 class="title is-2">{{ problem.title }}</h2>
 
                     <div class="content mb-6 mt-6">
-                    {{ problem.description_html|safe }}
+                        {{ problem.description_html|safe }}
                     </div>
 
 
-                {% if problem.auto_grade %}
-                    <h3 class="title is-3">Inputs and Outputs</h3>
-                {% endif %}
+                    {% if problem.auto_grade %}
+                        <h3 class="title is-3">Inputs and Outputs</h3>
+                    {% endif %}
 
                     <div class="columns">
                         <div class="column is-narrow">
@@ -65,7 +70,7 @@
                     <br>
                     <p><b>Memory limit</b>: {{ problem.memory_limit }} MB</p>
                     <br>
-                    <p>Worth {{ problem.total_marks }} points</p>
+                    <p><b>Points</b>: {{ problem.total_marks }}</p>
                     <br>
                     <p><b>Languages allowed</b>:</p>
                     {% for l in problem.languages %}
@@ -100,33 +105,32 @@
                     {% for stud in student_submissions %}
                         {% for subm in student_submissions[stud] %}
                             <a href="{{ url_for('teacher_student_submission', task_id=subm.uuid) }}">
-                            <div class="card mb-2">
+                                <div class="card mb-2">
 
 
-                                {% if subm.marks == problem.total_marks %}
-                                    {% set submission_background_class = 'has-background-success-light' %}
-                                {% elif subm.marks == 0 %}
-                                    {% set submission_background_class = 'has-background-danger-light' %}
-                                {% else %}
-                                    {% set submission_background_class = 'has-background-warning-light' %}
-                                {% endif %}
+                                    {% if subm.marks == problem.total_marks %}
+                                        {% set submission_background_class = 'has-background-success-light' %}
+                                    {% elif subm.marks == 0 %}
+                                        {% set submission_background_class = 'has-background-danger-light' %}
+                                    {% else %}
+                                        {% set submission_background_class = 'has-background-warning-light' %}
+                                    {% endif %}
 
-                                <div class="card-content card-hover-effect {{ submission_background_class }}">
-                                    <div class="columns is-mobile">
-                                        <div class="column is-9-desktop is-8-mobile">
-                                            <h4 class="title is-4">Submission by {{ subm.student.name }}</h4>
-                                            <p>{{ subm.date_time.strftime('%m/%d/%Y - %-I:%M %p') }} UTC</p>
+                                    <div class="card-content card-hover-effect {{ submission_background_class }}">
+                                        <div class="columns is-mobile">
+                                            <div class="column is-9-desktop is-8-mobile">
+                                                <h4 class="title is-4">Submission by {{ subm.student.name }}</h4>
+                                                <p>{{ subm.date_time.strftime('%m/%d/%Y - %-I:%M %p') }} UTC</p>
+                                            </div>
+
+
+                                            <div class="column" style="margin-top: auto; margin-bottom: auto;">
+                                                <h4 class="title is-4">{{ subm.marks }}/{{ problem.total_marks }}</h4>
+                                            </div>
                                         </div>
 
-
-
-                                        <div class="column" style="margin-top: auto; margin-bottom: auto;">
-                                            <h4 class="title is-4">{{ subm.marks }}/{{ problem.total_marks }}</h4>
-                                        </div>
                                     </div>
-
                                 </div>
-                            </div>
                             </a>
                         {% endfor %}
                         <br>
@@ -139,9 +143,9 @@
                     {% for stud in student_submissions %}
                         {% if not student_submissions[stud] %}
                             <div class="card has-background-danger-light mb-2">
-                            <div class="card-content">
-                                <h4 class="title is-4">{{ stud.name }}</h4>
-                            </div>
+                                <div class="card-content">
+                                    <h4 class="title is-4">{{ stud.name }}</h4>
+                                </div>
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -153,24 +157,40 @@
 
     </section>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.2.0/dist/bulma-toast.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <script>
 
+        function copy_url() {
+            const link = document.getElementById('text-to-copy').innerText
+            const textarea = document.createElement("textarea");
+            textarea.textContent = link;
+            textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            bulmaToast.toast({
+                message: 'The link has been copied.',
+                type: 'is-success',
+                dismissible: true,
+                position: 'bottom-left',
+                duration: 4000,
+                closeOnClick: false
+            })
+
+        }
+
         const base_url = new URL(window.location.href.split('?')[0]);
-        
-        console.log(base_url)
 
 
         function toggle_problem_view(elem, to_remove, to_add) {
-            console.log(to_add)
             const urlParams = new URLSearchParams(window.location.search)
             if (to_add === 'student-submissions') {
                 urlParams.set('show_student_submissions', 'true')
                 window.location.search = urlParams;
-            }
-            else {
+            } else {
                 urlParams.delete('show_student_submissions')
                 window.location.search = urlParams;
             }

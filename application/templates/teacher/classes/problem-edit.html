@@ -1,0 +1,122 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/main.css') }}">
+
+    <style>
+        .file:hover {
+
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+            <h3 class="is-3 title">New Problem</h3>
+            <form action="" method="post" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="field">
+                    <div class="control">
+
+                        {{ form.title.label(class="label") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="input is-danger is-medium") }}
+                            <div class="help is-danger">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.title(class="input is-medium") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+
+                        {{ form.description.label(class="label") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="textarea is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="textarea") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field is-grouped is-grouped-multiline">
+                    <div class="control">
+                        {{ form.time_limit.label(class="label") }}
+                        {% if form.time_limit.errors %}
+                            {{ form.time_limit(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.time_limit.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.time_limit(class="input") }}
+                        {% endif %}
+                    </div>
+                    <div class="control">
+                        {{ form.memory_limit.label(class="label") }}
+                        {% if form.memory_limit.errors %}
+                            {{ form.memory_limit(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.memory_limit.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.memory_limit(class="input") }}
+                        {% endif %}
+                    </div>
+                    <div class="control">
+                        {{ form.total_marks.label(class="label") }}
+                        {% if form.total_marks.errors %}
+                            {{ form.total_marks(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form.total_marks.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.total_marks(class="input") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    {{ form.languages.label(class="label") }}
+                    <div class="select is-multiple">
+                        {{ form.languages(class="select is-multiple") }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="checkbox mb-3">
+                        {{ form.allow_multiple_submissions(class="checkbox") }}
+                        {{ form.allow_multiple_submissions.label() }}
+                    </label>
+                </div>
+
+                {{ form.submit(class="button is-info") }}
+            </form>
+        </div>
+
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
