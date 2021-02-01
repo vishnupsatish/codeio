@@ -23,7 +23,7 @@
 
         <div class="container">
 
-
+            {# Breadcrumbs to show the path that the user is currently in #}
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
@@ -32,9 +32,13 @@
                 </ul>
             </nav>
 
+
             <h3 class="is-3 title">New Problem</h3>
             <form action="" method="post" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
+
+            {# Show each field in the form, along with any corresponding errors #}
+
                 <div class="field">
                     <div class="control">
 
@@ -145,7 +149,6 @@
                                 <div class="file has-name" id="input1filediv">
 
                                     <label class="file-label">
-                                        {#                        <input class="file-input" type="file" name="resume">#}
                                         {{ form.input1file(class="file-input", id="input1file") }}
 
                                         <span class="file-cta has-background-white">
@@ -175,7 +178,6 @@
                                 <div class="file has-name" id="input2filediv">
 
                                     <label class="file-label">
-                                        {#                        <input class="file-input" type="file" name="resume">#}
                                         {{ form.input2file(class="file-input", id="input2file") }}
 
                                         <span class="file-cta has-background-white">
@@ -205,7 +207,6 @@
                                 <div class="file has-name" id="input3filediv">
 
                                     <label class="file-label">
-                                        {#                        <input class="file-input" type="file" name="resume">#}
                                         {{ form.input3file(class="file-input", id="input3file") }}
 
                                         <span class="file-cta has-background-white">
@@ -235,7 +236,6 @@
                                 <div class="file has-name" id="input4filediv">
 
                                     <label class="file-label">
-                                        {#                        <input class="file-input" type="file" name="resume">#}
                                         {{ form.input4file(class="file-input", id="input4file") }}
 
                                         <span class="file-cta has-background-white">
@@ -265,7 +265,6 @@
                                 <div class="file has-name" id="input5filediv">
 
                                     <label class="file-label">
-                                        {#                        <input class="file-input" type="file" name="resume">#}
                                         {{ form.input5file(class="file-input", id="input5file") }}
 
                                         <span class="file-cta has-background-white">
@@ -462,6 +461,7 @@
     </section>
 
     <script>
+        {# If auto grade has been checked as the page loads (in case of errors etc.), show the input and output file inputs #}
         window.onload = function () {
             if (document.getElementById('auto-grade-checkbox').checked) {
                 document.getElementById('input-and-output').style.display = 'block'
@@ -470,6 +470,7 @@
             }
         }
 
+        {# If auto grade has been checked, show the input and output file inputs #}
         function show_auto_grade(elem) {
             if (elem.checked) {
                 document.getElementById('input-and-output').style.display = 'block'
@@ -478,6 +479,7 @@
             }
         }
 
+        {# For every file input, once a file has beem upload, change the text to reflect the file's name #}
         const fileInput1 = document.querySelector('#input1filediv input[type=file]');
         fileInput1.onchange = () => {
             if (fileInput1.files.length > 0) {

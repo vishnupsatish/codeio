@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_admin import Admin
 from celery import Celery
 
+# Initialize Flask and extensions, such as Flask_SQLAlchemy, Flask_Login, etc.
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'nvhe7gnhbsy8yjhmdh4uidhyi58djh'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -17,9 +18,11 @@ login_manager.login_message_category = 'info'
 login_manager.login_message = 'You must be logged in to view that page.'
 admin = Admin(app, name='lms', template_mode='bootstrap3', url="/flask-admin")
 
+# Initialize Celery, the background task manager
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
+# Import each route from all initializations have been finished
 from application.routes import student, teacher

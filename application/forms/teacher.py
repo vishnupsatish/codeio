@@ -1,57 +1,36 @@
 from flask import Flask, render_template, Markup, flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, \
-    SelectField, MultipleFileField, IntegerField, DecimalField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, IntegerField, DecimalField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional, InputRequired
-from wtforms.fields.html5 import DateField, URLField, TimeField
-import time
 from application.models.general import User
 
 
-class InlineButtonWidget:
-    html = """
-    <button %s type="submit">%s</button>
-    """
-
-    def __init__(self, label, input_type='submit'):
-        self.input_type = input_type
-        self.label = label
-
-    def __call__(self, **kwargs):
-        param = []
-        for key in kwargs:
-            param.append(key + "=\"" + kwargs[key] + "\"")
-        return Markup(self.html % (" ".join(param), self.label))
-
-
+# The registration form
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
-
+    # If a user already exists with that email, then throw an error
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('That email is taken. Please choose a different one.')
 
 
+# The login form
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()], render_kw={'placeholder': 'Email'})
     password = PasswordField('Password', validators=[DataRequired()], render_kw={'placeholder': 'Password'})
     remember = BooleanField('Remember Me')
-    submit = InlineButtonWidget('Login')
+    submit = SubmitField('Login')
 
 
+# The form to create a new problem
 class NewProblemForm(FlaskForm):
+    # The relevant text, boolean, and select fields
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
     description = TextAreaField('Description - Supports Markdown formatting',
                                 validators=[DataRequired(), Length(min=2, max=2500)])
@@ -62,6 +41,7 @@ class NewProblemForm(FlaskForm):
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
     languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
 
+    # The input and output fields
     input1file = FileField('Input File 1', validators=[FileAllowed(['txt'])])
     input2file = FileField('Input File 2', validators=[FileAllowed(['txt'])])
     input3file = FileField('Input File 3', validators=[FileAllowed(['txt'])])
@@ -74,13 +54,15 @@ class NewProblemForm(FlaskForm):
     output4file = FileField('Output File 4', validators=[FileAllowed(['txt'])])
     output5file = FileField('Output File 5', validators=[FileAllowed(['txt'])])
 
-    submit = InlineButtonWidget('Create Problem')
+    submit = SubmitField('Create Problem')
 
+    # If auto grade was selected and the first input file was not selected, throw an error
     def validate_auto_grade(self, auto_grade):
         if self.input1file.data is None and auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter at least one input file')
 
+    # For each output file, if there is a corresponding input file but no output file, throw an error
     def validate_output1file(self, output1file):
         if output1file.data is None and self.input1file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
@@ -106,6 +88,7 @@ class NewProblemForm(FlaskForm):
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
 
+    # For each input file, if there is a corresponding output file but no input file, throw an error
     def validate_input1file(self, input1file):
         if input1file.data is None and self.output1file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
@@ -131,6 +114,7 @@ class NewProblemForm(FlaskForm):
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
 
+    # Custom validators to make sure the memory limit and time limit aren't too high or too low
     def validate_memory_limit(self, memory_limit):
         if memory_limit.data:
             if memory_limit.data < 3 or memory_limit.data > 512:
@@ -145,31 +129,47 @@ class NewProblemForm(FlaskForm):
                                       'danger')
 
 
+# The form to create a new class
 class NewClassForm(FlaskForm):
+    # The relevant fields as well as their validators
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
     description = TextAreaField('Description', validators=[Length(max=100)])
-    submit = InlineButtonWidget('Create Class')
+    submit = SubmitField('Create Class')
 
 
+# The form to create a new student
 class NewStudentForm(FlaskForm):
+    # The student's name field, along with the DataRequired and Length validators and the submit button
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
-    submit = InlineButtonWidget('Create Student')
+    submit = SubmitField('Create Student')
 
 
+# The form to update the mark of a student
 class UpdateMarkForm(FlaskForm):
+    # The mark field, along with the InputRequired validator and the submit button
+    # Note: the DataRequired validator is not used since it cannot accept
+    # A value of 0, while the InputRequired validator can
     mark = DecimalField('Mark', validators=[InputRequired()])
-    submit = InlineButtonWidget('Update Mark')
+    submit = SubmitField('Update Mark')
 
+    # This is a super constructor for the class that
+    # allows the problem's total marks to be passed in
     def __init__(self, problem_marks):
+        # Set the attribute problem_marks to the inputted problem's marks
         self.problem_marks = problem_marks
+
+        # Call the FlaskForm's constructor
         super(UpdateMarkForm, self).__init__()
 
+    # Ensure that the mark is not negative and is less than or equal to the problem's total marks
     def validate_mark(self, mark):
         if mark.data > self.problem_marks or mark.data < 0:
             raise ValidationError(f'Must be less than or equal to {self.problem_marks} and greater than 0')
 
 
+# The form to edit a problem
 class EditProblemForm(FlaskForm):
+    # Fields, such as title, description, time limit, etc, along with their validators
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=45)])
     description = TextAreaField('Description - Supports Markdown formatting',
                                 validators=[DataRequired(), Length(min=2, max=2500)])
@@ -179,8 +179,9 @@ class EditProblemForm(FlaskForm):
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
     languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
 
-    submit = InlineButtonWidget('Update Problem')
+    submit = SubmitField('Update Problem')
 
+    # Custom validators to make sure the memory limit and time limit aren't too high or too low
     def validate_memory_limit(self, memory_limit):
         if memory_limit.data:
             if memory_limit.data < 3 or memory_limit.data > 512:

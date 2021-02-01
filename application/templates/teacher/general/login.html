@@ -29,6 +29,7 @@
 
                         <div class="content">
                             <p class="title is-4 has-text-centered">Login</p>
+                            {# Show the flashed messages using Bulma's notification class #}
                             {% with messages = get_flashed_messages(with_categories=true) %}
                                 {% if messages %}
                                     {% for category, message in messages %}
@@ -38,6 +39,8 @@
                                     {% endfor %}
                                 {% endif %}
                             {% endwith %}
+
+                            {# Show the teacher's login form #}
                             <form method="post" action="">
 
                                 {{ form.hidden_tag() }}
@@ -85,7 +88,6 @@
                     </div>
                 </div>
 
-                <!--            <div class="column"></div>-->
             </div>
 
         </div>

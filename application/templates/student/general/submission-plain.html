@@ -15,6 +15,7 @@
 
         <div class="container">
 
+            {# Show details of the submission #}
             <h2 class="title is-2">Submission of <a href="{{ url_for('student_submit_problem', class_identifier=submission.problem.class_.identifier, problem_identifier=submission.problem.identifier) }}">{{ submission.problem.title }}</a></h2>
 
             <a target="_blank" href="{{ presigned_url }}">View code</a>

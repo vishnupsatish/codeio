@@ -12,7 +12,7 @@
 
     {% include "teacher/templates/class_navbar.html" %}
 
-
+    {# Tabs to navigate to and from student submissions and problem info #}
     <div class="tabs is-centered is-fullwidth is-toggle is-large mb-0">
         <ul>
             <li id="problem-info-button" class="{{ active_show_problem }}"><a
@@ -27,18 +27,25 @@
 
         <div class="container">
 
+            {# Breadcrumbs to show the path that the user is currently in #}
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
-                    <li><a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a></li>
-                    <li><a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a></li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a>
+                    </li>
                     <li class="is-active"><a href="#" aria-current="page">Problem Info</a></li>
                 </ul>
             </nav>
 
 
-            <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}" class="button is-info">Edit Problem</a>
+            <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}"
+               class="button is-info">Edit Problem</a>
 
+            {# The unique link to send to students #}
             <div class="box mb-6 mt-4"><p>Send this link to your students:</p>
                 <h4 class="title is-4"><a id="text-to-copy" target="_blank"
                                           href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">
@@ -49,6 +56,8 @@
 
             <div class="columns">
                 <div class="column is-10">
+
+                    {# Show the problem's title and HTML description #}
                     <h2 class="title is-2">{{ problem.title }}</h2>
 
                     <div class="content mb-6 mt-6">
@@ -56,6 +65,7 @@
                     </div>
 
 
+                    {# If the problem is to be auto graded, show the input and output files #}
                     {% if problem.auto_grade %}
                         <h3 class="title is-3">Inputs and Outputs</h3>
                     {% endif %}
@@ -74,6 +84,8 @@
                     </div>
 
                 </div>
+
+                {# Show the problem's specifications and constraints #}
                 <div class="column has-background-white">
                     <h4 class="title is-4">Specifications</h4>
                     <p><b>Time limit</b>: {{ problem.time_limit }} seconds</p>
@@ -107,11 +119,16 @@
 
         <div class="container">
 
+            {# Breadcrumbs to show the path that the user is currently in #}
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
-                    <li><a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a></li>
-                    <li><a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a></li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a>
+                    </li>
                     <li class="is-active"><a href="#" aria-current="page">Student Submissions</a></li>
                 </ul>
             </nav>
@@ -119,6 +136,8 @@
 
             <div class="columns">
                 <div class="column">
+
+                    {# Show submissions to the problem, grouped by student #}
                     <h3 class="title is-3">Submissions</h3>
 
                     {% for stud in student_submissions %}
@@ -157,6 +176,7 @@
 
                 </div>
 
+                {# Show the students that have not submitted the problem #}
                 <div class="column">
                     <h3 class="title is-3">Not Submitted</h3>
                     {% for stud in student_submissions %}
@@ -181,14 +201,22 @@
 
     <script>
 
+        {# When the copy button is pressed #}
+
         function copy_url() {
             const link = document.getElementById('text-to-copy').innerText
+
+            {# Create a textarea with the content being the link to copy #}
             const textarea = document.createElement("textarea");
             textarea.textContent = link;
-            textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+            textarea.style.position = "fixed";
             document.body.appendChild(textarea);
             textarea.select();
+
+            {# Select the textarea and copy the contents of it #}
             document.execCommand("copy");
+
+            {# Remove the textarea and show a toast #}
             document.body.removeChild(textarea);
             bulmaToast.toast({
                 message: 'The link has been copied.',
@@ -201,18 +229,27 @@
 
         }
 
+        {# Get the base URL of the webpage (for example: localhost:5000) #}
         const base_url = new URL(window.location.href.split('?')[0]);
 
 
+        {# When a tab is pressed, show its respective page #}
+
         function toggle_problem_view(elem, to_remove, to_add) {
+
+            {# Get the current URL parameters #}
             const urlParams = new URLSearchParams(window.location.search)
+
+            {# If the student submissions must be shown, add show_student_submissions as a URL param so on reload, that is what gets shown #}
             if (to_add === 'student-submissions') {
                 urlParams.set('show_student_submissions', 'true')
                 window.location.search = urlParams;
             } else {
+                {# If the problem info must be shown, remove show_student_submissions as a URL param so on reload, the problem info is shown #}
                 urlParams.delete('show_student_submissions')
                 window.location.search = urlParams;
             }
+            {# Show/hide the request tab and make the respective tab active #}
             elem.parentElement.classList.add('is-active')
             document.getElementById(`${to_remove}-button`).classList.remove('is-active')
             document.getElementById(to_remove).classList.add('dontshow')

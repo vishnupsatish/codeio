@@ -17,6 +17,7 @@
 
         <div class="container">
 
+            {# Breadcrumbs to show the path that the user is currently in #}
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
@@ -24,6 +25,7 @@
                 </ul>
             </nav>
 
+            {# A link to create a new problem #}
             <a href="{{ url_for('teacher_class_new_problem', identifier=identifier) }}">
                 <div class="box card-hover-effect mb-4">
                     <h3 class="title is-3">New Problem</h3>
@@ -31,6 +33,7 @@
             </a>
             <div class="columns is-multiline">
 
+                {# For every problem, show the problem's name along with the number the students that have/have not submitted to the problem #}
                 {% for problem in problems %}
                     <div class="column is-half">
 
@@ -52,36 +55,6 @@
                     </div>
 
                 {% endfor %}
-
-                {#                <div class="column is-half">#}
-                {#                    <div class="box card-hover-effect">#}
-                {#                        <h4 class="title is-4">Problem 4 - Caesar Cypher</h4>#}
-                {##}
-                {#                        <div class="columns is-multiline">#}
-                {#                            <div class="column is-narrow">#}
-                {#                                <p class="has-text-success">20 students submitted</p>#}
-                {#                            </div>#}
-                {#                            <div class="column is-narrow">#}
-                {#                                <p class="has-text-danger">10 students not submitted</p>#}
-                {#                            </div>#}
-                {#                        </div>#}
-                {#                    </div>#}
-                {#                </div>#}
-                {##}
-                {#                <div class="column is-half">#}
-                {#                    <div class="box card-hover-effect">#}
-                {#                        <h4 class="title is-4">Problem 4 - Caesar Cypher</h4>#}
-                {##}
-                {#                        <div class="columns is-multiline">#}
-                {#                            <div class="column is-narrow">#}
-                {#                                <p class="has-text-success">20 students submitted</p>#}
-                {#                            </div>#}
-                {#                            <div class="column is-narrow">#}
-                {#                                <p class="has-text-danger">10 students not submitted</p>#}
-                {#                            </div>#}
-                {#                        </div>#}
-                {#                    </div>#}
-                {#                </div>#}
 
             </div>
 

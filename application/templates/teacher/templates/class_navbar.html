@@ -19,6 +19,7 @@
 </nav>
 
 
+{# A class's navbar #}
 <nav style="margin-top: 0;" class="navbar is-spaced box mb-0" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
 
@@ -58,6 +59,7 @@
 
 </nav>
 
+{# Show flashed messages with Bulma's notification class #}
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}

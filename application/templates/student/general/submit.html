@@ -49,7 +49,7 @@
 
 
 
-
+    {# Get flashed messages and show them using Bulma's notification class #}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -65,6 +65,8 @@
 
         <div class="container">
 
+            {# Show the problem's details and attributes #}
+
             <div class="columns">
                 <div class="column is-10">
                     <h2 class="title is-2">{{ problem.title }}</h2>
@@ -72,6 +74,7 @@
                         {{ problem.description_html|safe }}
                     </div>
 
+                    {# If the student is allowed to submit to the problem, show the form #}
                     {% if student_can_submit %}
 
                         <h3 class="title is-3">Submit</h3>
@@ -123,17 +126,21 @@
                     {% endif %}
 
 
+                    {# If the student has already made submission, then show the student's submissions #}
                     {% if submissions|length > 0 %}
                         <h3 class="title is-3 mt-6">Your submissions</h3>
                         {% for i in range(submissions|length) %}
                             <p>
-                                <a target="_blank" href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i + 1 }}</a>
+                                <a target="_blank"
+                                   href="{{ url_for('student_submission', task_id=submissions[i].uuid) }}">Submission {{ i + 1 }}</a>
                             </p>
                         {% endfor %}
                     {% endif %}
 
 
                 </div>
+
+                {# Show the problem's specfications and constraints #}
                 <div class="column has-background-white">
                     <h4 class="title is-4">Specifications</h4>
                     <p><b>Time limit</b>: {{ problem.time_limit }} seconds</p>
@@ -165,6 +172,7 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
+        {# When a file has been uploaded, change the text on the file input to reflect the file's name #}
         const fileInput = document.querySelector('#submit-file input[type=file]');
         fileInput.onchange = () => {
             if (fileInput.files.length > 0) {

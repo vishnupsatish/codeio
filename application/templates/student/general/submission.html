@@ -15,19 +15,22 @@
 
         <div class="container">
 
-            <h2 class="title is-2">Submission of <a href="{{ url_for('student_submit_problem', class_identifier=submission.problem.class_.identifier, problem_identifier=submission.problem.identifier) }}">{{ submission.problem.title }}</a></h2>
+            {# Show details of the submission and a progress bar #}
+            <h2 class="title is-2">Submission of <a
+                    href="{{ url_for('student_submit_problem', class_identifier=submission.problem.class_.identifier, problem_identifier=submission.problem.identifier) }}">{{ submission.problem.title }}</a>
+            </h2>
             <a target="_blank" href="{{ presigned_url }}">View code</a>
 
             <h3 class="title is-3 mt-6">Results</h3>
 
-                <progress class="progress is-info" id="progress" style="width: 50%;" max="100">15%</progress>
-
+            <progress class="progress is-info" id="progress" style="width: 50%;" max="100">15%</progress>
 
 
             <h3 class="title is-3 mt-6">Details</h3>
             <p><b>Submission by</b>: {{ submission.student.name }}</p>
             <br>
-            <p><b>Teacher</b>: {{ submission.student.class_.user.name }} - {{ submission.student.class_.user.email }}</p>
+            <p><b>Teacher</b>: {{ submission.student.class_.user.name }} - {{ submission.student.class_.user.email }}
+            </p>
             <br>
             <p><b>Language</b>: {{ submission.language.name }}</p>
             <br>
@@ -41,41 +44,64 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <script>
-        function httpGetAsync(times)
-        {
 
+        // Get a student's submission results and show them in real-time
+        function httpGetAsync(times) {
+
+            // Make an AJAX request
             const xmlHttp = new XMLHttpRequest();
-            xmlHttp.onreadystatechange = function() {
+
+            // When the AJAX request is successful
+            xmlHttp.onreadystatechange = function () {
+
+                // 200: success
                 if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+
+                    // Parse the response text to JSON
                     const results = JSON.parse(xmlHttp.responseText);
+
+                    // If the Celery task was successful
                     if (results['state'] === 'SUCCESS') {
 
+                        // Hide the progress bar
                         document.getElementById("progress").style.display = 'none';
+
+                        // For every submission in the batch
                         for (const result of results['result']['submissions']) {
+
+                            // If the result was successful, made the text colour green, else made it red
                             let colour = '';
                             if (result['status'] === 'Accepted') {
                                 colour = 'has-text-success';
-                            }
-                            else {
+                            } else {
                                 colour = 'has-text-danger';
                             }
+                            // Add the status, time taken, memory taken, marks, and total marks before the now-hidden progress bar
                             document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text"><span class="${colour}">${result['status']}</span> - ${result['time']} seconds - ${result['memory'] / 1000} MB - ${result['marks']}/${result['total_marks']}</h5>`)
                         }
+                        // Add the total marks earned out of the total possible marks before the progress-bar
                         document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text">Total: ${results['result']['total_marks_earned']}/${results['result']['total_marks']}</h5>`)
                     }
 
                 }
             }
+            // If the results have not yet arrived successfully
             if (document.getElementsByClassName('result-text').length === 0) {
+                // Request the route which gets the status of the Celery task
                 xmlHttp.open("GET", "/status/{{ task_id }}", true);
                 xmlHttp.send(null);
             }
 
-            if (times < 35000) {
-                setTimeout(function() {httpGetAsync(times + 4000)}, 4000);
+            // If the function has been called less than 9 timesL
+            if (times < 36001) {
+                // Call it again in 4 seconds
+                setTimeout(function () {
+                    httpGetAsync(times + 4000)
+                }, 4000);
             }
         }
 
+        // Call the function for the first time
         httpGetAsync(0);
 
 

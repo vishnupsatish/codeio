@@ -11,7 +11,7 @@
 {% endblock %}
 {% block content %}
 
-
+    {# The navbar #}
 
     <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
@@ -47,12 +47,6 @@
                     </span>
                 </a>
 
-{#                <a class="navbar-item">#}
-{#                    Username&nbsp;&nbsp;#}
-{#                    <img style="vertical-align: middle;" class="is-rounded"#}
-{#                         src="https://bulma.io/images/placeholders/128x128.png">#}
-{#                </a>#}
-
                 <a href="{{ url_for('logout') }}" class="navbar-item">Log Out</a>
             </div>
         </div>
@@ -64,7 +58,7 @@
         <div class="modal-card">
             <header class="modal-card-head">
                 <p class="modal-card-title">Change Mode</p>
-                <button class="delete" aria-label="close" onclick="javascript:removeActive(this)"
+                <button class="delete" aria-label="close" onclick="removeActive(this)"
                         data-target="view-switch"></button>
             </header>
             <section class="modal-card-body">
@@ -81,6 +75,7 @@
         </div>
     </div>
 
+    {# Get and show flashed's messages using Bulma's notification class #}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}

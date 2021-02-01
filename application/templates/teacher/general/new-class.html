@@ -24,6 +24,7 @@
             </nav>
 
             <h2 class="title is-2">New Class</h2>
+            {# Show each field in the form that allows teachers to create a new class, along with any errors #}
             <form action="" method="post">
                 {{ form.hidden_tag() }}
                 <div class="field">
@@ -60,7 +61,7 @@
                     </div>
                 </div>
 
-            {{ form.submit(class="button is-info") }}
+                {{ form.submit(class="button is-info") }}
 
             </form>
 

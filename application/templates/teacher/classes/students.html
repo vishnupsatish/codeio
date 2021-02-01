@@ -17,20 +17,24 @@
 
         <div class="container">
 
-
+            {# Breadcrumbs to show the path that the user is currently in #}
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
-                    <li><a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a></li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
+                    </li>
                     <li class="is-active"><a href="#" aria-current="page">Students</a></li>
                 </ul>
             </nav>
+
 
             <h3 class="title is-3">Students
             </h3>
 
             <div class="box">
                 <h3 class="title is-4">New Student</h3>
+                {# Show the form to create a new student, along with any respective errors #}
                 <form action="" method="post">
                     {{ form.hidden_tag() }}
 
@@ -54,6 +58,7 @@
 
             </div>
 
+            {# Show each student in a table along with their attributes such as name, code, and course mark #}
             <table class="table is-striped is-hoverable is-fullwidth">
                 <thead>
                     <tr>
@@ -64,11 +69,11 @@
                 </thead>
                 <tbody>
                     {% for student in students %}
-                    <tr>
-                        <td>{{ student.name }}</td>
-                        <td>{{ student.identifier }}</td>
-                        <td>{{ marks[student][0] }}/{{ marks[student][1] }} or {{ marks[student][2] }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.identifier }}</td>
+                            <td>{{ marks[student][0] }}/{{ marks[student][1] }} or {{ marks[student][2] }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>

@@ -16,8 +16,8 @@
 
         <div class="container">
 
-
-        <h3 class="title is-3">Hello, {{ current_user.name }}</h3>
+            {# Show the classes that the teacher has created #}
+            <h3 class="title is-3">Hello, {{ current_user.name }}</h3>
 
             <div class="columns is-multiline">
                 {% for class_ in classes_ %}
