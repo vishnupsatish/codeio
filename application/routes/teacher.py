@@ -326,8 +326,9 @@ def teacher_class_problem(class_identifier, problem_identifier):
         show_student_submissions = ''
         show_problem_info = 'dontshow'
 
+    # Generate a hash of the problem and user's properties to pass to the deletion route
     sha_hash_contents = sha256(
-        f'{class_.identifier}-{problem.identifier}-{current_user.email}'.encode('utf-8')).hexdigest()
+        f'{class_.identifier}-{problem.identifier}-{current_user.password}'.encode('utf-8')).hexdigest()
 
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
                            input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
@@ -337,31 +338,38 @@ def teacher_class_problem(class_identifier, problem_identifier):
                            active_show_problem=active_show_problem, sha_hash_contents=sha_hash_contents)
 
 
+# Route to delete a problem
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/delete')
 def teacher_class_problem_delete(class_identifier, problem_identifier):
     if not current_user:
         abort(404)
 
+    # Get the class and problem
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
 
+    # Hash the same properties as was passed from the problem page
     sha_hash_contents = sha256(
-        f'{class_.identifier}-{problem.identifier}-{current_user.email}'.encode('utf-8')).hexdigest()
+        f'{class_.identifier}-{problem.identifier}-{current_user.password}'.encode('utf-8')).hexdigest()
 
+    # if the two hashes are not the same, then abort with a 404 exit code
     if sha_hash_contents != request.args.get('hash'):
         abort(404)
 
+    # Delete the input and output files, as well as the submission files
     delete_input_output_files(problem, s3, bucket_name)
 
     delete_submission_files(problem, s3, bucket_name)
 
+    # Delete the problem itself
     db.session.delete(problem)
 
     db.session.commit()
 
+    # Let the user know, then redirect to the dashboard
     flash('The problem has been deleted.', 'success')
 
-    return redirect(url_for('teacher_dashboard'))
+    return redirect(url_for('teacher_class_home', identifier=class_.identifier))
 
 
 # Edit a problem

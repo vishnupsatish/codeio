@@ -157,6 +157,7 @@ def get_student_mark(student, class_):
     return marks
 
 
+# Delete all input and output files associated with a problem
 def delete_input_output_files(problem, s3, bucket_name):
 
     for input_file in problem.input_files:
@@ -166,6 +167,7 @@ def delete_input_output_files(problem, s3, bucket_name):
         s3.Object(bucket_name, output_file.file_path).delete()
 
 
+# Delete all submission files associated with a problem
 def delete_submission_files(problem, s3, bucket_name):
 
     for submission in problem.submissions:
