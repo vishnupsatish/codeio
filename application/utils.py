@@ -155,3 +155,18 @@ def get_student_mark(student, class_):
         marks[2] = f'{round(marks[0] / marks[1] * 100, 2)}%'
 
     return marks
+
+
+def delete_input_output_files(problem, s3, bucket_name):
+
+    for input_file in problem.input_files:
+        s3.Object(bucket_name, input_file.file_path).delete()
+
+    for output_file in problem.output_files:
+        s3.Object(bucket_name, output_file.file_path).delete()
+
+
+def delete_submission_files(problem, s3, bucket_name):
+
+    for submission in problem.submissions:
+        s3.Object(bucket_name, submission.file_path).delete()

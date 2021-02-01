@@ -94,7 +94,7 @@ for s in status:
     status_db = Status(number=s['id'], name=s['description'])
     db.session.add(status_db)
 
-user1 = User(username='vishnu', email='vishnupavan.satish@gmail.com',
+user1 = User(email='vishnupavan.satish@gmail.com',
              password='$2y$12$cKun4wx7p.lgL3px1qYesOlRZXKEsmZGhl69N04K3NJZyndNDuvRm', name='Vishnu S.')
 
 db.session.add(user1)

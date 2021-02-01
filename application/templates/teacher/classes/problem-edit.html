@@ -124,6 +124,12 @@
                         {{ form.allow_multiple_submissions.label() }}
                     </label>
                 </div>
+                <div class="field">
+                    <label class="checkbox mb-3">
+                        {{ form.allow_more_submissions(class="checkbox") }}
+                        {{ form.allow_more_submissions.label() }}
+                    </label>
+                </div>
 
                 {{ form.submit(class="button is-info") }}
             </form>

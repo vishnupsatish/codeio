@@ -1,5 +1,6 @@
 import boto3
 import mistune
+from hashlib import sha256
 from secrets import token_urlsafe
 from flask import render_template, url_for, flash, redirect, request, abort
 from application import app, db, bcrypt, admin
@@ -45,6 +46,30 @@ def logout():
     return redirect(url_for('teacher_login'))
 
 
+# Registration page
+@app.route('/register', methods=['GET', 'POST'])
+def teacher_register():
+    # If the user is already logged in, redirect to the dashboard
+    if current_user.is_authenticated:
+        return redirect(url_for('teacher_dashboard'))
+
+    # Create form using Flask-WTF
+    form = RegistrationForm()
+
+    # If form was submitted successfully, create a user and redirect to login page
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(
+            form.password.data).decode('utf-8')
+        user = User(name=form.name.data, email=form.email.data,
+                    password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Your account has been created! You are now able to log in.', 'success')
+        return redirect(url_for('teacher_login'))
+
+    return render_template('teacher/general/register.html', form=form)
+
+
 # Login page
 @app.route('/login', methods=['GET', 'POST'])
 def teacher_login():
@@ -78,7 +103,6 @@ def teacher_login():
 @app.route('/dashboard')
 @login_required
 def teacher_dashboard():
-
     # Get all of the classes that are associated to the current user
     classes_ = Class_.query.filter_by(user=current_user).all()
     return render_template('teacher/general/dashboard.html', classes_=classes_)
@@ -88,11 +112,9 @@ def teacher_dashboard():
 @app.route('/new-class', methods=['GET', 'POST'])
 @login_required
 def new_class():
-
     # Initialize the NewClassForm from Flask-WTF
     form = NewClassForm()
     if form.validate_on_submit():
-
         # If the form was successfully submitted, create a new class and Flash the result to the user
         class_ = Class_(name=form.name.data, description=form.description.data, user=current_user,
                         identifier=token_urlsafe(16))
@@ -107,7 +129,6 @@ def new_class():
 @app.route('/class/<string:identifier>/home')
 @login_required
 def teacher_class_home(identifier):
-
     # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
 
@@ -124,7 +145,6 @@ def teacher_class_home(identifier):
 @app.route('/class/<string:identifier>/students', methods=['GET', 'POST'])
 @login_required
 def teacher_class_students(identifier):
-
     # Get the class from the identifier in the URL
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
 
@@ -149,36 +169,6 @@ def teacher_class_students(identifier):
     # on their highest submission by calling the utility function
     for student in students:
         marks[student] = get_student_mark(student, class_)
-
-    # for student in students:
-    #     marks[student] = [0, 0, '0%']
-    #     for p in problems:
-    #         try:
-    #             max_mark_submissions = max(list(filter(lambda a: a.student == student, p.submissions)), key=lambda s: s.marks)
-    #         except ValueError:
-    #             continue
-    #         marks[student][0] += max_mark_submissions.marks
-    #         marks[student][1] += p.total_marks
-    #
-    #     if marks[student][1] != 0:
-    #         marks[student][2] = f'{round(marks[student][0] / marks[student][1] * 100, 2)}%'
-
-    # marks = {}
-    #
-    # for student in students:
-    #     if student in [s.student for s ]
-    #
-    #     highest_submissions = []
-    #     for s in submissions:
-    #         highest_submissions.append(s)
-    #
-    #     # marks_received = sum(m.marks for m in marks_received)
-    #     # total_marks = sum(s.problem.total_marks for s in submissions)
-    #
-    #     if total_marks != 0:
-    #         marks[student] = (marks_received, total_marks, f'{round(marks_received / total_marks * 100, 2)}%')
-    #     else:
-    #         marks[student] = (marks_received, total_marks, 'N/A')
 
     return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
                            students=students, marks=marks)
@@ -283,7 +273,6 @@ def teacher_class_new_problem(identifier):
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>', methods=['GET', 'POST'])
 @login_required
 def teacher_class_problem(class_identifier, problem_identifier):
-
     # Get the class the problem from the database based on each identifier as passed in from the URL
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
@@ -337,19 +326,48 @@ def teacher_class_problem(class_identifier, problem_identifier):
         show_student_submissions = ''
         show_problem_info = 'dontshow'
 
+    sha_hash_contents = sha256(
+        f'{class_.identifier}-{problem.identifier}-{current_user.email}'.encode('utf-8')).hexdigest()
+
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
                            input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
                            class_=class_, student_submissions=student_submissions, base_url=request.host_url[:-1],
                            active_student_submissions=active_student_submissions,
                            show_student_submissions=show_student_submissions, show_problem_info=show_problem_info,
-                           active_show_problem=active_show_problem)
+                           active_show_problem=active_show_problem, sha_hash_contents=sha_hash_contents)
+
+
+@app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/delete')
+def teacher_class_problem_delete(class_identifier, problem_identifier):
+    if not current_user:
+        abort(404)
+
+    class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
+
+    sha_hash_contents = sha256(
+        f'{class_.identifier}-{problem.identifier}-{current_user.email}'.encode('utf-8')).hexdigest()
+
+    if sha_hash_contents != request.args.get('hash'):
+        abort(404)
+
+    delete_input_output_files(problem, s3, bucket_name)
+
+    delete_submission_files(problem, s3, bucket_name)
+
+    db.session.delete(problem)
+
+    db.session.commit()
+
+    flash('The problem has been deleted.', 'success')
+
+    return redirect(url_for('teacher_dashboard'))
 
 
 # Edit a problem
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/edit', methods=['GET', 'POST'])
 @login_required
 def teacher_class_problem_edit(class_identifier, problem_identifier):
-
     # Get the class the problem from the database based on each identifier as passed in from the URL
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
@@ -379,6 +397,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
             problem.languages.append(lang_object)
 
         problem.allow_multiple_submissions = form.allow_multiple_submissions.data
+        problem.allow_more_submissions = form.allow_more_submissions.data
 
         # Commit the changes the database then flash
         db.session.commit()
@@ -396,6 +415,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
     form.total_marks.data = problem.total_marks
     form.description.data = problem.description
     form.allow_multiple_submissions.data = problem.allow_multiple_submissions
+    form.allow_more_submissions.data = problem.allow_more_submissions
 
     return render_template('teacher/classes/problem-edit.html', problem=problem, identifier=class_identifier, form=form,
                            class_=class_)
@@ -405,7 +425,6 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
 @app.route('/teacher/submission/<task_id>', methods=['GET', 'POST'])
 @login_required
 def teacher_student_submission(task_id):
-
     # Get the submission and problem from the URL
     submission = Submission.query.filter_by(uuid=task_id).first_or_404()
     problem = submission.problem

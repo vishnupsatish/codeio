@@ -137,7 +137,8 @@ def student_submit_problem(class_identifier, problem_identifier):
 
     # Check if the student can submit (if the problem allows
     # multiple submissions or the student has not submitted already)
-    student_can_submit = problem.allow_multiple_submissions or len(submissions) == 0
+    student_can_submit = (problem.allow_multiple_submissions or len(
+        submissions) == 0) and problem.allow_more_submissions
     form = SubmitSolutionForm()
 
     # Set the language choices to the languages that were allowed by the teacher
@@ -349,7 +350,6 @@ def task_status(task_id):
 
     # If the task was successful and is finished
     if task.state == 'SUCCESS':
-
         # Get the submission id and the result Python dict
         result, submission_id = task.get()
 
@@ -371,7 +371,6 @@ def task_status(task_id):
 @app.route('/student/submission/<task_id>')
 @abort_student_not_found
 def student_submission(task_id):
-
     # Get the student, submission, and problem from the database
     student = Student.query.filter_by(identifier=session['student_id']).first()
     submission = Submission.query.filter_by(uuid=task_id, student=student).first_or_404()

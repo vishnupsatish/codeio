@@ -29,10 +29,6 @@ class User(db.Model, UserMixin):
     classes_ = db.relationship('Class_', backref='user', lazy=True)
     problems = db.relationship('Problem', backref='user', lazy=True)
 
-    # What to show when printing an instantiation of a user
-    def __repr__(self):
-        return f"User('{self.username}', '{self.email}')"
-
 
 # A student table
 class Student(db.Model):
@@ -83,18 +79,19 @@ class Problem(db.Model):
     total_marks = db.Column(db.Integer, nullable=False)
     auto_grade = db.Column(db.Boolean, nullable=False, default=False)
     allow_multiple_submissions = db.Column(db.Boolean, nullable=False, default=False)
+    allow_more_submissions = db.Column(db.Boolean, nullable=False, default=True)
     create_date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
 
     # The input and output files associated to that problem
-    input_files = db.relationship('InputFile', backref='problem', lazy=True)
-    output_files = db.relationship('OutputFile', backref='problem', lazy=True)
+    input_files = db.relationship('InputFile', backref='problem', lazy=True, cascade="all, delete")
+    output_files = db.relationship('OutputFile', backref='problem', lazy=True, cascade="all, delete")
 
     # The submissions associated to that problem
-    submissions = db.relationship('Submission', backref='problem', lazy=True)
+    submissions = db.relationship('Submission', backref='problem', lazy=True, cascade="all, delete")
 
     # The languages associated to that problem (many-to-many using the association table)
     languages = db.relationship('Language', secondary=problem_language_association_table, lazy=True,
-                                backref='problems')
+                                backref='problems', cascade="all, delete")
 
     # The user who created the problem
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -129,10 +126,10 @@ class InputFile(db.Model):
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
 
     # The output file that is associated to the input file
-    output_file = db.relationship('OutputFile', backref='input_file', lazy=True, uselist=False)
+    output_file = db.relationship('OutputFile', backref='input_file', lazy=True, uselist=False, cascade="all, delete")
 
     # The results associated to the input file
-    results = db.relationship('Result', backref='input_file', lazy=True)
+    results = db.relationship('Result', backref='input_file', lazy=True, cascade="all, delete")
 
 
 # A table that contains every output file
@@ -149,7 +146,7 @@ class OutputFile(db.Model):
     input_id = db.Column(db.Integer, db.ForeignKey('input_file.id'), nullable=False)
 
     # The results associated to the output file
-    results = db.relationship('Result', backref='output_file', lazy=True)
+    results = db.relationship('Result', backref='output_file', lazy=True, cascade="all, delete")
 
 
 # A submission table
@@ -165,7 +162,7 @@ class Submission(db.Model):
     marks = db.Column(db.Integer)
 
     # The results associated to the submission
-    results = db.relationship('Result', backref='submission', lazy=True)
+    results = db.relationship('Result', backref='submission', lazy=True, cascade="all, delete")
 
     # The problem, student, and language that is the submission is a part of
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)

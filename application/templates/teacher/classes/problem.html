@@ -42,8 +42,36 @@
             </nav>
 
 
+            {# Modal to delete problem #}
+            <div class="modal" id="delete-modal">
+                <div class="modal-background" onclick="removeActive(this)" data-target="delete-modal"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Delete problem</p>
+                        <button class="delete" aria-label="close" onclick="removeActive(this)"
+                                data-target="delete-modal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        Are you sure you want to delete the problem? All of the submissions, output files, input files,
+                        results, etc. will be deleted.
+                    </section>
+                    <footer class="modal-card-foot">
+                        <a href="{{ url_for('teacher_class_problem_delete', class_identifier=class_.identifier, problem_identifier=problem.identifier, hash=sha_hash_contents) }}"
+                           class="button is-danger">Delete Problem</a>
+                        <button class="button" onclick="removeActive(this)" data-target="delete-modal">Cancel</button>
+                    </footer>
+                </div>
+            </div>
+
+
             <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}"
-               class="button is-info">Edit Problem</a>
+               class="button is-info">Edit problem</a>
+
+            {#            <a href="{{ url_for('teacher_class_problem_delete', class_identifier=class_.identifier, problem_identifier=problem.identifier, hash=sha_hash_contents) }}"#}
+            {#               class="button is-danger">Delete Problem</a>#}
+
+            <button class="button is-danger" onclick="toggleActive(this)" data-target="delete-modal">Delete problem
+            </button>
 
             {# The unique link to send to students #}
             <div class="box mb-6 mt-4"><p>Send this link to your students:</p>

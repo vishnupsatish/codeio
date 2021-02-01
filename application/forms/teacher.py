@@ -8,9 +8,10 @@ from application.models.general import User
 
 # The registration form
 class RegistrationForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    name = StringField('Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
+    email = StringField('Email', validators=[DataRequired(), Email()], render_kw={'placeholder': 'Email'})
+    password = PasswordField('Password', validators=[DataRequired()], render_kw={'placeholder': 'Password'})
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')], render_kw={'placeholder': 'Confirm Password'})
     submit = SubmitField('Sign Up')
 
     # If a user already exists with that email, then throw an error
@@ -176,6 +177,7 @@ class EditProblemForm(FlaskForm):
     time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
     memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
+    allow_more_submissions = BooleanField('Allow more submissions')
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
     languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
 
