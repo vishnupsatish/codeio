@@ -39,7 +39,6 @@ def abort_student_not_found(f):
 def login_student_not_found(f):
     @wraps(f)
     def decorator(class_identifier, problem_identifier, *args, **kwargs):
-        print(class_identifier)
         if 'student_id' not in session:
             flash(LOGIN_TO_SUBMIT_MESSAGE, 'info')
             return redirect(
@@ -99,8 +98,6 @@ def student_submit_problem(class_identifier, problem_identifier):
 
     if form.validate_on_submit():
         file = form.file.data
-
-        print(file.filename.split('.'))
 
         file_data = file.read()
 
@@ -167,8 +164,6 @@ def student_judge_code(self, language, file, problem, student, submission):
         post('https://judge0-fhwnc7.vishnus.me/submissions/batch?base64_encoded=false', data=json.dumps(body),
              headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN, 'Content-Type': 'application/json'}).text)
 
-    print(judge0_tokens)
-
     sleep(2)
 
     tokens = ''
@@ -182,8 +177,6 @@ def student_judge_code(self, language, file, problem, student, submission):
         result = json.loads(get(
             f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=false&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
             headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN}).text)
-
-        print(result)
 
         result['total_marks_earned'] = 0
         result['total_marks'] = problem.total_marks
@@ -227,18 +220,14 @@ def student_judge_code(self, language, file, problem, student, submission):
 
         self.state = 'SUCCESS'
 
-        print('hi')
-
         return result, submission.id
 
 
 @app.route('/status/<task_id>')
 def task_status(task_id):
     task = student_judge_code.AsyncResult(task_id)
-    print(task.state)
 
     if task.state == 'SUCCESS':
-        print(task.get())
 
         result, submission_id = task.get()
 
@@ -258,7 +247,6 @@ def student_submission(task_id):
     submission = Submission.query.filter_by(uuid=task_id, student=student).first_or_404()
     problem = submission.problem
 
-    print(problem.auto_grade)
     presigned_url = s3_client.generate_presigned_url('get_object',
                                                      Params={'Bucket': bucket_name, 'Key': submission.file_path},
                                                      ExpiresIn=3600)

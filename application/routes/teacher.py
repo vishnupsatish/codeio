@@ -245,8 +245,6 @@ def teacher_class_problem(class_identifier, problem_identifier):
                                  reverse=True):
             student_submissions[student].append(submission)
 
-    print(student_submissions)
-
     show_student_submissions = 'dontshow'
     show_problem_info = ''
 
@@ -300,9 +298,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
         return redirect(url_for('teacher_class_problem_edit', class_identifier=class_identifier,
                                 problem_identifier=problem_identifier))
 
-    print(get_languages_form())
     form.languages.data = [l.number for l in problem.languages]
-    print(form.languages.data)
     form.title.data = problem.title
     form.memory_limit.data = problem.memory_limit
     form.time_limit.data = problem.time_limit
@@ -339,10 +335,10 @@ def teacher_student_submission(task_id):
                                                      ExpiresIn=3600)
     if not problem.auto_grade:
         return render_template('teacher/classes/submission-plain.html', submission=submission,
-                               presigned_url=presigned_url, class_=submission.problem.class_, form=form)
+                               presigned_url=presigned_url, class_=submission.problem.class_, form=form, problem=problem)
 
     results = submission.results
 
     return render_template('teacher/classes/submission.html', task_id=task_id, submission=submission,
                            time=problem.time_limit, presigned_url=presigned_url, results=results,
-                           class_=submission.problem.class_, form=form)
+                           class_=submission.problem.class_, form=form, problem=problem)

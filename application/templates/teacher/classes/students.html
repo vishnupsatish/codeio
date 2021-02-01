@@ -17,6 +17,15 @@
 
         <div class="container">
 
+
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li><a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Students</a></li>
+                </ul>
+            </nav>
+
             <h3 class="title is-3">Students
             </h3>
 

@@ -16,6 +16,14 @@
     <section class="section">
 
         <div class="container">
+
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Class: {{ class_.name }}</a></li>
+                </ul>
+            </nav>
+
             <a href="{{ url_for('teacher_class_new_problem', identifier=identifier) }}">
                 <div class="box card-hover-effect mb-4">
                     <h3 class="title is-3">New Problem</h3>

@@ -27,6 +27,16 @@
 
         <div class="container">
 
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li><a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a></li>
+                    <li><a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Problem Info</a></li>
+                </ul>
+            </nav>
+
+
             <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}" class="button is-info">Edit Problem</a>
 
             <div class="box mb-6 mt-4"><p>Send this link to your students:</p>
@@ -96,6 +106,15 @@
     <section class="section {{ show_student_submissions }}" id="student-submissions">
 
         <div class="container">
+
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li><a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a></li>
+                    <li><a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Student Submissions</a></li>
+                </ul>
+            </nav>
 
 
             <div class="columns">
