@@ -1,3 +1,29 @@
+
+{# Generate SHA hash to allow the deletion of a class #}
+{% set sha_hash = sha256((class_.identifier + class_.id|string + current_user.password).encode('utf-8')).hexdigest() %}
+
+{# Class deletion modal, and sending the above hash to the deletion route through query parameters #}
+<div class="modal" id="delete-class-modal">
+    <div class="modal-background" onclick="removeActive(this)" data-target="delete-class-modal"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Delete class</p>
+            <button class="delete" aria-label="close" onclick="removeActive(this)"
+                    data-target="delete-class-modal"></button>
+        </header>
+        <section class="modal-card-body">
+            Are you sure you want to delete the class? All of the students, problems, submissions, output files, input files,
+            results, etc. will be permanently deleted.
+        </section>
+        <footer class="modal-card-foot">
+            <a href="{{ url_for('teacher_class_delete', identifier=class_.identifier, hash=sha_hash) }}"
+               class="button is-danger">Delete class</a>
+            <button class="button" onclick="removeActive(this)" data-target="delete-class-modal">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+
 <nav style="margin-top: 0;" class="navbar is-spaced mb-0">
 
 
@@ -8,18 +34,21 @@
             <p class="title is-5 has-text-centered">View Classes</p>
         </a>
 
-        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}" class="navbar-item mx-5" style="display: block;">
+        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}" class="navbar-item mx-5"
+           style="display: block;">
             <p class="title is-3 has-text-centered">{{ class_.name }}</p>
         </a>
-
-
 
 
     </div>
 
     <div class="navbar-end">
-        <button class="button is-danger ml-6">Delete class</button>
-        <button class="button is-info ml-3">Edit class</button>
+
+{#        <button class="button is-info">Edit class</button>#}
+
+        {# Pass the hash as a query parameter to the deletion route #}
+        <button class="button is-danger ml-1" onclick="toggleActive(this)" data-target="delete-class-modal">Delete class
+        </button>
     </div>
 
 

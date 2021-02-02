@@ -126,7 +126,6 @@ def upload_submission_file(language, submission_file_object, class_, problem, s3
 
 # Get a given student's average mark based on their highest submission for each problem
 def get_student_mark(student, class_):
-
     # Get every problem associated to the class
     problems = class_.problems
     marks = [0, 0, '0%']
@@ -159,7 +158,6 @@ def get_student_mark(student, class_):
 
 # Delete all input and output files associated with a problem
 def delete_input_output_files(problem, s3, bucket_name):
-
     for input_file in problem.input_files:
         s3.Object(bucket_name, input_file.file_path).delete()
 
@@ -169,6 +167,5 @@ def delete_input_output_files(problem, s3, bucket_name):
 
 # Delete all submission files associated with a problem
 def delete_submission_files(problem, s3, bucket_name):
-
     for submission in problem.submissions:
         s3.Object(bucket_name, submission.file_path).delete()

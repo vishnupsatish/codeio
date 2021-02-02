@@ -39,7 +39,7 @@ class Student(db.Model):
     identifier = db.Column(db.String, nullable=False)
 
     # The submissions the student has made
-    submissions = db.relationship('Submission', backref='student', lazy=True)
+    submissions = db.relationship('Submission', backref='student', lazy=True, cascade="all, delete")
 
     # The class the student is associated to
     class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
@@ -58,10 +58,10 @@ class Class_(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # The problems associated to that class
-    problems = db.relationship('Problem', backref='class_', lazy=True)
+    problems = db.relationship('Problem', backref='class_', lazy=True, cascade="all, delete")
 
     # The students in that class
-    students = db.relationship('Student', backref='class_', lazy=True)
+    students = db.relationship('Student', backref='class_', lazy=True, cascade="all, delete")
 
 
 # A problem table

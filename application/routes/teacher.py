@@ -33,6 +33,11 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 bucket_name = 'code-execution-grade-10'
 
 
+@app.context_processor
+def send_sha_function():
+    return {'sha256': sha256}
+
+
 # If the user goes to "/", redirect to the dashboard
 @app.route('/')
 def teacher_redirect_to_dashboard():
@@ -125,7 +130,7 @@ def new_class():
     return render_template('teacher/general/new-class.html', form=form)
 
 
-# A class home
+# A class's homepage
 @app.route('/class/<string:identifier>/home')
 @login_required
 def teacher_class_home(identifier):
@@ -139,6 +144,42 @@ def teacher_class_home(identifier):
     # number of unique students that have submitted the problem
     u = get_unique_students_problem(problems)
     return render_template('teacher/classes/home.html', problems=problems, class_=class_, identifier=identifier, u=u)
+
+
+# A route for deleting a class (uses hashing to ensure the user themselves requested the deletion
+@app.route('/class/<string:identifier>/delete')
+def teacher_class_delete(identifier):
+    # If the user isn't logged in, don't tell them that this page exists!
+    if not current_user.is_authenticated:
+        abort(404)
+
+    # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
+    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+
+    # Hash the same properties as was passed from the class page
+    sha_hash_contents = sha256(
+        f'{class_.identifier}{class_.id}{current_user.password}'.encode('utf-8')).hexdigest()
+
+    # if the two hashes are not the same, then abort with a 404 exit code
+    if sha_hash_contents != request.args.get('hash'):
+        return 'Incorrect deletion hash.'
+
+    # For every problem, delete the associated input files, output files, and submissions
+    for problem in class_.problems:
+        delete_submission_files(problem, s3, bucket_name)
+        delete_input_output_files(problem, s3, bucket_name)
+
+        # Delete the problem
+        db.session.delete(problem)
+
+    # Delete the entire class along with any students (due to the all, delete cascade behaviour)
+    db.session.delete(class_)
+
+    db.session.commit()
+
+    flash('The class has been deleted.', 'success')
+
+    return redirect(url_for('teacher_dashboard'))
 
 
 # The students from a particular class
@@ -264,7 +305,8 @@ def teacher_class_new_problem(identifier):
         # Commit the changes to the database and let the user know the problem was created without problem!
         db.session.commit()
         flash('The problem has been created successfully.', 'success')
-        return redirect(url_for('teacher_class_home', identifier=identifier))
+        return redirect(
+            url_for('teacher_class_problem', class_identifier=identifier, problem_identifier=problem.identifier))
 
     return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier, class_=class_)
 
@@ -326,22 +368,18 @@ def teacher_class_problem(class_identifier, problem_identifier):
         show_student_submissions = ''
         show_problem_info = 'dontshow'
 
-    # Generate a hash of the problem and user's properties to pass to the deletion route
-    sha_hash_contents = sha256(
-        f'{class_.identifier}-{problem.identifier}-{current_user.password}'.encode('utf-8')).hexdigest()
-
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
                            input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
                            class_=class_, student_submissions=student_submissions, base_url=request.host_url[:-1],
                            active_student_submissions=active_student_submissions,
                            show_student_submissions=show_student_submissions, show_problem_info=show_problem_info,
-                           active_show_problem=active_show_problem, sha_hash_contents=sha_hash_contents)
+                           active_show_problem=active_show_problem)
 
 
 # Route to delete a problem
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/delete')
 def teacher_class_problem_delete(class_identifier, problem_identifier):
-    if not current_user:
+    if not current_user.is_authenticated:
         abort(404)
 
     # Get the class and problem
@@ -350,11 +388,12 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
 
     # Hash the same properties as was passed from the problem page
     sha_hash_contents = sha256(
-        f'{class_.identifier}-{problem.identifier}-{current_user.password}'.encode('utf-8')).hexdigest()
+        f'{class_.identifier}{class_.id}{problem.identifier}{problem.id}{current_user.password}'.encode(
+            'utf-8')).hexdigest()
 
     # if the two hashes are not the same, then abort with a 404 exit code
     if sha_hash_contents != request.args.get('hash'):
-        abort(404)
+        return 'Incorrect deletion hash.'
 
     # Delete the input and output files, as well as the submission files
     delete_input_output_files(problem, s3, bucket_name)
