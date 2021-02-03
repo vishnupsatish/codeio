@@ -8,8 +8,8 @@ from celery import Celery
 
 # Initialize Flask and extensions, such as Flask_SQLAlchemy, Flask_Login, etc.
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'nvhe7gnhbsy8yjhmdh4uidhyi58djh'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
