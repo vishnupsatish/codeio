@@ -16,9 +16,8 @@
     <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">
-                <p class="title is-4">
-                    TeachCoding
-                </p>
+                <img src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
+
             </a>
 
             <a onclick="toggleActive(this)" data-target="navbar-mobile-open" role="button" class="navbar-burger burger"

@@ -23,8 +23,10 @@
 
             <div class="columns is-centered w100">
                 <div class="column is-5">
+                    <div class="box has-text-centered">
+                        <img width="73%" src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
+                    </div>
                     <div class="box">
-
 
                         <div class="content">
                             <p class="title is-4 has-text-centered">Register</p>
@@ -105,7 +107,7 @@
                                     {{ form.submit(class="button is-fullwidth is-info") }}
                                 </div>
 
-                            <p>Already have an account? <a href="{{ url_for('teacher_login') }}">Login!</a></p>
+                                <p>Already have an account? <a href="{{ url_for('teacher_login') }}">Login!</a></p>
 
                             </form>
                         </div>

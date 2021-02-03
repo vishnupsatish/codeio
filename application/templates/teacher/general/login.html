@@ -22,13 +22,17 @@
         <div class="hero-body">
 
             <div class="columns is-centered w100">
-                <!--            <div class="column"></div>-->
+
                 <div class="column is-5">
+                    <div class="box has-text-centered">
+                        <img width="73%" src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
+                    </div>
                     <div class="box">
 
 
                         <div class="content">
-                            <p class="title is-4 has-text-centered">Login</p>
+                            <p class="title is-4 has-text-centered mt-0">Login</p>
+
                             {# Show the flashed messages using Bulma's notification class #}
                             {% with messages = get_flashed_messages(with_categories=true) %}
                                 {% if messages %}
