@@ -2,9 +2,12 @@ import datetime as dt
 import requests
 import json
 from application import db
+from sqlalchemy.orm.session import close_all_sessions
 from application.settingssecrets import JUDGE0_AUTHN_TOKEN, JUDGE0_AUTHZ_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from application.models.general import *
 import boto3
+
+close_all_sessions()
 
 status = [
     {
