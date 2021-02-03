@@ -1,12 +1,9 @@
 import requests
 import json
 from application import db
-# from sqlalchemy.orm.session import close_all_sessions
-from application.settingssecrets import JUDGE0_AUTHN_TOKEN, JUDGE0_AUTHZ_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from application.models.general import *
 import boto3
-
-# db.session.close()
 
 status = [
     {
@@ -97,10 +94,6 @@ for s in status:
     status_db = Status(number=s['id'], name=s['description'])
     db.session.add(status_db)
 
-# user1 = User(email='vishnupavan.satish@gmail.com',
-#              password='$2y$12$cKun4wx7p.lgL3px1qYesOlRZXKEsmZGhl69N04K3NJZyndNDuvRm', name='Vishnu S.')
-#
-# db.session.add(user1)
 
 db.session.commit()
 
