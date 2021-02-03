@@ -3,7 +3,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from flask_admin import Admin
 from celery import Celery
 
 # Initialize Flask and extensions, such as Flask_SQLAlchemy, Flask_Login, etc.
@@ -16,7 +15,6 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'teacher_login'
 login_manager.login_message_category = 'info'
 login_manager.login_message = 'You must be logged in to view that page.'
-admin = Admin(app, name='lms', template_mode='bootstrap3', url="/flask-admin")
 
 # Initialize Celery, the background task manager
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'

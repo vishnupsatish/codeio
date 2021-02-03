@@ -3,23 +3,12 @@ import mistune
 from hashlib import sha256
 from secrets import token_urlsafe
 from flask import render_template, url_for, flash, redirect, request, abort
-from application import app, db, bcrypt, admin
+from application import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
-from flask_admin.contrib.sqla import ModelView
 from application.forms.teacher import *
 from application.settingssecrets import *
 from application.models.general import *
 from application.utils import *
-
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Student, db.session))
-admin.add_view(ModelView(Class_, db.session))
-admin.add_view(ModelView(Problem, db.session))
-admin.add_view(ModelView(Language, db.session))
-admin.add_view(ModelView(InputFile, db.session))
-admin.add_view(ModelView(OutputFile, db.session))
-admin.add_view(ModelView(Submission, db.session))
-admin.add_view(ModelView(Result, db.session))
 
 # Initialize AWS's Python SDK (Boto3) resource (higher-level API) with the access key and secret access key
 s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
