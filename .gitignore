@@ -4,3 +4,4 @@ application/settingssecrets.py
 application/site.db
 dump.rdb
 venv/
+supervisord.log
