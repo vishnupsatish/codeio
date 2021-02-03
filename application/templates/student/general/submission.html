@@ -60,6 +60,8 @@
                     // Parse the response text to JSON
                     const results = JSON.parse(xmlHttp.responseText);
 
+                    console.log(results['state'])
+
                     // If the Celery task was successful
                     if (results['state'] === 'SUCCESS') {
 
@@ -81,6 +83,12 @@
                         }
                         // Add the total marks earned out of the total possible marks before the progress-bar
                         document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text">Total: ${results['result']['total_marks_earned']}/${results['result']['total_marks']}</h5>`)
+                    }
+
+                    // If there was an error encountered while submitting the code, let the user know
+                    else if (results['state'] === 'ERROR') {
+                        document.getElementById("progress").style.display = 'none';
+                        document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text has-text-danger">${results['result']}</h5>`)
                     }
 
                 }

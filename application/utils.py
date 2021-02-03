@@ -165,6 +165,9 @@ def delete_input_output_files(problem, s3, bucket_name):
 
 
 # Delete all submission files associated with a problem
-def delete_submission_files(problem, s3, bucket_name):
-    for submission in problem.submissions:
+def delete_submission_files(problem, s3, bucket_name, files=None):
+    if not files:
+        files = problem.submissions
+
+    for submission in files:
         s3.Object(bucket_name, submission.file_path).delete()

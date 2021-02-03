@@ -25,3 +25,9 @@ class SubmitSolutionForm(FlaskForm):
         if lang.file_extension != file.data.filename.split('.')[-1]:
             flash('There were some errors uploading your file. Scroll down to view the error(s).', 'danger')
             raise ValidationError(f'Please upload a .{lang.file_extension} file.')
+
+        # Ensure that the file is not empty
+        if not len(file.data.read().decode('utf-8').strip(' ').strip('\n')):
+            flash('There were some errors uploading your file. Scroll down to view the error(s).', 'danger')
+            raise ValidationError(f'The file cannot be empty.')
+        file.data.seek(0)

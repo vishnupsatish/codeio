@@ -7,7 +7,7 @@ from flask import render_template, url_for, jsonify, flash, redirect, request, a
 from application import app, db, celery
 from application.forms.student import *
 from application.models.general import *
-from application.utils import upload_submission_file
+from application.utils import upload_submission_file, delete_submission_files
 from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 # Initialize AWS's Python SDK (Boto3) resource (higher-level API) with the access key and secret access key
@@ -249,11 +249,17 @@ def student_judge_code(self, language, file, problem, student, submission):
         post('https://judge0-fhwnc7.vishnus.me/submissions/batch?base64_encoded=false', data=json.dumps(body),
              headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN, 'Content-Type': 'application/json'}).text)
 
+    print(judge0_tokens)
+
     # Wait 2 seconds to allow execution to complete
     sleep(2)
 
     # Get a comma-separated string for each token
     tokens = ''
+
+    if not judge0_tokens[0].get('token'):
+        print("IDIOTBOX")
+        return submission.id
 
     # For each token from the first to the second last, append the token as well as a comma
     for jt in judge0_tokens[:-1]:
@@ -335,9 +341,6 @@ def student_judge_code(self, language, file, problem, student, submission):
         # Commit the changes
         db.session.commit()
 
-        # Change the state to success
-        self.state = 'SUCCESS'
-
         # Return the result and the submission's id
         return result, submission.id
 
@@ -348,8 +351,10 @@ def task_status(task_id):
     # Get the result of the student_judge_code Celery task
     task = student_judge_code.AsyncResult(task_id)
 
+    print(task.state)
+
     # If the task was successful and is finished
-    if task.state == 'SUCCESS':
+    if task.state == 'SUCCESS' and type(task.get()) != int:
         # Get the submission id and the result Python dict
         result, submission_id = task.get()
 
@@ -362,6 +367,22 @@ def task_status(task_id):
 
         # Return the state of the task as well as the result, all converted to JSOn
         return jsonify({'state': task.state, 'result': result})
+
+    elif task.state == 'FAILURE' or type(task.get()) == int:
+        # If there was an error in judging the code, then delete the submission
+        try:
+            submission = Submission.query.filter_by(id=task.get()).first()
+
+            delete_submission_files(0, s3, bucket_name, files=[submission])
+
+            db.session.delete(submission)
+
+            db.session.commit()
+        except:
+            pass
+
+        return jsonify({'state': 'ERROR',
+                        'result': 'There was an unexpected error while attempting to submit your solution. Please try again. This submission will be deleted. You may now go back to the problem'})
 
     # Return the state of the task if it is not complete yet
     return jsonify({'state': task.state})
