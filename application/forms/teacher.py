@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Markup, flash
+from flask import flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, IntegerField, DecimalField

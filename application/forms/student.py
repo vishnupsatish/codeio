@@ -1,26 +1,9 @@
-from flask import Markup, flash
+from flask import flash
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
-from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from application.models.general import User, Language
-
-
-# class InlineButtonWidget:
-#     html = """
-#     <button %s type="submit">%s</button>
-#     """
-#
-#     def __init__(self, label, input_type='submit'):
-#         self.input_type = input_type
-#         self.label = label
-#
-#     def __call__(self, **kwargs):
-#         param = []
-#         for key in kwargs:
-#             param.append(key + "=\"" + kwargs[key] + "\"")
-#         return Markup(self.html % (" ".join(param), self.label))
+from flask_wtf.file import FileField
+from wtforms import StringField, SubmitField, SelectField
+from wtforms.validators import DataRequired, ValidationError
+from application.models.general import Language
 
 
 # The student login form
