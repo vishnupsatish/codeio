@@ -30,7 +30,7 @@ def send_sha_function():
 # If the user goes to "/", redirect to the dashboard
 @app.route('/')
 def teacher_redirect_to_dashboard():
-    return redirect(url_for('teacher_dashboard'))
+    return redirect(url_for('teacher_login'))
 
 
 # Log the user out
