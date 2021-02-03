@@ -3,3 +3,4 @@ application/settingssecrets.py
 **/.idea
 application/site.db
 dump.rdb
+venv/
