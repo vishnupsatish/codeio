@@ -2,7 +2,7 @@ import datetime as dt
 import requests
 import json
 from application import db
-from application.settingssecrets import JUDGE0_AUTHN_TOKEN, JUDGE0_AUTHZ_TOKEN
+from application.settingssecrets import JUDGE0_AUTHN_TOKEN, JUDGE0_AUTHZ_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from application.models.general import *
 import boto3
 
@@ -65,7 +65,8 @@ status = [
     }
 ]
 
-s3 = boto3.resource('s3')
+s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
+                    aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 bucket = s3.Bucket('code-execution-grade-10')
 
 bucket.objects.all().delete()
