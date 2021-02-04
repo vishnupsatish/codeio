@@ -503,11 +503,11 @@ def teacher_student_submission(task_id):
         return render_template('teacher/classes/submission-plain.html', submission=submission,
                                presigned_url=presigned_url, class_=submission.problem.class_, form=form,
                                problem=problem,
-                               page_title=f'Submission by {submission.student.name} - {problem.name} - {problem.class_.name}')
+                               page_title=f'Submission by {submission.student.name} - {problem.title} - {problem.class_.name}')
 
     results = submission.results
 
     return render_template('teacher/classes/submission.html', task_id=task_id, submission=submission,
                            time=problem.time_limit, presigned_url=presigned_url, results=results,
                            class_=submission.problem.class_, form=form, problem=problem,
-                           page_title=f'Submission by {submission.student.name} - {problem.name} - {problem.class_.name}')
+                           page_title=f'Submission by {submission.student.name} - {problem.title} - {problem.class_.name}')
