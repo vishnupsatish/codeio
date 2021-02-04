@@ -1,7 +1,7 @@
 import requests
 import json
 from application import db
-from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME
 from application.models.general import *
 import boto3
 
@@ -66,7 +66,7 @@ status = [
 
 s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
                     aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-bucket = s3.Bucket('code-execution-grade-10')
+bucket = s3.Bucket(AWS_BUCKET_NAME)
 
 bucket.objects.all().delete()
 

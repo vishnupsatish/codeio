@@ -19,7 +19,7 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
                          aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name='ca-central-1')
 
 # Set AWS bucket name
-bucket_name = 'code-execution-grade-10'
+bucket_name = AWS_BUCKET_NAME
 
 
 # Route the favicon to the favicon image in the static directory

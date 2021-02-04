@@ -67,7 +67,7 @@ class Class_(db.Model):
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    # The problem's identifer, title, description (in markdown
+    # The problem's identifier, title, description (in markdown
     # and html), time_limit, and other relevant fields
     identifier = db.Column(db.String, nullable=False)
     title = db.Column(db.String(45), nullable=False)
@@ -90,7 +90,7 @@ class Problem(db.Model):
 
     # The languages associated to that problem (many-to-many using the association table)
     languages = db.relationship('Language', secondary=problem_language_association_table, lazy=True,
-                                backref='problems', cascade="all, delete")
+                                backref='problems')
 
     # The user who created the problem
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

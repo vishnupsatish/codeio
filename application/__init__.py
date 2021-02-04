@@ -23,4 +23,4 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 # Import each route from all initializations have been finished
-from application.routes import student, teacher
+from application.routes import student, teacher, errors

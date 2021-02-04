@@ -8,7 +8,7 @@ from application import app, db, celery
 from application.forms.student import *
 from application.models.general import *
 from application.utils import upload_submission_file, delete_submission_files
-from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME
 
 # Initialize AWS's Python SDK (Boto3) resource (higher-level API) with the access key and secret access key
 s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -19,7 +19,7 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
                          aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name='ca-central-1')
 
 # Set AWS bucket name
-bucket_name = 'code-execution-grade-10'
+bucket_name = AWS_BUCKET_NAME
 
 
 # Create a decorator function
