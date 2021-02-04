@@ -5,6 +5,7 @@ from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, A
 from application.models.general import *
 import boto3
 
+db.session.close()
 db.session.commit()
 
 status = [
