@@ -109,7 +109,7 @@ def student_login():
         else:
             flash('Student not found. Please check your code and whether you are authorized to see the problem.',
                   'danger')
-    return render_template('student/general/login.html', form=form)
+    return render_template('student/general/login.html', form=form, page_title=f'Student Login')
 
 
 # Student log out
@@ -210,7 +210,8 @@ def student_submit_problem(class_identifier, problem_identifier):
         return redirect(url_for('student_submission', task_id=task.id))
 
     return render_template('student/general/submit.html', problem=problem, class_=class_, form=form,
-                           student_can_submit=student_can_submit, submissions=submissions, student=student)
+                           student_can_submit=student_can_submit, submissions=submissions, student=student,
+                           page_title=f'Submit to {problem.title}')
 
 
 # The Celery task to judge the code; bind=True passes the self
@@ -368,7 +369,7 @@ def task_status(task_id):
         # Return the state of the task as well as the result, all converted to JSOn
         return jsonify({'state': task.state, 'result': result})
 
-    elif task.state == 'FAILURE' or type(task.get()) == int:
+    elif (task.state == 'FAILURE' or type(task.get()) == int) and task.state != 'PENDING':
         # If there was an error in judging the code, then delete the submission
         try:
             submission = Submission.query.filter_by(id=task.get()).first()
@@ -385,7 +386,7 @@ def task_status(task_id):
                         'result': 'There was an unexpected error while attempting to submit your solution. Please try again. This submission will be deleted. You may now go back to the problem'})
 
     # Return the state of the task if it is not complete yet
-    return jsonify({'state': task.state})
+    return jsonify({'state': 'PENDING'})
 
 
 # View the results of a specific submission
@@ -405,7 +406,8 @@ def student_submission(task_id):
     # Show a different HTML page whether or not the submission was to be auto-graded
     if not problem.auto_grade:
         return render_template('student/general/submission-plain.html', submission=submission,
-                               presigned_url=presigned_url)
+                               presigned_url=presigned_url, page_title=f'Submission to {problem.title}')
 
     return render_template('student/general/submission.html', task_id=task_id, submission=submission,
-                           time=problem.time_limit, presigned_url=presigned_url)
+                           time=problem.time_limit, presigned_url=presigned_url,
+                           page_title=f'Submission to {problem.title}')

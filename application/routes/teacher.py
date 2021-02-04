@@ -2,7 +2,7 @@ import boto3
 import mistune
 from hashlib import sha256
 from secrets import token_urlsafe
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, send_from_directory, send_file
 from application import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from application.forms.teacher import *
@@ -20,6 +20,12 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 
 # Set AWS bucket name
 bucket_name = 'code-execution-grade-10'
+
+
+# Route the favicon to the favicon image in the static directory
+@app.route('/favicon.ico')
+def favicon():
+    return send_file('static/img/CodeIOFavicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.context_processor
@@ -61,7 +67,7 @@ def teacher_register():
         flash('Your account has been created! You are now able to log in.', 'success')
         return redirect(url_for('teacher_login'))
 
-    return render_template('teacher/general/register.html', form=form)
+    return render_template('teacher/general/register.html', form=form, page_title='Register')
 
 
 # Login page
@@ -90,7 +96,7 @@ def teacher_login():
         # Flask tool that sends messages which can be retrieved on the HTML page)
         else:
             flash('Login Unsuccessful. Please check your email and password', 'danger')
-    return render_template('teacher/general/login.html', form=form)
+    return render_template('teacher/general/login.html', form=form, page_title='Login')
 
 
 # The teacher's dashboard
@@ -99,7 +105,7 @@ def teacher_login():
 def teacher_dashboard():
     # Get all of the classes that are associated to the current user
     classes_ = Class_.query.filter_by(user=current_user).all()
-    return render_template('teacher/general/dashboard.html', classes_=classes_)
+    return render_template('teacher/general/dashboard.html', classes_=classes_, page_title='Dashboard')
 
 
 # Creating a new class
@@ -116,7 +122,7 @@ def new_class():
         db.session.commit()
         flash('The class has been created successfully.', 'success')
         return redirect(url_for('teacher_dashboard'))
-    return render_template('teacher/general/new-class.html', form=form)
+    return render_template('teacher/general/new-class.html', form=form, page_title='New Class')
 
 
 # A class's homepage
@@ -132,7 +138,8 @@ def teacher_class_home(identifier):
     # Call a utility function which, for each problem, gets the
     # number of unique students that have submitted the problem
     u = get_unique_students_problem(problems)
-    return render_template('teacher/classes/home.html', problems=problems, class_=class_, identifier=identifier, u=u)
+    return render_template('teacher/classes/home.html', problems=problems, class_=class_, identifier=identifier, u=u,
+                           page_title=class_.name)
 
 
 # A route for deleting a class (uses hashing to ensure the user themselves requested the deletion
@@ -203,7 +210,7 @@ def teacher_class_students(identifier):
         marks[student] = get_student_mark(student, class_)
 
     return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
-                           students=students, marks=marks)
+                           students=students, marks=marks, page_title=f'Students - {class_.name}')
 
 
 # Creating a new problem
@@ -299,7 +306,8 @@ def teacher_class_new_problem(identifier):
         return redirect(
             url_for('teacher_class_problem', class_identifier=identifier, problem_identifier=problem.identifier))
 
-    return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier, class_=class_)
+    return render_template('teacher/classes/new-problem.html', form=form, identifier=identifier, class_=class_,
+                           page_title=f'New Problem - {class_.name}')
 
 
 # Each problem's page
@@ -364,7 +372,7 @@ def teacher_class_problem(class_identifier, problem_identifier):
                            class_=class_, student_submissions=student_submissions, base_url=request.host_url[:-1],
                            active_student_submissions=active_student_submissions,
                            show_student_submissions=show_student_submissions, show_problem_info=show_problem_info,
-                           active_show_problem=active_show_problem)
+                           active_show_problem=active_show_problem, page_title=f'{problem.title} - {class_.name}')
 
 
 # Route to delete a problem
@@ -442,7 +450,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
 
         flash('The problem has been updated.', 'success')
 
-        return redirect(url_for('teacher_class_problem_edit', class_identifier=class_identifier,
+        return redirect(url_for('teacher_class_problem', class_identifier=class_identifier,
                                 problem_identifier=problem_identifier))
 
     # Set the values in the form to the problem's existing attributes
@@ -456,7 +464,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
     form.allow_more_submissions.data = problem.allow_more_submissions
 
     return render_template('teacher/classes/problem-edit.html', problem=problem, identifier=class_identifier, form=form,
-                           class_=class_)
+                           class_=class_, page_title=f'Edit Problem - {problem.title} - {class_.name}')
 
 
 # View a student's submission to a problem
@@ -494,10 +502,12 @@ def teacher_student_submission(task_id):
     if not problem.auto_grade:
         return render_template('teacher/classes/submission-plain.html', submission=submission,
                                presigned_url=presigned_url, class_=submission.problem.class_, form=form,
-                               problem=problem)
+                               problem=problem,
+                               page_title=f'Submission by {submission.student.name} - {problem.name} - {problem.class_.name}')
 
     results = submission.results
 
     return render_template('teacher/classes/submission.html', task_id=task_id, submission=submission,
                            time=problem.time_limit, presigned_url=presigned_url, results=results,
-                           class_=submission.problem.class_, form=form, problem=problem)
+                           class_=submission.problem.class_, form=form, problem=problem,
+                           page_title=f'Submission by {submission.student.name} - {problem.name} - {problem.class_.name}')
