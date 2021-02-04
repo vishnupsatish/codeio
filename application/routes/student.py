@@ -259,7 +259,6 @@ def student_judge_code(self, language, file, problem, student, submission):
     tokens = ''
 
     if not judge0_tokens[0].get('token'):
-        print("IDIOTBOX")
         return submission.id
 
     # For each token from the first to the second last, append the token as well as a comma

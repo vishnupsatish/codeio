@@ -5,7 +5,6 @@ from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, A
 from application.models.general import *
 import boto3
 
-db.session.close()
 db.session.commit()
 
 status = [
@@ -72,6 +71,8 @@ s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 bucket = s3.Bucket(AWS_BUCKET_NAME)
 
 bucket.objects.all().delete()
+
+db.session.remove()
 
 db.drop_all()
 db.create_all()
