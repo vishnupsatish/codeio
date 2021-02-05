@@ -24,11 +24,12 @@
                     <li>
                         <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
                     </li>
-                    <li class="is-active"><a href="#" aria-current="page">Students</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Users</a></li>
                 </ul>
             </nav>
 
 
+            <h2 class="title is-2">Users</h2>
             <h3 class="title is-3">Students
             </h3>
 
@@ -79,10 +80,69 @@
             </table>
 
 
+            <h3 class="title is-3 mt-6">Teachers</h3>
+
+            {# The link to allow teachers to add another teacher to the class #}
+            <div class="box mb-6 mt-4"><p>Send this link to invite another teacher to your class (valid for 2 hours):</p>
+                <h4 class="title is-4"><a href="{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}" id="text-to-copy" target="_blank">
+                    {{ base_url }}{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}</a>
+                </h4>
+                <button onclick="copy_url()" class="button is-info">Copy</button>
+            </div>
+
+            {# Show each student in a table along with their attributes such as name, code, and course mark #}
+            <table class="table is-striped is-hoverable is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in class_.users %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
         </div>
 
     </section>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.2.0/dist/bulma-toast.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+
+        {# When the copy button is pressed #}
+        function copy_url() {
+            const link = document.getElementById('text-to-copy').innerText
+
+            {# Create a textarea with the content being the link to copy #}
+            const textarea = document.createElement("textarea");
+            textarea.textContent = link;
+            textarea.style.position = "fixed";
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            {# Select the textarea and copy the contents of it #}
+            document.execCommand("copy");
+
+            {# Remove the textarea and show a toast #}
+            document.body.removeChild(textarea);
+            bulmaToast.toast({
+                message: 'The link has been copied.',
+                type: 'is-success',
+                dismissible: true,
+                position: 'bottom-left',
+                duration: 4000,
+                closeOnClick: false
+            })
+
+        }
+    </script>
+
 {% endblock %}

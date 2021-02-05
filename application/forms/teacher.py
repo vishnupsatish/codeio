@@ -1,7 +1,8 @@
 from flask import flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, IntegerField, DecimalField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectMultipleField, \
+    IntegerField, DecimalField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional, InputRequired
 from application.models.general import User
 
@@ -11,8 +12,9 @@ class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()], render_kw={'placeholder': 'Name'})
     email = StringField('Email', validators=[DataRequired(), Email()], render_kw={'placeholder': 'Email'})
     password = PasswordField('Password', validators=[DataRequired()], render_kw={'placeholder': 'Password'})
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')], render_kw={'placeholder': 'Confirm Password'})
-    submit = SubmitField('Sign Up')
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')],
+                                     render_kw={'placeholder': 'Confirm Password'})
+    submit = SubmitField('Sign up')
 
     # If a user already exists with that email, then throw an error
     def validate_email(self, email):
@@ -31,7 +33,32 @@ class LoginForm(FlaskForm):
 
 # A form to send the confirmation email
 class ConfirmAccountForm(FlaskForm):
-    submit = SubmitField('Resend Confirmation Email')
+    submit = SubmitField('Resend confirmation email')
+
+
+class LeaveClassForm(FlaskForm):
+    submit = SubmitField('Leave class')
+
+
+# The form to create a new class
+class NewClassForm(FlaskForm):
+    # The relevant fields as well as their validators
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
+    description = TextAreaField('Description', validators=[Length(max=100)])
+    submit = SubmitField('Create class')
+
+
+# The form to create a new class
+class UpdateClassForm(FlaskForm):
+    # The relevant fields as well as their validators
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
+    description = TextAreaField('Description', validators=[Length(max=100)])
+    update = SubmitField('Update class')
+
+
+# The form for a teacher to confirm their addition to a class
+class ConfirmAdditionToClassForm(FlaskForm):
+    submit = SubmitField('Join class as teacher')
 
 
 # The form to create a new problem
@@ -60,7 +87,7 @@ class NewProblemForm(FlaskForm):
     output4file = FileField('Output File 4', validators=[FileAllowed(['txt'])])
     output5file = FileField('Output File 5', validators=[FileAllowed(['txt'])])
 
-    submit = SubmitField('Create Problem')
+    submit = SubmitField('Create problem')
 
     # If auto grade was selected and the first input file was not selected, throw an error
     def validate_auto_grade(self, auto_grade):
@@ -135,19 +162,11 @@ class NewProblemForm(FlaskForm):
                                       'danger')
 
 
-# The form to create a new class
-class NewClassForm(FlaskForm):
-    # The relevant fields as well as their validators
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
-    description = TextAreaField('Description', validators=[Length(max=100)])
-    submit = SubmitField('Create Class')
-
-
 # The form to create a new student
 class NewStudentForm(FlaskForm):
     # The student's name field, along with the DataRequired and Length validators and the submit button
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=45)])
-    submit = SubmitField('Create Student')
+    submit = SubmitField('Create student')
 
 
 # The form to update the mark of a student
@@ -156,7 +175,7 @@ class UpdateMarkForm(FlaskForm):
     # Note: the DataRequired validator is not used since it cannot accept
     # A value of 0, while the InputRequired validator can
     mark = DecimalField('Mark', validators=[InputRequired()])
-    submit = SubmitField('Update Mark')
+    submit = SubmitField('Update mark')
 
     # This is a super constructor for the class that
     # allows the problem's total marks to be passed in
@@ -186,7 +205,7 @@ class EditProblemForm(FlaskForm):
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
     languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
 
-    submit = SubmitField('Update Problem')
+    submit = SubmitField('Update problem')
 
     # Custom validators to make sure the memory limit and time limit aren't too high or too low
     def validate_memory_limit(self, memory_limit):

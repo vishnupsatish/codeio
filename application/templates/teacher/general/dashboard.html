@@ -26,7 +26,13 @@
 
                             <div class="box card-hover-effect">
                                 <h5 class="title is-5">{{ class_.name }}</h5>
-                                <p>Teacher: {{ current_user.name }}</p>
+                                <p>
+                                    Teachers:
+                                    {% for user in class_.users[:-1] %}
+                                        {{ user.name }},
+                                    {% endfor %}
+                                    {{ class_.users[-1].name }}
+                                </p>
                                 <p>{{ class_.students|length }} students</p>
                                 <p>{{ class_.problems|length }} problems</p>
                             </div>

@@ -1,0 +1,158 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+
+            {# Breadcrumbs to show the path that the user is currently in #}
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
+                    </li>
+                    <li class="is-active"><a href="#" aria-current="page">Options</a></li>
+                </ul>
+            </nav>
+
+
+            <h2 class="title is-2">Options</h2>
+
+            {# Form to update a class's details #}
+            <form action="" method="post" class="mb-6">
+                {{ form1.hidden_tag() }}
+                <div class="field">
+                    <div class="control">
+
+                        {{ form1.name.label(class="label") }}
+                        {% if form1.name.errors %}
+                            {{ form1.name(class="input is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form1.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form1.name(class="input") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+
+                        {{ form1.description.label(class="label") }}
+                        {% if form1.description.errors %}
+                            {{ form1.description(class="textarea is-danger") }}
+                            <div class="help is-danger">
+                                {% for error in form1.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form1.description(class="textarea") }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                {{ form1.update(class="button is-info") }}
+
+            </form>
+
+
+            <div class="buttons">
+
+                {% if class_.users|length > 1 %}
+
+                    <button class="button is-danger ml-1" onclick="toggleActive(this)" data-target="leave-class-modal">
+                        Leave class
+                    </button>
+
+                {% endif %}
+
+                {# Pass the hash as a query parameter to the deletion route #}
+                <button class="button is-danger ml-1" onclick="toggleActive(this)" data-target="delete-class-modal">
+                    Delete class
+                </button>
+
+
+            </div>
+
+
+            {# Class deletion modal, and sending the above hash to the deletion route through query parameters #}
+            <div class="modal" id="leave-class-modal">
+                <div class="modal-background" onclick="removeActive(this)" data-target="leave-class-modal"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Leave class</p>
+                        <button class="delete" aria-label="close" onclick="removeActive(this)"
+                                data-target="leave-class-modal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        Are you sure you want to leave the class? You can only rejoin if a teacher sends you the invite
+                        link.
+                    </section>
+                    <footer class="modal-card-foot">
+                        {% if class_.users|length > 1 %}
+
+                            <form action="" method="post">
+                                {{ form2.hidden_tag() }}
+                                {{ form2.submit(class='button is-danger') }}
+                            </form>
+
+                        {% endif %}
+
+                        <button class="button ml-2" onclick="removeActive(this)" data-target="leave-class-modal">Cancel
+                        </button>
+                    </footer>
+                </div>
+            </div>
+
+
+            {# Generate SHA hash to allow the deletion of a class #}
+            {% set sha_hash = sha256((class_.identifier + class_.id|string + current_user.password).encode('utf-8')).hexdigest() %}
+
+            {# Class deletion modal, and sending the above hash to the deletion route through query parameters #}
+            <div class="modal" id="delete-class-modal">
+                <div class="modal-background" onclick="removeActive(this)" data-target="delete-class-modal"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Delete class</p>
+                        <button class="delete" aria-label="close" onclick="removeActive(this)"
+                                data-target="delete-class-modal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        Are you sure you want to delete the class? All of the students, problems, submissions, output
+                        files, input files,
+                        results, etc. will be permanently deleted.
+                    </section>
+                    <footer class="modal-card-foot">
+                        <a href="{{ url_for('teacher_class_delete', identifier=class_.identifier, hash=sha_hash) }}"
+                           class="button is-danger">Delete class</a>
+                        <button class="button" onclick="removeActive(this)" data-target="delete-class-modal">Cancel
+                        </button>
+                    </footer>
+                </div>
+            </div>
+
+
+        </div>
+
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+{% endblock %}

@@ -29,8 +29,7 @@
             <h3 class="title is-3 mt-6">Details</h3>
             <p><b>Submission by</b>: {{ submission.student.name }}</p>
             <br>
-            <p><b>Teacher</b>: {{ submission.student.class_.user.name }} - {{ submission.student.class_.user.email }}
-            </p>
+            <p><b>Creator</b>: {{ submission.problem.user.name }} - {{ submission.problem.user.email }}</p>
             <br>
             <p><b>Language</b>: {{ submission.language.name }}</p>
             <br>
@@ -87,7 +86,6 @@
 
                     // If there was an error encountered while submitting the code, let the user know
                     else if (results['state'] === 'ERROR') {
-                        console.log("LELLLLLLLLLLLLLL")
                         document.getElementById("progress").style.display = 'none';
                         document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text has-text-danger">${results['result']}</h5>`)
                     }

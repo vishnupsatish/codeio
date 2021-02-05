@@ -14,6 +14,11 @@ problem_language_association_table = db.Table('problem_language_association', db
                                               db.Column('language_id', db.Integer, db.ForeignKey('language.id'))
                                               )
 
+class_user_association_table = db.Table('class_user_association', db.Model.metadata,
+                                        db.Column('class_id', db.Integer, db.ForeignKey('class_.id')),
+                                        db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+                                        )
+
 
 # A user table
 class User(db.Model, UserMixin):
@@ -27,7 +32,7 @@ class User(db.Model, UserMixin):
     confirm = db.Column(db.Boolean, default=False)
 
     # The classes and problems that the user has created
-    classes_ = db.relationship('Class_', backref='user', lazy=True)
+    # classes_ = db.relationship('Class_', backref='user', lazy=True)
     problems = db.relationship('Problem', backref='user', lazy=True)
 
 
@@ -55,14 +60,14 @@ class Class_(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
 
-    # The user that created the class
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
     # The problems associated to that class
     problems = db.relationship('Problem', backref='class_', lazy=True, cascade="all, delete")
 
     # The students in that class
     students = db.relationship('Student', backref='class_', lazy=True, cascade="all, delete")
+
+    users = db.relationship('User', secondary=class_user_association_table, lazy=True,
+                            backref='classes')
 
 
 # A problem table

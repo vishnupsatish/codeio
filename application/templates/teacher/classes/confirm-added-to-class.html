@@ -1,0 +1,73 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <style>
+        .w100 {
+            width: 100vw
+        }
+
+        body {
+            background-color: #abd3d6;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+
+            <div class="columns is-centered w100">
+
+                <div class="column is-5">
+                    <div class="box has-text-centered">
+                        <img width="73%" src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
+                    </div>
+                    <div class="box">
+
+
+                        {# Page to confirm that the current user wants to join the requested class #}
+                        <div class="content">
+                            <p class="title is-4 has-text-centered mt-0">Join Class</p>
+
+                            <p>Are you sure you want to join the class:</p>
+                            <h5 class="title is-5">{{ class_.name }}</h5>
+                            <p>Where the teachers are:</p>
+                            <p>
+                                <b>
+                                    {% for user in class_.users[:-1] %}
+                                        {{ user.name }},
+                                    {% endfor %}
+                                    {{ class_.users[-1].name }}
+                                </b>
+                            </p>
+
+                            <form action="" method="post">
+                                {{ form.hidden_tag() }}
+                                {{ form.submit(class='button is-success') }}
+                            </form>
+
+
+
+                        </div>
+                    </div>
+                    <div>Logo icon made by <a target="_blank" href="https://www.flaticon.com/authors/roundicons"
+                                              title="Roundicons">Roundicons</a>
+                        from <a target="_blank" href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

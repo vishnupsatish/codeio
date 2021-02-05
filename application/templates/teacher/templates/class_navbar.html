@@ -1,27 +1,5 @@
 
-{# Generate SHA hash to allow the deletion of a class #}
-{% set sha_hash = sha256((class_.identifier + class_.id|string + current_user.password).encode('utf-8')).hexdigest() %}
 
-{# Class deletion modal, and sending the above hash to the deletion route through query parameters #}
-<div class="modal" id="delete-class-modal">
-    <div class="modal-background" onclick="removeActive(this)" data-target="delete-class-modal"></div>
-    <div class="modal-card">
-        <header class="modal-card-head">
-            <p class="modal-card-title">Delete class</p>
-            <button class="delete" aria-label="close" onclick="removeActive(this)"
-                    data-target="delete-class-modal"></button>
-        </header>
-        <section class="modal-card-body">
-            Are you sure you want to delete the class? All of the students, problems, submissions, output files, input files,
-            results, etc. will be permanently deleted.
-        </section>
-        <footer class="modal-card-foot">
-            <a href="{{ url_for('teacher_class_delete', identifier=class_.identifier, hash=sha_hash) }}"
-               class="button is-danger">Delete class</a>
-            <button class="button" onclick="removeActive(this)" data-target="delete-class-modal">Cancel</button>
-        </footer>
-    </div>
-</div>
 
 
 <nav style="margin-top: 0;" class="navbar is-spaced mb-0">
@@ -40,15 +18,6 @@
         </a>
 
 
-    </div>
-
-    <div class="navbar-end">
-
-{#        <button class="button is-info">Edit class</button>#}
-
-        {# Pass the hash as a query parameter to the deletion route #}
-        <button class="button is-danger ml-1" onclick="toggleActive(this)" data-target="delete-class-modal">Delete class
-        </button>
     </div>
 
 
@@ -76,7 +45,7 @@
             <a class="navbar-item mx-5" style="display: block;"
                href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">
                 <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
-                     src="https://res.cloudinary.com/dnwczwamg/image/upload/m-lms/required-images/home_knjayz.png"
+                     src="https://res.cloudinary.com/dnwczwamg/image/upload/codeio/required-images/home_dza7vh.png"
                      alt="">
                 <p class="has-text-centered">Home</p>
             </a>
@@ -84,8 +53,15 @@
             <a class="navbar-item mx-5" style="display: block;"
                href="{{ url_for('teacher_class_students', identifier=class_.identifier) }}">
                 <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
-                     src="https://res.cloudinary.com/dnwczwamg/image/upload/v1601428855/cc-lms/required-images/user_bem18t.png">
-                <p class="has-text-centered">Students</p>
+                     src="https://res.cloudinary.com/dnwczwamg/image/upload/codeio/required-images/user_bem18t.png">
+                <p class="has-text-centered">Users</p>
+            </a>
+
+            <a class="navbar-item mx-5" style="display: block;"
+               href="{{ url_for('teacher_class_options', identifier=class_.identifier) }}">
+                <img style="max-width: 150px; max-height:75px; height: auto; width: auto;"
+                     src="https://res.cloudinary.com/dnwczwamg/image/upload/codeio/required-images/gear_aerb5j.png">
+                <p class="has-text-centered">Options</p>
             </a>
 
 

@@ -128,7 +128,7 @@
                     <br>
                     <p><b>Auto grade</b>: {{ problem.auto_grade }}</p>
                     <br>
-                    <p><b>Created at</b>: {{ problem.create_date_time.strftime('%A, %B %d, %I:%M %p %z') }}</p>
+                    <p><b>Created at</b>: {{ problem.create_date_time.strftime('%A, %B %d, %I:%M %p %z') }} UTC</p>
                     <br>
                     <p><b>Creator</b>: {{ problem.user.name }} ({{ problem.user.email }})</p>
                 </div>

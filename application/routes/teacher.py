@@ -50,7 +50,7 @@ def favicon():
 
 @app.context_processor
 def send_sha_function():
-    return {'sha256': sha256}
+    return {'sha256': sha256, 'serializer': serializer}
 
 
 # If the user goes to "/", redirect to the dashboard
@@ -88,7 +88,7 @@ def teacher_register():
         hashed_password = bcrypt.generate_password_hash(
             form.password.data).decode('utf-8')
         user = User(name=form.name.data, email=form.email.data,
-                    password=hashed_password)
+                    password=hashed_password, confirm=True)
         db.session.add(user)
         db.session.commit()
         login_user(user, remember=True)
@@ -96,7 +96,7 @@ def teacher_register():
         mail.send_message(sender='contact@codeio.tech',
                           subject='Your CodeIO Confirmation Email',
                           body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
-                          recipients=['vishnupavan.satish@gmail.com'])
+                          recipients=[current_user.email])
         return redirect(url_for('teacher_login'))
 
     return render_template('teacher/general/register.html', form=form, page_title='Register')
@@ -180,7 +180,7 @@ def teacher_token(token):
             return redirect(url_for('teacher_dashboard'))
     # If there was an error while loading the token, return so
     except:
-        return 'The token you have provided is incorrect or has timed out.'
+        return render_template('errors/token_expired.html'), 403
 
 
 # Delete a user's account
@@ -195,7 +195,7 @@ def teacher_delete_account():
 
     # if the hashes don't match, don't delete the account
     if sha_hash_contents != request.args.get('hash'):
-        return 'The deletion hash is incorrect!'
+        return render_template('errors/token_expired.html'), 403
 
     # Get the user and delete the account
     user = User.query.filter_by(id=current_user.id).first()
@@ -216,7 +216,8 @@ def teacher_delete_account():
 @abort_teacher_not_confirmed
 def teacher_dashboard():
     # Get all of the classes that are associated to the current user
-    classes_ = Class_.query.filter_by(user=current_user).all()
+    # classes_ = Class_.query.filter_by(user=current_user).all()
+    classes_ = current_user.classes
     return render_template('teacher/general/dashboard.html', classes_=classes_, page_title='Dashboard')
 
 
@@ -229,8 +230,9 @@ def new_class():
     form = NewClassForm()
     if form.validate_on_submit():
         # If the form was successfully submitted, create a new class and Flash the result to the user
-        class_ = Class_(name=form.name.data, description=form.description.data, user=current_user,
+        class_ = Class_(name=form.name.data, description=form.description.data,
                         identifier=token_urlsafe(16))
+        class_.users.append(current_user)
         db.session.add(class_)
         db.session.commit()
         flash('The class has been created successfully.', 'success')
@@ -244,7 +246,9 @@ def new_class():
 @abort_teacher_not_confirmed
 def teacher_class_home(identifier):
     # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
-    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
 
     # Get all of the problems associated to that class
     problems = Problem.query.filter_by(class_=class_).order_by(Problem.create_date_time.desc()).all()
@@ -264,7 +268,9 @@ def teacher_class_delete(identifier):
         abort(404)
 
     # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
-    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
 
     # Hash the same properties as was passed from the class page
     sha_hash_contents = sha256(
@@ -272,7 +278,7 @@ def teacher_class_delete(identifier):
 
     # if the two hashes are not the same, then abort with a 404 exit code
     if sha_hash_contents != request.args.get('hash'):
-        return 'Incorrect deletion hash.'
+        return render_template('errors/token_expired.html'), 403
 
     # For every problem, delete the associated input files, output files, and submissions
     for problem in class_.problems:
@@ -295,12 +301,14 @@ def teacher_class_delete(identifier):
 
 
 # The students from a particular class
-@app.route('/class/<string:identifier>/students', methods=['GET', 'POST'])
+@app.route('/class/<string:identifier>/users', methods=['GET', 'POST'])
 @login_required
 @abort_teacher_not_confirmed
 def teacher_class_students(identifier):
     # Get the class from the identifier in the URL
-    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
 
     # Initialize the NewStudentForm
     form = NewStudentForm()
@@ -324,8 +332,91 @@ def teacher_class_students(identifier):
     for student in students:
         marks[student] = get_student_mark(student, class_)
 
-    return render_template('teacher/classes/students.html', identifier=identifier, form=form, class_=class_,
-                           students=students, marks=marks, page_title=f'Students - {class_.name}')
+    key = serializer.dumps(class_.id, salt=os.environ.get('SECRET_KEY'))
+
+    return render_template('teacher/classes/users.html', identifier=identifier, form=form, class_=class_,
+                           base_url=request.host_url[:-1], students=students, marks=marks,
+                           page_title=f'Students - {class_.name}', key=key)
+
+
+# Options route
+@app.route('/class/<string:identifier>/options', methods=['GET', 'POST'])
+@login_required
+@abort_teacher_not_confirmed
+def teacher_class_options(identifier):
+    # Get the class from the identifier in the URL
+    class_ = Class_.query.filter_by(identifier=identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
+    # Create two forms
+    form = UpdateClassForm()
+
+    form2 = LeaveClassForm()
+
+    # Check if the update class form was submitted
+    if form.update.data and form.validate_on_submit():
+        # Update the class and let the student know
+        class_.name = form.name.data
+        class_.description = form.description.data
+        db.session.commit()
+
+        flash('Your changes have been made.', 'success')
+
+        return redirect(url_for('teacher_class_options', identifier=identifier))
+
+    # If the teacher has requested to leave the class
+    if form2.submit.data and form2.validate_on_submit():
+        # Remove them from the class, then let them know that they were removed
+        class_.users.remove(current_user)
+        db.session.commit()
+
+        flash('You have successfully left the class.', 'success')
+
+        return redirect(url_for('teacher_dashboard'))
+
+    # Set the update class form's default values to
+    # the class's values that exist in the database
+    form.name.data = class_.name
+    form.description.data = class_.description
+
+    return render_template('teacher/classes/settings.html', class_=class_,
+                           page_title=f'Options - {class_.name}', form1=form, form2=form2)
+
+
+# Route to accept invite for a class
+@app.route('/class/<string:identifier>/invite', methods=['GET', 'POST'])
+@login_required
+@abort_teacher_not_confirmed
+def teacher_class_invite(identifier):
+    class_ = Class_.query.filter_by(identifier=identifier).first_or_404()
+
+    # If the user is already in the class, abort with a 404
+    if class_ in current_user.classes:
+        abort(404)
+
+    # If the serializer's result is incorrect, then let the user know and abort with a 403
+    try:
+        serial_encrypt = serializer.loads(request.args.get('key'), salt=os.environ.get('SECRET_KEY'), max_age=7200)
+    except:
+        return render_template('errors/token_expired.html'), 403
+
+    # If the user is requesting to the join the incorrect class, let the user know and abort with a 404
+    if serial_encrypt != class_.id:
+        return render_template('errors/token_expired.html'), 403
+
+    # If the user presses the button the confirm the addition
+    # to the class, add them then redirect to the class
+    form1 = ConfirmAdditionToClassForm()
+
+    if form1.submit.data and form1.validate_on_submit():
+        class_.users.append(current_user)
+        db.session.commit()
+        flash('You have been added to the class!', 'success')
+        return redirect(url_for('teacher_class_home', identifier=class_.identifier))
+
+    return render_template('teacher/classes/confirm-added-to-class.html', class_=class_, form=form1,
+                           page_title='Join Class')
 
 
 # Creating a new problem
@@ -333,7 +424,10 @@ def teacher_class_students(identifier):
 @login_required
 @abort_teacher_not_confirmed
 def teacher_class_new_problem(identifier):
-    class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
     form = NewProblemForm()
 
     # Set the language choices to what is returned by the
@@ -388,7 +482,7 @@ def teacher_class_new_problem(identifier):
         if memory_limit:
             problem.memory_limit = memory_limit
 
-        # For every langauge that the user chose, get the corresponding database
+        # For every language that the user chose, get the corresponding database
         # object then create a relationship between that problem and language
         for lang in languages:
             lang_object = Language.query.filter_by(number=int(lang)).first()
@@ -432,7 +526,10 @@ def teacher_class_new_problem(identifier):
 @abort_teacher_not_confirmed
 def teacher_class_problem(class_identifier, problem_identifier):
     # Get the class the problem from the database based on each identifier as passed in from the URL
-    class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
 
     # Create two lists belonging to the presigned URLs from the input and output,
@@ -499,7 +596,10 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
         abort(404)
 
     # Get the class and problem
-    class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
 
     # Hash the same properties as was passed from the problem page
@@ -509,7 +609,7 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
 
     # if the two hashes are not the same, then abort with a 404 exit code
     if sha_hash_contents != request.args.get('hash'):
-        return 'Incorrect deletion hash.'
+        return render_template('errors/token_expired.html'), 403
 
     # Delete the input and output files, as well as the submission files
     delete_input_output_files(problem, s3, bucket_name)
@@ -533,7 +633,10 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
 @abort_teacher_not_confirmed
 def teacher_class_problem_edit(class_identifier, problem_identifier):
     # Get the class the problem from the database based on each identifier as passed in from the URL
-    class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
     problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
     form = EditProblemForm()
 
