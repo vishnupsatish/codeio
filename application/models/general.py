@@ -159,7 +159,11 @@ class Submission(db.Model):
     date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
     file_size = db.Column(db.Integer)
     total_marks = db.Column(db.Integer)
+
+    # Not used as of now... to be used to handle Internal Errors
     marks = db.Column(db.Integer)
+
+    # Whether the submission has finished executing in Judge0 or not
     done = db.Column(db.Boolean, default=False)
 
     # The results associated to the submission
