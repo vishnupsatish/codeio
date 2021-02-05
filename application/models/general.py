@@ -158,7 +158,9 @@ class Submission(db.Model):
     file_path = db.Column(db.String, nullable=False)
     date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
     file_size = db.Column(db.Integer)
+    total_marks = db.Column(db.Integer)
     marks = db.Column(db.Integer)
+    done = db.Column(db.Boolean, default=False)
 
     # The results associated to the submission
     results = db.relationship('Result', backref='submission', lazy=True, cascade="all, delete")
