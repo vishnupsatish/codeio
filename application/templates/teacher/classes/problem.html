@@ -168,18 +168,21 @@
                     {% for stud in student_submissions %}
                         {% for subm in student_submissions[stud] %}
                             <a href="{{ url_for('teacher_student_submission', task_id=subm.uuid) }}">
-                                <div class="card mb-2">
+
+                                {% if subm.marks == problem.total_marks %}
+                                    {% set submission_background_class = 'has-background-success-light' %}
+                                {% elif subm.marks == 0 %}
+                                    {% set submission_background_class = 'has-background-danger-light' %}
+                                {% else %}
+                                    {% set submission_background_class = 'has-background-warning-light' %}
+                                {% endif %}
+
+                                <div class="box mb-2 {{ submission_background_class }} card-hover-effect">
 
 
-                                    {% if subm.marks == problem.total_marks %}
-                                        {% set submission_background_class = 'has-background-success-light' %}
-                                    {% elif subm.marks == 0 %}
-                                        {% set submission_background_class = 'has-background-danger-light' %}
-                                    {% else %}
-                                        {% set submission_background_class = 'has-background-warning-light' %}
-                                    {% endif %}
 
-                                    <div class="card-content card-hover-effect {{ submission_background_class }}">
+
+                                    <div class="content">
                                         <div class="columns is-mobile">
                                             <div class="column is-9-desktop is-8-mobile">
                                                 <h4 class="title is-4">Submission by {{ subm.student.name }}</h4>
@@ -206,11 +209,13 @@
                     <h3 class="title is-3">Not Submitted</h3>
                     {% for stud in student_submissions %}
                         {% if not student_submissions[stud] %}
-                            <div class="card has-background-danger-light mb-2">
-                                <div class="card-content">
-                                    <h4 class="title is-4">{{ stud.name }}</h4>
+                            <a href="{{ url_for('teacher_class_specific_student', class_identifier=class_.identifier, student_identifier=stud.identifier) }}">
+                            <div class="box has-background-danger-light mb-2 card-hover-effect">
+                                <div class="content">
+                                    <h4 class="title is-4 mb-2 mt-2">{{ stud.name }}</h4>
                                 </div>
                             </div>
+                            </a>
                         {% endif %}
                     {% endfor %}
 

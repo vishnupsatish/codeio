@@ -745,3 +745,60 @@ def teacher_student_submission(task_id):
                            time=problem.time_limit, presigned_url=presigned_url, results=results,
                            class_=submission.problem.class_, form=form, problem=problem,
                            page_title=f'Submission by {submission.student.name} - {problem.title} - {problem.class_.name}')
+
+
+@app.route('/class/<string:class_identifier>/student/<string:student_identifier>', methods=['GET', 'POST'])
+@login_required
+@abort_teacher_not_confirmed
+def teacher_class_specific_student(class_identifier, student_identifier):
+    # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
+    # Get the student
+    student = Student.query.filter_by(identifier=student_identifier, class_=class_).first_or_404()
+
+    # Get the student's average mark
+    average_mark = get_student_mark(student, class_)
+
+    # Get the student's submissions showing the latest one first
+    submissions = sorted(student.submissions, key=lambda s: s.date_time, reverse=True)
+
+    # Get the problems that the student has not submitted to, using simple list comprehension
+    not_submitted = []
+
+    for problem in class_.problems:
+        not_submitted.append(problem) if student not in [s.student for s in problem.submissions] else None
+
+    return render_template('teacher/classes/student.html', class_=class_, student=student, average_mark=average_mark,
+                           submissions=submissions, not_submitted=not_submitted)
+
+
+@app.route('/class/<string:class_identifier>/student/<string:student_identifier>/delete')
+def teacher_class_delete_student(class_identifier, student_identifier):
+    # If the user isn't logged in, don't tell them that this page exists!
+    if not current_user.is_authenticated:
+        abort(404)
+
+    # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    if class_ not in current_user.classes:
+        abort(404)
+
+    student = Student.query.filter_by(identifier=student_identifier, class_=class_).first_or_404()
+
+    # Delete the student if the hashes match of the required attributes
+    sha_hash_contents = sha256(f'{class_.id}{student.id}{current_user.password}'.encode('utf-8')).hexdigest()
+
+    if sha_hash_contents != request.args.get('hash'):
+        return render_template('errors/token_expired.html')
+
+    db.session.delete(student)
+
+    db.session.commit()
+
+    # Let the user know, then redirect
+    flash('The student has been deleted.', 'success')
+
+    return redirect(url_for('teacher_class_home', identifier=class_identifier))

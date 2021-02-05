@@ -1,0 +1,136 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+
+    <section class="section">
+
+        <div class="container">
+
+            {# Breadcrumbs to show the path that the user is currently in #}
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_students', identifier=class_.identifier) }}">Users</a>
+                    </li>
+                    <li class="is-active"><a href="#" aria-current="page">Student: {{ student.name }}</a></li>
+                </ul>
+            </nav>
+
+            <h2 class="title is-2">Student: {{ student.name }}</h2>
+            <h4 class="title is-4 mb-2">Student code: {{ student.identifier }}</h4>
+            <h4 class="title is-4">Average mark: {{ average_mark[0] }}/{{ average_mark[1] }}
+                ({{ average_mark[2] }})</h4>
+
+
+
+            <button class="button is-danger mb-6" data-target="delete-modal" onclick="toggleActive(this)">Delete student</button>
+
+            {% set sha_hash = sha256((class_.id|string + student.id|string + current_user.password).encode('utf-8')).hexdigest() %}
+
+            {# Modal to delete student #}
+            <div class="modal" id="delete-modal">
+                <div class="modal-background" onclick="removeActive(this)" data-target="delete-modal"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Delete student</p>
+                        <button class="delete" aria-label="close" onclick="removeActive(this)"
+                                data-target="delete-modal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        Are you sure you want to delete the student? All of the submissions, etc. that are associated to
+                        the student will be permanently deleted.
+                    </section>
+                    <footer class="modal-card-foot">
+                        <a href="{{ url_for('teacher_class_delete_student', class_identifier=class_.identifier, student_identifier=student.identifier, hash=sha_hash) }}"
+                           class="button is-danger">Delete student</a>
+                        <button class="button" onclick="removeActive(this)" data-target="delete-modal">Cancel</button>
+                    </footer>
+                </div>
+            </div>
+
+
+            <div class="columns">
+                <div class="column">
+
+
+                    {# Show submissions that the student has done #}
+                    <h3 class="title is-3">Submissions</h3>
+
+                    {% for subm in submissions %}
+                        <a href="{{ url_for('teacher_student_submission', task_id=subm.uuid) }}">
+
+                            {% if subm.marks == subm.problem.total_marks %}
+                                {% set submission_background_class = 'has-background-success-light' %}
+                            {% elif subm.marks == 0 %}
+                                {% set submission_background_class = 'has-background-danger-light' %}
+                            {% else %}
+                                {% set submission_background_class = 'has-background-warning-light' %}
+                            {% endif %}
+
+                            <div class="box mb-2 {{ submission_background_class }} card-hover-effect">
+
+
+                                <div class="content">
+                                    <div class="columns is-mobile">
+                                        <div class="column is-9-desktop is-8-mobile">
+                                            <h4 class="title is-4">Submission to {{ subm.problem.title }}</h4>
+                                            <p>{{ subm.date_time.strftime('%m/%d/%Y - %-I:%M %p') }} UTC</p>
+                                        </div>
+
+
+                                        <div class="column" style="margin-top: auto; margin-bottom: auto;">
+                                            <h4 class="title is-4">{{ subm.marks }}/{{ subm.problem.total_marks }}</h4>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+
+                </div>
+
+                {# Show the problems that the student has not submitted to #}
+                <div class="column">
+                    <h3 class="title is-3">Not Submitted</h3>
+
+                    {% for problem in not_submitted %}
+                        <a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">
+                            <div class="box card-hover-effect has-background-danger-light mb-2">
+                                <div class="content">
+                                    <h4 class="title is-4 mb-2 mt-2">{{ problem.title }}</h4>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+
+{% endblock %}

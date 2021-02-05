@@ -65,13 +65,15 @@
                     <tr>
                         <th>Name</th>
                         <th>Code</th>
-                        <th>Course Mark</th>
+                        <th>Course mark</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in students %}
                         <tr>
-                            <td>{{ student.name }}</td>
+                            <td>
+                                <a href="{{ url_for('teacher_class_specific_student', class_identifier=class_.identifier, student_identifier=student.identifier) }}">{{ student.name }}</a>
+                            </td>
                             <td>{{ student.identifier }}</td>
                             <td>{{ marks[student][0] }}/{{ marks[student][1] }} or {{ marks[student][2] }}</td>
                         </tr>
@@ -83,8 +85,11 @@
             <h3 class="title is-3 mt-6">Teachers</h3>
 
             {# The link to allow teachers to add another teacher to the class #}
-            <div class="box mb-6 mt-4"><p>Send this link to invite another teacher to your class (valid for 2 hours):</p>
-                <h4 class="title is-4"><a href="{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}" id="text-to-copy" target="_blank">
+            <div class="box mb-6 mt-4"><p>Send this link to invite another teacher to your class (valid for 2
+                hours):</p>
+                <h4 class="title is-4"><a
+                        href="{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}"
+                        id="text-to-copy" target="_blank">
                     {{ base_url }}{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}</a>
                 </h4>
                 <button onclick="copy_url()" class="button is-info">Copy</button>
@@ -118,6 +123,7 @@
     <script>
 
         {# When the copy button is pressed #}
+
         function copy_url() {
             const link = document.getElementById('text-to-copy').innerText
 
