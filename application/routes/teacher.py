@@ -1,9 +1,11 @@
+import os
 import boto3
 import mistune
 from hashlib import sha256
 from secrets import token_urlsafe
+from functools import wraps
 from flask import render_template, url_for, flash, redirect, request, abort, send_from_directory, send_file
-from application import app, db, bcrypt
+from application import app, db, bcrypt, mail, serializer
 from flask_login import login_user, current_user, logout_user, login_required
 from application.forms.teacher import *
 from application.settingssecrets import *
@@ -20,6 +22,24 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 
 # Set AWS bucket name
 bucket_name = AWS_BUCKET_NAME
+
+
+# Create a decorator function
+def abort_teacher_not_confirmed(f):
+    # When this function is used as a decorator, the @wraps calls the decorator
+    # function with the function below the decorator as the parameter "f", and any
+    # arguments and keyword arguments are also passed in and can be passed to the
+    # original function as well
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        if not current_user.confirm:
+            return redirect(url_for('teacher_confirm_account'))
+
+        return f(*args, **kwargs)
+
+    # If the function is used as a decorator, then return
+    # the decorator function which will be called
+    return decorator
 
 
 # Route the favicon to the favicon image in the static directory
@@ -42,6 +62,13 @@ def teacher_redirect_to_dashboard():
 # Log the user out
 @app.route('/logout')
 def logout():
+    # If the user is not logged in or have not confirmed their email, don't log them out
+    if not current_user.is_authenticated:
+        abort(404)
+
+    if not current_user.confirm:
+        abort(404)
+
     logout_user()
     return redirect(url_for('teacher_login'))
 
@@ -56,7 +83,7 @@ def teacher_register():
     # Create form using Flask-WTF
     form = RegistrationForm()
 
-    # If form was submitted successfully, create a user and redirect to login page
+    # If form was submitted successfully, create a user and redirect to confirm account page
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(
             form.password.data).decode('utf-8')
@@ -64,7 +91,12 @@ def teacher_register():
                     password=hashed_password)
         db.session.add(user)
         db.session.commit()
-        flash('Your account has been created! You are now able to log in.', 'success')
+        login_user(user, remember=True)
+        token = serializer.dumps(current_user.email, salt=os.environ.get('SECRET_KEY'))
+        mail.send_message(sender='contact@codeio.tech',
+                          subject='Your CodeIO Confirmation Email',
+                          body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
+                          recipients=['vishnupavan.satish@gmail.com'])
         return redirect(url_for('teacher_login'))
 
     return render_template('teacher/general/register.html', form=form, page_title='Register')
@@ -99,9 +131,89 @@ def teacher_login():
     return render_template('teacher/general/login.html', form=form, page_title='Login')
 
 
+# A route to confirm the user's account
+@app.route('/confirm-account', methods=['GET', 'POST'])
+def teacher_confirm_account():
+    # If the user is not logged in or the user has already confirmed, then return
+    if not current_user.is_authenticated:
+        abort(404)
+
+    if current_user.confirm:
+        return redirect(url_for('teacher_dashboard'))
+
+    # Create the form which allows resending confirmation emails
+    form = ConfirmAccountForm()
+
+    # If the form was validated, generate a timed token, then send the message and let the user know
+    if form.validate_on_submit():
+        token = serializer.dumps(current_user.email, salt=os.environ.get('SECRET_KEY'))
+        mail.send_message(sender='contact@codeio.tech',
+                          subject='Your CodeIO Confirmation Email',
+                          body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
+                          recipients=['vishnupavan.satish@gmail.com'])
+
+        flash('The email has been sent to you.', 'success')
+
+        return redirect(url_for('teacher_confirm_account'))
+
+    return render_template('teacher/general/confirm-account.html', form=form, page_title='Confirm Account')
+
+
+# Route to check a user's token
+@app.route('/token/<token>')
+def teacher_token(token):
+    # If the user is not logged in or the user has already confirmed, then return
+    if not current_user.is_authenticated:
+        abort(404)
+
+    if current_user.confirm:
+        abort(404)
+
+    # Load the token, then check if the emails match and set that the user has confirmed
+    try:
+        email = serializer.loads(token, salt=os.environ.get('SECRET_KEY'), max_age=7200)
+        if email == current_user.email:
+            current_user.confirm = True
+            db.session.commit()
+
+            flash('Your email has been confirmed.', 'success')
+            return redirect(url_for('teacher_dashboard'))
+    # If there was an error while loading the token, return so
+    except:
+        return 'The token you have provided is incorrect or has timed out.'
+
+
+# Delete a user's account
+@app.route('/delete-account/')
+def teacher_delete_account():
+    if not current_user.is_authenticated:
+        abort(404)
+
+    # Hash the same properties as was passed from the class page
+    sha_hash_contents = sha256(
+        f'{current_user.id}{current_user.email}{current_user.password}'.encode('utf-8')).hexdigest()
+
+    # if the hashes don't match, don't delete the account
+    if sha_hash_contents != request.args.get('hash'):
+        return 'The deletion hash is incorrect!'
+
+    # Get the user and delete the account
+    user = User.query.filter_by(id=current_user.id).first()
+
+    logout_user()
+
+    db.session.delete(user)
+    db.session.commit()
+
+    flash('Your account has been deleted.', 'success')
+
+    return redirect(url_for('teacher_register'))
+
+
 # The teacher's dashboard
 @app.route('/dashboard')
 @login_required
+@abort_teacher_not_confirmed
 def teacher_dashboard():
     # Get all of the classes that are associated to the current user
     classes_ = Class_.query.filter_by(user=current_user).all()
@@ -111,6 +223,7 @@ def teacher_dashboard():
 # Creating a new class
 @app.route('/new-class', methods=['GET', 'POST'])
 @login_required
+@abort_teacher_not_confirmed
 def new_class():
     # Initialize the NewClassForm from Flask-WTF
     form = NewClassForm()
@@ -128,6 +241,7 @@ def new_class():
 # A class's homepage
 @app.route('/class/<string:identifier>/home')
 @login_required
+@abort_teacher_not_confirmed
 def teacher_class_home(identifier):
     # Query the class from it's unique identifier, and if the class doesn't exist, abort with 404
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
@@ -183,6 +297,7 @@ def teacher_class_delete(identifier):
 # The students from a particular class
 @app.route('/class/<string:identifier>/students', methods=['GET', 'POST'])
 @login_required
+@abort_teacher_not_confirmed
 def teacher_class_students(identifier):
     # Get the class from the identifier in the URL
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
@@ -216,6 +331,7 @@ def teacher_class_students(identifier):
 # Creating a new problem
 @app.route('/class/<string:identifier>/new-problem', methods=['GET', 'POST'])
 @login_required
+@abort_teacher_not_confirmed
 def teacher_class_new_problem(identifier):
     class_ = Class_.query.filter_by(identifier=identifier, user=current_user).first_or_404()
     form = NewProblemForm()
@@ -313,6 +429,7 @@ def teacher_class_new_problem(identifier):
 # Each problem's page
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>', methods=['GET', 'POST'])
 @login_required
+@abort_teacher_not_confirmed
 def teacher_class_problem(class_identifier, problem_identifier):
     # Get the class the problem from the database based on each identifier as passed in from the URL
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
@@ -413,6 +530,7 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
 # Edit a problem
 @app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/edit', methods=['GET', 'POST'])
 @login_required
+@abort_teacher_not_confirmed
 def teacher_class_problem_edit(class_identifier, problem_identifier):
     # Get the class the problem from the database based on each identifier as passed in from the URL
     class_ = Class_.query.filter_by(identifier=class_identifier, user=current_user).first_or_404()
@@ -470,6 +588,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
 # View a student's submission to a problem
 @app.route('/teacher/submission/<task_id>', methods=['GET', 'POST'])
 @login_required
+@abort_teacher_not_confirmed
 def teacher_student_submission(task_id):
     # Get the submission and problem from the URL
     submission = Submission.query.filter_by(uuid=task_id).first_or_404()

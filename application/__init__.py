@@ -3,7 +3,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from application.settingssecrets import MAIL_EMAIL, MAIL_PASSWORD
+from flask_mail import Mail
 from celery import Celery
+from itsdangerous import URLSafeTimedSerializer
 
 # Initialize Flask and extensions, such as Flask_SQLAlchemy, Flask_Login, etc.
 app = Flask(__name__)
@@ -21,6 +24,18 @@ app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
+
+# Initialize Flask-Mail, used for sending confirmation emails
+app.config['MAIL_SERVER'] = 'smtp.codeio.tech'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USERNAME'] = MAIL_EMAIL
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+mail = Mail(app)
+
+# Initialize the timed serializer, used for confirming a user's email
+serializer = URLSafeTimedSerializer(os.environ.get('SECRET_KEY'))
+
 
 # Import each route from all initializations have been finished
 from application.routes import student, teacher, errors

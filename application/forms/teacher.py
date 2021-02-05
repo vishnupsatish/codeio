@@ -29,6 +29,11 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+# A form to send the confirmation email
+class ConfirmAccountForm(FlaskForm):
+    submit = SubmitField('Resend Confirmation Email')
+
+
 # The form to create a new problem
 class NewProblemForm(FlaskForm):
     # The relevant text, boolean, and select fields

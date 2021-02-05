@@ -24,6 +24,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
 
+    confirm = db.Column(db.Boolean, default=False)
+
     # The classes and problems that the user has created
     classes_ = db.relationship('Class_', backref='user', lazy=True)
     problems = db.relationship('Problem', backref='user', lazy=True)
