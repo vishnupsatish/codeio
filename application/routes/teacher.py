@@ -93,10 +93,16 @@ def teacher_register():
         db.session.commit()
         login_user(user, remember=True)
         token = serializer.dumps(current_user.email, salt=os.environ.get('SECRET_KEY'))
-        mail.send_message(sender='contact@codeio.tech',
-                          subject='Your CodeIO Confirmation Email',
-                          body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
-                          recipients=[current_user.email])
+
+        # Resend confirmation email, if there was an error, say so
+        try:
+            mail.send_message(sender='contact@codeio.tech',
+                              subject='Your CodeIO Confirmation Email',
+                              body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
+                              recipients=[current_user.email])
+        except:
+            flash('There was an error sending a confirmation email.', 'danger')
+
         return redirect(url_for('teacher_login'))
 
     return render_template('teacher/general/register.html', form=form, page_title='Register')
@@ -147,10 +153,16 @@ def teacher_confirm_account():
     # If the form was validated, generate a timed token, then send the message and let the user know
     if form.validate_on_submit():
         token = serializer.dumps(current_user.email, salt=os.environ.get('SECRET_KEY'))
-        mail.send_message(sender='contact@codeio.tech',
-                          subject='Your CodeIO Confirmation Email',
-                          body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
-                          recipients=['vishnupavan.satish@gmail.com'])
+
+        # Resend confirmation email, if there was an error, say so
+        try:
+            mail.send_message(sender='contact@codeio.tech',
+                              subject='Your CodeIO Confirmation Email',
+                              body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
+                              recipients=[current_user.email])
+        except:
+            flash('There was an error sending a confirmation email.', 'danger')
+            return redirect(url_for('teacher_confirm_account'))
 
         flash('The email has been sent to you.', 'success')
 
