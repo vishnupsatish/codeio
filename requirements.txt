@@ -19,6 +19,7 @@ email-validator==1.1.2
 Flask==1.1.2
 Flask-Admin==1.5.7
 Flask-Bcrypt==0.7.1
+Flask-Limiter==1.4
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-SQLAlchemy==2.4.4
@@ -28,6 +29,7 @@ itsdangerous==1.1.0
 Jinja2==2.11.2
 jmespath==0.10.0
 kombu==5.0.2
+limits==1.5.1
 lxml==4.6.2
 MarkupSafe==1.1.1
 mistune==2.0.0a6
