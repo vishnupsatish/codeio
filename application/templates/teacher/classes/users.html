@@ -90,7 +90,7 @@
                 <h4 class="title is-4"><a
                         href="{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}"
                         id="text-to-copy" target="_blank">
-                    {{ base_url }}{{ url_for('teacher_class_invite', identifier=class_.identifier, key=key) }}</a>
+                    {{ url_for('teacher_class_invite', identifier=class_.identifier, key=key, _external=True) }}</a>
                 </h4>
                 <button onclick="copy_url()" class="button is-info">Copy</button>
             </div>

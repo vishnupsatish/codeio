@@ -63,18 +63,26 @@
             </div>
 
 
-            <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}"
-               class="button is-info">Edit problem</a>
+            <div class="buttons">
+                <a href="{{ url_for('teacher_class_problem_edit', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}"
+                   class="button is-info">Edit problem</a>
 
 
-            <button class="button is-danger" onclick="toggleActive(this)" data-target="delete-modal">Delete problem
-            </button>
+                <button class="button is-danger" onclick="toggleActive(this)" data-target="delete-modal">Delete problem
+                </button>
+
+                <form action="" method="post">
+                    {{ form.hidden_tag() }}
+
+                    {{ form.submit(class='button is-info') }}
+                </form>
+            </div>
 
             {# The unique link to send to students #}
             <div class="box mb-6 mt-4"><p>Send this link to your students:</p>
                 <h4 class="title is-4"><a id="text-to-copy" target="_blank"
                                           href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">
-                    {{ base_url }}{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}</a>
+                    {{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier, _external=True) }}</a>
                 </h4>
                 <button onclick="copy_url()" class="button is-info">Copy</button>
             </div>
@@ -180,8 +188,6 @@
                                 <div class="box mb-2 {{ submission_background_class }} card-hover-effect">
 
 
-
-
                                     <div class="content">
                                         <div class="columns is-mobile">
                                             <div class="column is-9-desktop is-8-mobile">
@@ -210,11 +216,11 @@
                     {% for stud in student_submissions %}
                         {% if not student_submissions[stud] %}
                             <a href="{{ url_for('teacher_class_specific_student', class_identifier=class_.identifier, student_identifier=stud.identifier) }}">
-                            <div class="box has-background-danger-light mb-2 card-hover-effect">
-                                <div class="content">
-                                    <h4 class="title is-4 mb-2 mt-2">{{ stud.name }}</h4>
+                                <div class="box has-background-danger-light mb-2 card-hover-effect">
+                                    <div class="content">
+                                        <h4 class="title is-4 mb-2 mt-2">{{ stud.name }}</h4>
+                                    </div>
                                 </div>
-                            </div>
                             </a>
                         {% endif %}
                     {% endfor %}

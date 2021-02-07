@@ -1,11 +1,17 @@
 import os
+import time
+
 import boto3
 import mistune
+import mosspy
+import random
+import string
 from hashlib import sha256
 from secrets import token_urlsafe
 from functools import wraps
-from flask import render_template, url_for, flash, redirect, request, abort, send_from_directory, send_file
-from application import app, db, bcrypt, mail, serializer
+from cryptography.fernet import Fernet
+from flask import render_template, url_for, flash, redirect, request, abort, send_file, jsonify
+from application import app, db, bcrypt, mail, serializer, celery, limiter
 from flask_login import login_user, current_user, logout_user, login_required
 from application.forms.teacher import *
 from application.settingssecrets import *
@@ -22,6 +28,9 @@ s3_client = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
 
 # Set AWS bucket name
 bucket_name = AWS_BUCKET_NAME
+
+# Initialize Fernet encryption (for encryption of MOSS codes)
+fernet = Fernet(os.environ.get('FERNET_KEY').encode())
 
 
 # Create a decorator function
@@ -98,7 +107,7 @@ def teacher_register():
         try:
             mail.send_message(sender='contact@codeio.tech',
                               subject='Your CodeIO Confirmation Email',
-                              body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
+                              body=f'Click on the below link to confirm your CodeIO account\n{url_for("teacher_token", token=token, _external=True)}',
                               recipients=[current_user.email])
         except:
             flash('There was an error sending a confirmation email.', 'danger')
@@ -137,6 +146,61 @@ def teacher_login():
     return render_template('teacher/general/login.html', form=form, page_title='Login')
 
 
+# A route to send a password reset email in case the user forgets their password
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def teacher_forgot_password():
+    # If the user is logged in, abort with 404 code
+    if current_user.is_authenticated:
+        abort(404)
+
+    form = ForgotPasswordForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = serializer.dumps(user.email, salt=os.environ.get('SECRET_KEY') + 'reset')
+            mail.send_message(sender='contact@codeio.tech',
+                              subject='Reset your password on CodeIO',
+                              body=f'Click on the below link to reset your password\n{url_for("teacher_forgot_password_token", token=token, _external=True)}',
+                              recipients=[user.email])
+        time.sleep(1)
+        flash('An email has been sent to reset your password if the user exists.', 'info')
+        return redirect(url_for('teacher_forgot_password'))
+
+    return render_template('teacher/general/forgot-password.html', form=form, page_title='Forgot password')
+
+
+# A route to change a user's password based on the token that was sent to their email
+@app.route('/forgot-password/<token>', methods=['GET', 'POST'])
+def teacher_forgot_password_token(token):
+    # If the user is logged in, abort with 404 code
+    if current_user.is_authenticated:
+        abort(404)
+
+    # Get the user's email based on the serializer's value
+    try:
+        user = User.query.filter_by(
+            email=serializer.loads(token, salt=os.environ.get('SECRET_KEY') + 'reset', max_age=7200)).first()
+    # If there was an issue, that means the token was incorrect, then abort with 404
+    except:
+        abort(404)
+
+    # Initialize the form
+    form = ChangePasswordForm()
+
+    # If the form validated, then generate a password hash,
+    # change the user's password, then let the user know
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been changed.', 'success')
+        return redirect(url_for('teacher_login'))
+
+    # Show the HTML page
+    return render_template('teacher/general/change-password.html', form=form)
+
+
 # A route to confirm the user's account
 @app.route('/confirm-account', methods=['GET', 'POST'])
 def teacher_confirm_account():
@@ -158,7 +222,7 @@ def teacher_confirm_account():
         try:
             mail.send_message(sender='contact@codeio.tech',
                               subject='Your CodeIO Confirmation Email',
-                              body=f'Click on the below link to confirm your CodeIO account\n{request.host_url[:-1]}/token/{token}',
+                              body=f'Click on the below link to confirm your CodeIO account\n{url_for("teacher_token", token=token, _external=True)}',
                               recipients=[current_user.email])
         except:
             flash('There was an error sending a confirmation email.', 'danger')
@@ -220,6 +284,31 @@ def teacher_delete_account():
     flash('Your account has been deleted.', 'success')
 
     return redirect(url_for('teacher_register'))
+
+
+# A route to update the current user's account
+@app.route('/account', methods=['GET', 'POST'])
+@login_required
+@abort_teacher_not_confirmed
+def teacher_account():
+    form = UpdateAccountForm()
+
+    # If the form was submitted successfully,
+    # change the user's attributes and commit
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.moss_id = fernet.encrypt(form.moss_code.data.encode()).decode()
+        db.session.commit()
+        flash('Your account has been updated.', 'success')
+        return redirect(url_for('teacher_account'))
+
+    # Set the default form values to the user's attributes
+    form.name.data = current_user.name
+
+    if current_user.moss_id:
+        form.moss_code.data = fernet.decrypt(current_user.moss_id.encode()).decode()
+
+    return render_template('teacher/general/account.html', form=form)
 
 
 # The teacher's dashboard
@@ -326,9 +415,10 @@ def teacher_class_students(identifier):
     form = NewStudentForm()
 
     # If the form was submitted successfully, create a new student based on the
-    # game, and generate a urlsafe code that the student will use to log in
+    # game, and generate a random alphanumeric code that the student will use to log in
     if form.validate_on_submit():
-        student = Student(name=form.name.data, identifier=token_urlsafe(4), class_=class_)
+        student = Student(name=form.name.data, identifier=''.join(
+            random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=8)), class_=class_)
         db.session.add(student)
         db.session.commit()
         flash('The student has been created successfully.', 'success')
@@ -347,7 +437,7 @@ def teacher_class_students(identifier):
     key = serializer.dumps(class_.id, salt=os.environ.get('SECRET_KEY'))
 
     return render_template('teacher/classes/users.html', identifier=identifier, form=form, class_=class_,
-                           base_url=request.host_url[:-1], students=students, marks=marks,
+                           students=students, marks=marks,
                            page_title=f'Students - {class_.name}', key=key)
 
 
@@ -593,12 +683,167 @@ def teacher_class_problem(class_identifier, problem_identifier):
         show_student_submissions = ''
         show_problem_info = 'dontshow'
 
+    # The form to check a problem's submissions for plagiarism
+    plagiarism_form = CheckPlagiarismForm()
+
+    # If the form was successfully validated
+    if plagiarism_form.validate_on_submit():
+        # Call the Celery task to check for plagiarism
+        task = teacher_check_for_plagiarism.delay(class_identifier=class_identifier,
+                                                  problem_identifier=problem_identifier,
+                                                  user_id=current_user.id)
+        # Redirect to the plagiarism viewer page
+        return redirect(url_for('teacher_class_problem_plagiarism', class_identifier=class_identifier,
+                                problem_identifier=problem_identifier, task_id=task.id))
+
     return render_template('teacher/classes/problem.html', problem=problem, identifier=class_identifier,
                            input_presigned_urls=input_presigned_urls, output_presigned_urls=output_presigned_urls,
-                           class_=class_, student_submissions=student_submissions, base_url=request.host_url[:-1],
+                           class_=class_, student_submissions=student_submissions,
                            active_student_submissions=active_student_submissions,
                            show_student_submissions=show_student_submissions, show_problem_info=show_problem_info,
-                           active_show_problem=active_show_problem, page_title=f'{problem.title} - {class_.name}')
+                           active_show_problem=active_show_problem, page_title=f'{problem.title} - {class_.name}',
+                           form=plagiarism_form)
+
+
+# The page to show the MOSS links for each language in the problem
+@app.route('/class/<string:class_identifier>/problem/<string:problem_identifier>/plagiarism-check/<string:task_id>')
+def teacher_class_problem_plagiarism(class_identifier, problem_identifier, task_id):
+    # Get the class and problem
+    class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier).first_or_404()
+
+    flash(
+        'If you leave this page, the plagiarism task link will not be shown to you again. Either save the MOSS link(s) or start another plagiarism check.',
+        'warning')
+
+    return render_template('teacher/classes/plagiarism-check.html', task_id=task_id, class_=class_, problem=problem,
+                           page_title='Plagiarism check')
+
+
+# The background task to return MOSS links for checking plagiarism
+@celery.task(bind=True)
+def teacher_check_for_plagiarism(self, class_identifier, problem_identifier, user_id):
+    # Get the problem and the teacher that initiated the MOSS request
+    problem = Problem.query.filter_by(identifier=problem_identifier).first()
+    user = User.query.filter_by(id=user_id).first()
+
+    languages = {}
+    urls = {}
+
+    # For every MOSS-compatible language, add its MOSSpy name to the languages dictionary
+    for lang in problem.languages:
+        if lang.short_name:
+            languages[lang.short_name] = []
+
+    # For every submission in the problem
+    for submission in problem.submissions:
+        # If the submission was done in a compatible language, add
+        # it to the languages dictionary with the key being the MOSSpy name
+        if submission.language.short_name in languages:
+            languages[submission.language.short_name].append(submission)
+
+    # For every MOSSpy compatible language
+    for lang in languages:
+        # Initialize the MOSSpy object
+        moss = mosspy.Moss(fernet.decrypt(user.moss_id.encode()).decode(), lang)
+
+        # For every submission
+        for submission in languages[lang]:
+            # Get the code from S3
+            code_text = s3.Object(bucket_name, submission.file_path).get()['Body'].read().decode('utf-8')
+
+            # Get the file name
+            file_name = submission.file_path.split('/')[-1]
+
+            # Create a temporary file on the system, then add that to the MOSSpy
+            # initialization (since MOSSpy cannot read from Internet URLS)
+            temp_file_path = f'application/temp/{file_name}'
+            with open(temp_file_path, 'w') as file:
+                file.write(code_text)
+            moss.addFile(temp_file_path)
+
+        # If there are submissions associated to the MOSSpy-compatible language
+        if languages[lang]:
+
+            # Try to send the files to MOSS, and if the connection was
+            # reset, then we know that the MOSS ID of the user is incorrect
+            try:
+                urls[lang] = moss.send()
+
+                # If the links are empty, delete the files then return
+                if not urls[lang]:
+                    for submission in languages[lang]:
+                        file_name = submission.file_path.split('/')[-1]
+                        temp_file_path = f'application/temp/{file_name}'
+                        os.remove(temp_file_path)
+                    return 'Your MOSS user ID seems to be incorrect. Please update it.'
+
+            # If there was en error getting the links, delete the files then return
+            except:
+                for submission in languages[lang]:
+                    file_name = submission.file_path.split('/')[-1]
+                    temp_file_path = f'application/temp/{file_name}'
+                    os.remove(temp_file_path)
+                return 'Your MOSS user ID seems to be incorrect. Please update it.'
+
+            # Create the MOSSResult db object
+            moss_result = MOSSResult(link=urls[lang], uuid=celery.current_task.request.id, problem=problem)
+
+            # Get the languages that have the specific short name (for example,
+            # Clang++ and multiple versions of GCC for C++ have the same short name)
+            languages_db = Language.query.filter_by(short_name=lang).all()
+
+            # Add the languages that are common between the languages in the
+            # problem and the languages that are associated to that short_name
+            # (for example, if Clang++ has a short_name of cc, but is not a choice
+            # in the problem, then don't add it)
+            moss_result.languages.extend(list(set(languages_db) & set(problem.languages)))
+            db.session.add(moss_result)
+
+        # Remove each temp file
+        for submission in languages[lang]:
+            file_name = submission.file_path.split('/')[-1]
+            temp_file_path = f'application/temp/{file_name}'
+            os.remove(temp_file_path)
+
+    db.session.commit()
+
+    # If there are URLs, then let the user know the following:
+    if not urls:
+        return 'There needs to be at least two submissions of the same language.'
+
+    # Return each URL
+    return urls
+
+
+# Get the status of a plagiarism task
+@app.route('/plagiarism-status/<task_id>')
+def teacher_get_plagiarism_task_status(task_id):
+    # Get the MOSS results associated to that task id
+    moss_results = MOSSResult.query.filter_by(uuid=task_id).all()
+
+    # If the db object exists, then add the proper languages name (such as
+    # "C++ (GCC 7.8.0)" instead of "cc") to the urls dictionary as the key
+    # then add the URL as the value
+    if moss_results:
+        urls = {}
+        for moss_r in moss_results:
+            urls[', '.join([lang.name for lang in moss_r.languages])] = moss_r.link
+
+        return jsonify({'state': 'SUCCESS', 'urls': urls})
+
+    # If there are no associated db objects, then get the result
+    task = teacher_check_for_plagiarism.AsyncResult(task_id)
+
+    # If the task was successful, return the urls (this is meant as a fallback
+    # if the db method somehow fails, though this should never be invoked)
+    if task.status == 'SUCCESS':
+        urls = task.get()
+
+        return jsonify({'state': 'SUCCESS', 'urls': urls})
+
+    # Let the JS know that the state is still pending
+    return jsonify({'state': 'PENDING'})
 
 
 # Route to delete a problem

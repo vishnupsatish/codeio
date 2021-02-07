@@ -3,6 +3,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from application.settingssecrets import MAIL_EMAIL, MAIL_PASSWORD
 from flask_mail import Mail
 from celery import Celery
@@ -33,9 +35,15 @@ app.config['MAIL_USERNAME'] = MAIL_EMAIL
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 mail = Mail(app)
 
+# Initialize Flask-Limiter
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=['200 per day', '50 per hour', '10 per minute']
+)
+
 # Initialize the timed serializer, used for confirming a user's email
 serializer = URLSafeTimedSerializer(os.environ.get('SECRET_KEY'))
-
 
 # Import each route from all initializations have been finished
 from application.routes import student, teacher, errors

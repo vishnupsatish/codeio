@@ -1,0 +1,95 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "teacher/templates/class_navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+
+            {# Breadcrumbs to show the path that the user is currently in #}
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_home', identifier=class_.identifier) }}">Class: {{ class_.name }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">Problem: {{ problem.title }}</a>
+                    </li>
+                    <li class="is-active"><a href="#" aria-current="page">Check for plagiarism</a></li>
+                </ul>
+            </nav>
+
+            <h3 class="title is-3">Check for plagiarism - <a
+                    href="{{ url_for('teacher_class_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">{{ problem.title }}</a>
+            </h3>
+            <progress class="progress is-info mt-5" id="progress" style="width: 50%;" max="100">15%</progress>
+
+
+        </div>
+
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script>
+        function httpGetAsync(times) {
+
+            // Make an AJAX request
+            const xmlHttp = new XMLHttpRequest();
+
+            // When the AJAX request is successful
+            xmlHttp.onreadystatechange = function () {
+
+                // 200: success
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+
+                    const results = JSON.parse(xmlHttp.responseText);
+
+
+                    if (results['state'] === 'SUCCESS') {
+                        console.log(results)
+                        document.getElementById("progress").style.display = 'none';
+                        // If there was an error getting the MOSS links, let the user know
+                        if (results['urls'] === 'Your MOSS user ID seems to be incorrect. Please update it.' || results['urls'] === 'There needs to be at least two submissions of the same language.') {
+                            document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text has-text-danger">${results['urls']}</h5>`)
+                        } else {
+                            // For every language and URL, add an h5 tag to the page with the format "language(s): link"
+                            for (const lang in results['urls']) {
+                                document.getElementById('progress').insertAdjacentHTML('beforebegin', `<h5 class="title is-5 result-text">${lang}: <a target="_blank" href="${results['urls'][lang]}">${results['urls'][lang]}</a></h5>`)
+                            }
+                        }
+                    }
+
+                }
+            }
+            // If the results are already shows, do not perform another HTTP request
+            if (document.getElementsByClassName('result-text').length === 0) {
+                xmlHttp.open("GET", "/plagiarism-status/{{ task_id }}", true);
+                xmlHttp.send(null);
+            }
+
+            // Since MOSS results can take a while, call the function 60 times over a span of 10 minutes
+            if (times < 600000) {
+                setTimeout(function () {
+                    httpGetAsync(times + 10000)
+                }, 10000);
+            }
+        }
+
+        // Call the function for the first time
+        httpGetAsync(0);
+    </script>
+
+{% endblock %}

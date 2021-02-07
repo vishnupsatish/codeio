@@ -1,0 +1,96 @@
+{% extends "teacher/templates/navbar.html" %}
+
+
+{% block new_head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block body %}
+
+
+    <section class="section">
+
+        <div class="container">
+
+
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('teacher_dashboard') }}">Teacher Home</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Update account</a></li>
+                </ul>
+            </nav>
+
+            <h3 class="title is-3">Your account</h3>
+
+            <form method="post" action="">
+
+                {{ form.hidden_tag() }}
+
+
+                <div class="field">
+                    {{ form.name.label(class="label") }}
+                    {% if form.name.errors %}
+                        {{ form.name(class="input is-danger") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.name(class="input") }}
+                    {% endif %}
+
+                </div>
+
+                <div class="field mt-4">
+                    {{ form.moss_code.label(class="label") }}
+                    {% if form.moss_code.errors %}
+                        {{ form.moss_code(class="input is-danger") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.moss_code.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.moss_code(class="input") }}
+                    {% endif %}
+
+                </div>
+
+                {{ form.submit(class="button is-info") }}
+
+
+                <h4 class="title is-4 mt-6">*What is MOSS?</h4>
+                <p>Directly from the <a target="_blank" href="http://moss.stanford.edu">MOSS homepage:</a></p>
+                <p>
+                    "Moss (for a Measure Of Software Similarity) is an automatic system for determining the similarity
+                    of
+                    programs. To date, the main application of Moss has been in detecting plagiarism in programming
+                    classes. Since its development in 1994, Moss has been very effective in this role. The algorithm
+                    behind moss is a significant improvement over other cheating detection algorithms (at least, over
+                    those known to us)."</p>
+                <br>
+                <p>CodeIO has MOSS capabilities, meaning using your unique MOSS user ID, it can use MOSS to check the
+                    similarity between your students' code for a specific problem. Note that CodeIO is not selling nor
+                    commercializing use for MOSS, it is only providing an interface for you to interact with MOSS since
+                    you're using your user ID. Think of it like a client for MOSS.</p>
+                <br>
+                <p>Sign up for a MOSS ID by following the instructions at the <a target="_blank" href="http://moss.stanford.edu">MOSS
+                    homepage</a>. In essence, all you need to do is send an email. Once you've done that, add
+                    your MOSS user ID here. We will not perform unauthorized requests using your MOSS user ID, and only you
+                    will know it.</p>
+
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

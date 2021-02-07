@@ -70,7 +70,17 @@ s3 = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID,
                     aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 bucket = s3.Bucket(AWS_BUCKET_NAME)
 
-bucket.objects.all().delete()
+classes = Class_.query.all()
+
+for class_ in classes:
+    for problem in class_.problems:
+        for input_file in problem.input_files:
+            s3.Object(AWS_BUCKET_NAME, input_file.file_path).delete()
+        for output_file in problem.output_files:
+            s3.Object(AWS_BUCKET_NAME, output_file.file_path).delete()
+        for submission in problem.submissions:
+            s3.Object(AWS_BUCKET_NAME, submission.file_path).delete()
+
 
 db.session.remove()
 
@@ -92,6 +102,31 @@ for l in languages:
     lang = json.loads(lang.text)
     l_file_ext = lang['source_file'].split('.')[-1]
     lang_db = Language(number=l_id, name=l_name, file_extension=l_file_ext)
+    if l_id == 49 or l_id == 50 or l_id == 48 or l_id == 75:
+        lang_db.short_name = 'c'
+    elif l_id == 71:
+        lang_db.short_name = 'python'
+    elif l_id == 52 or l_id == 53 or l_id == 54 or l_id == 76:
+        lang_db.short_name = 'cc'
+    elif l_id == 51:
+        lang_db.short_name = 'csharp'
+    elif l_id == 67:
+        lang_db.short_name = 'pascal'
+    elif l_id == 62:
+        lang_db.short_name = 'java'
+    elif l_id == 55:
+        lang_db.short_name = 'lisp'
+    elif l_id == 61:
+        lang_db.short_name = 'haskell'
+    elif l_id == 59:
+        lang_db.short_name = 'fortran'
+    elif l_id == 69:
+        lang_db.short_name = 'prolog'
+    elif l_id == 63:
+        lang_db.short_name = 'javascript'
+    elif l_id == 84:
+        lang_db.short_name = 'vb'
+
     db.session.add(lang_db)
 
 for s in status:

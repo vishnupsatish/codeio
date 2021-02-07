@@ -31,13 +31,38 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+# A form to update a teacher's account
+class UpdateAccountForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    moss_code = StringField('MOSS Code')
+    submit = SubmitField('Update account')
+
+
+# A form to send a password reset email to the specified email address
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Send password reset email')
+
+
+# A form to change the password of a user
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField('New password', validators=[DataRequired()])
+    submit = SubmitField('Change password')
+
+
 # A form to send the confirmation email
 class ConfirmAccountForm(FlaskForm):
     submit = SubmitField('Resend confirmation email')
 
 
+# Confirmation to leaving a class
 class LeaveClassForm(FlaskForm):
     submit = SubmitField('Leave class')
+
+
+# Check for plagiarism form
+class CheckPlagiarismForm(FlaskForm):
+    submit = SubmitField('Check for plagiarism')
 
 
 # The form to create a new class

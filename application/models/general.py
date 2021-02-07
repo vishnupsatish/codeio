@@ -19,6 +19,11 @@ class_user_association_table = db.Table('class_user_association', db.Model.metad
                                         db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
                                         )
 
+moss_language_association_table = db.Table('moss_language_association', db.Model.metadata,
+                                           db.Column('moss_result_id', db.Integer, db.ForeignKey('moss_result.id')),
+                                           db.Column('language_id', db.Integer, db.ForeignKey('language.id'))
+                                           )
+
 
 # A user table
 class User(db.Model, UserMixin):
@@ -30,6 +35,8 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String, nullable=False)
 
     confirm = db.Column(db.Boolean, default=False)
+
+    moss_id = db.Column(db.Integer)
 
     # The classes and problems that the user has created
     # classes_ = db.relationship('Class_', backref='user', lazy=True)
@@ -45,7 +52,7 @@ class Student(db.Model):
     identifier = db.Column(db.String, nullable=False)
 
     # The submissions the student has made
-    submissions = db.relationship('Submission', backref='student', lazy=True, cascade="all, delete")
+    submissions = db.relationship('Submission', backref='student', lazy=True, cascade='all, delete')
 
     # The class the student is associated to
     class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
@@ -61,10 +68,10 @@ class Class_(db.Model):
     description = db.Column(db.String)
 
     # The problems associated to that class
-    problems = db.relationship('Problem', backref='class_', lazy=True, cascade="all, delete")
+    problems = db.relationship('Problem', backref='class_', lazy=True, cascade='all, delete')
 
     # The students in that class
-    students = db.relationship('Student', backref='class_', lazy=True, cascade="all, delete")
+    students = db.relationship('Student', backref='class_', lazy=True, cascade='all, delete')
 
     users = db.relationship('User', secondary=class_user_association_table, lazy=True,
                             backref='classes')
@@ -89,21 +96,42 @@ class Problem(db.Model):
     create_date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
 
     # The input and output files associated to that problem
-    input_files = db.relationship('InputFile', backref='problem', lazy=True, cascade="all, delete")
-    output_files = db.relationship('OutputFile', backref='problem', lazy=True, cascade="all, delete")
+    input_files = db.relationship('InputFile', backref='problem', lazy=True, cascade='all, delete')
+    output_files = db.relationship('OutputFile', backref='problem', lazy=True, cascade='all, delete')
 
     # The submissions associated to that problem
-    submissions = db.relationship('Submission', backref='problem', lazy=True, cascade="all, delete")
+    submissions = db.relationship('Submission', backref='problem', lazy=True, cascade='all, delete')
 
     # The languages associated to that problem (many-to-many using the association table)
     languages = db.relationship('Language', secondary=problem_language_association_table, lazy=True,
                                 backref='problems')
+
+    # The MOSS results associated to that problem
+    moss_results = db.relationship('MOSSResult', backref='problem', lazy=True, cascade='all, delete')
 
     # The user who created the problem
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # The class that the problem is in
     class_id = db.Column(db.Integer, db.ForeignKey('class_.id'), nullable=False)
+
+
+# A table to hold the MOSS results
+class MOSSResult(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    # The Celery task's UUID
+    uuid = db.Column(db.String, nullable=False)
+
+    # The link to the MOSS result
+    link = db.Column(db.String, nullable=False)
+
+    # The problem and language associated to the MOSS result
+    problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
+
+    # The languages associated to that problem (many-to-many using the association table)
+    languages = db.relationship('Language', secondary=moss_language_association_table, lazy=True,
+                                backref='moss_results')
 
 
 # A language table
@@ -113,6 +141,7 @@ class Language(db.Model):
     # The number (Judge0 id), name, and file extension of the language's source file
     number = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String, nullable=False)
+    short_name = db.Column(db.String)
     file_extension = db.Column(db.String, nullable=False)
 
     # The submissions associated to that language
@@ -132,10 +161,10 @@ class InputFile(db.Model):
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)
 
     # The output file that is associated to the input file
-    output_file = db.relationship('OutputFile', backref='input_file', lazy=True, uselist=False, cascade="all, delete")
+    output_file = db.relationship('OutputFile', backref='input_file', lazy=True, uselist=False, cascade='all, delete')
 
     # The results associated to the input file
-    results = db.relationship('Result', backref='input_file', lazy=True, cascade="all, delete")
+    results = db.relationship('Result', backref='input_file', lazy=True, cascade='all, delete')
 
 
 # A table that contains every output file
@@ -152,7 +181,7 @@ class OutputFile(db.Model):
     input_id = db.Column(db.Integer, db.ForeignKey('input_file.id'), nullable=False)
 
     # The results associated to the output file
-    results = db.relationship('Result', backref='output_file', lazy=True, cascade="all, delete")
+    results = db.relationship('Result', backref='output_file', lazy=True, cascade='all, delete')
 
 
 # A submission table
@@ -174,7 +203,7 @@ class Submission(db.Model):
     done = db.Column(db.Boolean, default=False)
 
     # The results associated to the submission
-    results = db.relationship('Result', backref='submission', lazy=True, cascade="all, delete")
+    results = db.relationship('Result', backref='submission', lazy=True, cascade='all, delete')
 
     # The problem, student, and language that is the submission is a part of
     problem_id = db.Column(db.Integer, db.ForeignKey('problem.id'), nullable=False)

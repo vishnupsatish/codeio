@@ -75,6 +75,13 @@
 
             <div class="buttons">
 
+
+                {# Pass the hash as a query parameter to the deletion route #}
+                <button class="button is-danger" onclick="toggleActive(this)" data-target="delete-class-modal">
+                    Delete class
+                </button>
+
+
                 {% if class_.users|length > 1 %}
 
                     <button class="button is-danger ml-1" onclick="toggleActive(this)" data-target="leave-class-modal">
@@ -83,10 +90,6 @@
 
                 {% endif %}
 
-                {# Pass the hash as a query parameter to the deletion route #}
-                <button class="button is-danger ml-1" onclick="toggleActive(this)" data-target="delete-class-modal">
-                    Delete class
-                </button>
 
 
             </div>
