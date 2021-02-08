@@ -198,7 +198,7 @@ def teacher_forgot_password_token(token):
         return redirect(url_for('teacher_login'))
 
     # Show the HTML page
-    return render_template('teacher/general/change-password.html', form=form)
+    return render_template('teacher/general/change-password.html', form=form, page_title='Change your password')
 
 
 # A route to confirm the user's account
@@ -238,25 +238,40 @@ def teacher_confirm_account():
 # Route to check a user's token
 @app.route('/token/<token>')
 def teacher_token(token):
-    # If the user is not logged in or the user has already confirmed, then return
-    if not current_user.is_authenticated:
-        abort(404)
-
-    if current_user.confirm:
-        abort(404)
+    # If the user has already confirmed, abort with
+    # 404, then if the user is logged in, log them out
+    if current_user.is_authenticated:
+        if current_user.confirm:
+            abort(404)
+        logout_user()
 
     # Load the token, then check if the emails match and set that the user has confirmed
     try:
         email = serializer.loads(token, salt=os.environ.get('SECRET_KEY'), max_age=7200)
-        if email == current_user.email:
-            current_user.confirm = True
-            db.session.commit()
 
-            flash('Your email has been confirmed.', 'success')
-            return redirect(url_for('teacher_dashboard'))
+        # Get the user from the token
+        user = User.query.filter_by(email=email).first_or_404()
+
+        # Log the user in
+        login_user(user)
+
+        # If the user has confirmed, abort with 404
+        if user.confirm:
+            abort(404)
+
+        # Set the user's confirm attribute to True, then commit
+        current_user.confirm = True
+        db.session.commit()
+
+        # Let the user know they have been confirmed
+        flash('Your email has been confirmed.', 'success')
+        return redirect(url_for('teacher_dashboard'))
+
     # If there was an error while loading the token, return so
     except:
         return render_template('errors/token_expired.html'), 403
+
+    abort(404)
 
 
 # Delete a user's account
@@ -308,7 +323,7 @@ def teacher_account():
     if current_user.moss_id:
         form.moss_code.data = fernet.decrypt(current_user.moss_id.encode()).decode()
 
-    return render_template('teacher/general/account.html', form=form)
+    return render_template('teacher/general/account.html', form=form, page_title='Your account')
 
 
 # The teacher's dashboard
@@ -501,11 +516,11 @@ def teacher_class_invite(identifier):
     try:
         serial_encrypt = serializer.loads(request.args.get('key'), salt=os.environ.get('SECRET_KEY'), max_age=7200)
     except:
-        return render_template('errors/token_expired.html'), 403
+        return render_template('errors/token_expired.html', page_title='Token expired'), 403
 
     # If the user is requesting to the join the incorrect class, let the user know and abort with a 404
     if serial_encrypt != class_.id:
-        return render_template('errors/token_expired.html'), 403
+        return render_template('errors/token_expired.html', page_title='Token expired'), 403
 
     # If the user presses the button the confirm the addition
     # to the class, add them then redirect to the class
@@ -866,7 +881,7 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
 
     # if the two hashes are not the same, then abort with a 404 exit code
     if sha_hash_contents != request.args.get('hash'):
-        return render_template('errors/token_expired.html'), 403
+        return render_template('errors/token_expired.html', page_title='Token expired'), 403
 
     # Delete the input and output files, as well as the submission files
     delete_input_output_files(problem, s3, bucket_name)
@@ -1017,7 +1032,8 @@ def teacher_class_specific_student(class_identifier, student_identifier):
         not_submitted.append(problem) if student not in [s.student for s in problem.submissions] else None
 
     return render_template('teacher/classes/student.html', class_=class_, student=student, average_mark=average_mark,
-                           submissions=submissions, not_submitted=not_submitted)
+                           submissions=submissions, not_submitted=not_submitted,
+                           page_title=f'{student.name} - {class_.name}')
 
 
 @app.route('/class/<string:class_identifier>/student/<string:student_identifier>/delete')
@@ -1037,7 +1053,7 @@ def teacher_class_delete_student(class_identifier, student_identifier):
     sha_hash_contents = sha256(f'{class_.id}{student.id}{current_user.password}'.encode('utf-8')).hexdigest()
 
     if sha_hash_contents != request.args.get('hash'):
-        return render_template('errors/token_expired.html')
+        return render_template('errors/token_expired.html', page_title='Token expired'), 403
 
     db.session.delete(student)
 
