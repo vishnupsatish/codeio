@@ -745,6 +745,9 @@ def teacher_check_for_plagiarism(self, class_identifier, problem_identifier, use
     languages = {}
     urls = {}
 
+    if not user.moss_id:
+        return 'Your MOSS user ID seems to be incorrect. Please update it.'
+
     # For every MOSS-compatible language, add its MOSSpy name to the languages dictionary
     for lang in problem.languages:
         if lang.short_name:
