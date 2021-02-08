@@ -36,7 +36,7 @@ class User(db.Model, UserMixin):
 
     confirm = db.Column(db.Boolean, default=False)
 
-    moss_id = db.Column(db.Integer)
+    moss_id = db.Column(db.String)
 
     # The classes and problems that the user has created
     # classes_ = db.relationship('Class_', backref='user', lazy=True)
