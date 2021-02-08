@@ -8,6 +8,7 @@ from flask_limiter.util import get_remote_address
 from application.settingssecrets import MAIL_EMAIL, MAIL_PASSWORD
 from flask_mail import Mail
 from celery import Celery
+
 from itsdangerous import URLSafeTimedSerializer
 
 # Initialize Flask and extensions, such as Flask_SQLAlchemy, Flask_Login, etc.
@@ -22,7 +23,7 @@ login_manager.login_message_category = 'info'
 login_manager.login_message = 'You must be logged in to view that page.'
 
 # Initialize Celery, the background task manager
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_BROKER_URL'] = os.environ.get('CELERY_BROKER_URL')
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -36,6 +37,7 @@ app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 mail = Mail(app)
 
 # Initialize Flask-Limiter
+app.config['RATELIMIT_STORAGE_URL'] = 'redis://localhost:6379/0'
 limiter = Limiter(
     app,
     key_func=get_remote_address,
