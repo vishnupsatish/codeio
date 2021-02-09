@@ -41,7 +41,7 @@ app.config['RATELIMIT_STORAGE_URL'] = 'redis://localhost:6379/0'
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=['200 per day', '50 per hour', '10 per minute']
+    default_limits=['400 per day', '100 per hour', '20 per minute']
 )
 
 # Initialize the timed serializer, used for confirming a user's email

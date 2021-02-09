@@ -1,7 +1,7 @@
-{% extends "teacher/templates/navbar.html" %}
+{% extends "templates/bulma_template.html" %}
 
 
-{% block new_head %}
+{% block head %}
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
 
@@ -9,8 +9,9 @@
 
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
+    {% include "teacher/templates/navbar.html" %}
 
     <section class="section">
 
@@ -79,9 +80,11 @@
                     commercializing use for MOSS, it is only providing an interface for you to interact with MOSS since
                     you're using your user ID. Think of it like a client for MOSS.</p>
                 <br>
-                <p>Sign up for a MOSS ID by following the instructions at the <a target="_blank" href="http://moss.stanford.edu">MOSS
+                <p>Sign up for a MOSS ID by following the instructions at the <a target="_blank"
+                                                                                 href="http://moss.stanford.edu">MOSS
                     homepage</a>. In essence, all you need to do is send an email. Once you've done that, add
-                    your MOSS user ID here. We will not perform unauthorized requests using your MOSS user ID, and only you
+                    your MOSS user ID here. We will not perform unauthorized requests using your MOSS user ID, and only
+                    you
                     will know it.</p>
 
 

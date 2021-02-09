@@ -1,7 +1,7 @@
-{% extends "teacher/templates/navbar.html" %}
+{% extends "templates/bulma_template.html" %}
 
 
-{% block new_head %}
+{% block head %}
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
 
@@ -9,7 +9,10 @@
 
 {% endblock %}
 
-{% block body %}
+{% block content %}
+
+
+    {% include "teacher/templates/navbar.html" %}
 
 
     <section class="section">

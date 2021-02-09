@@ -65,7 +65,20 @@ def send_sha_function():
 # If the user goes to "/", redirect to the dashboard
 @app.route('/')
 def teacher_redirect_to_dashboard():
+    if not current_user.is_authenticated:
+        return render_template('general/index.html',
+                               page_title='CodeIO - Assess coding skills through interactive problems')
+
     return redirect(url_for('teacher_login'))
+
+
+# About CodeIO page
+@app.route('/about')
+def about():
+    if not current_user.is_authenticated:
+        return redirect(url_for('teacher_redirect_to_dashboard'))
+    return render_template('general/index.html',
+                           page_title='CodeIO - Assess coding skills through interactive problems')
 
 
 # Log the user out
