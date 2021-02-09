@@ -5,3 +5,4 @@ application/site.db
 dump.rdb
 venv/
 supervisord.log
+rabbitmq-signing-key-public.asc
