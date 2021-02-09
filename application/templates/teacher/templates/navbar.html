@@ -1,83 +1,116 @@
+{# The navbar #}
 
-    {# The navbar #}
+<nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">
+            <img src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
 
-    <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">
-                <img src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
+        </a>
 
-            </a>
+        <a onclick="toggleActive(this)" data-target="navbar-mobile-open" role="button" class="navbar-burger burger"
+           aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
 
-            <a onclick="toggleActive(this)" data-target="navbar-mobile-open" role="button" class="navbar-burger burger"
-               aria-label="menu" aria-expanded="false">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-
-        </div>
-
-        <div id="navbar-mobile-open" class="navbar-menu">
-
-            <div class="navbar-start">
-                <a href="{{ url_for('teacher_dashboard') }}" class="navbar-item">Home</a>
-                <a href="{{ url_for('about') }}" class="navbar-item">About</a>
-            </div>
-
-            <div class="navbar-end">
-
-                <a class="navbar-item" href={{ url_for('new_class') }}>
-                    <span class="icon-text">
-                        <span class="icon">
-                            <i class="fas fa-plus"></i>
-                        </span>
-                        <span></span>
-                    </span>
-                </a>
-
-                <a href="{{ url_for('teacher_account') }}" class="navbar-item">Your account</a>
-
-                <a href="{{ url_for('logout') }}" class="navbar-item">Log out</a>
-            </div>
-        </div>
-    </nav>
-
-
-    <div class="modal" id="view-switch">
-        <div class="modal-background" onclick="removeActive(this)" data-target="view-switch"></div>
-        <div class="modal-card">
-            <header class="modal-card-head">
-                <p class="modal-card-title">Change Mode</p>
-                <button class="delete" aria-label="close" onclick="removeActive(this)"
-                        data-target="view-switch"></button>
-            </header>
-            <section class="modal-card-body">
-                <div class="field">
-                    <label for="switchExample">Admin&nbsp;</label>
-                    <input id="switchExample" type="checkbox" name="switchExample" class="switch">
-                    <label for="switchExample">Teacher</label>
-                </div>
-            </section>
-            <footer class="modal-card-foot">
-                <button class="button is-success">Save changes</button>
-                <button onclick="removeActive(this)" data-target="view-switch" class="button">Cancel</button>
-            </footer>
-        </div>
     </div>
 
-    {# Get and show flashed's messages using Bulma's notification class #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
+    <div id="navbar-mobile-open" class="navbar-menu">
 
-                <div class="notification is-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+        <div class="navbar-start">
+            <a href="{{ url_for('teacher_dashboard') }}" class="navbar-item">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-home"></i>
+                    </span>
+                    <span>Home</span>
 
-    {% block body %}
-    {% endblock %}
+                </span>
+            </a>
+            <a href="{{ url_for('about') }}" class="navbar-item">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <span>About</span>
+
+                </span>
+            </a>
+        </div>
+
+        <div class="navbar-end">
+
+            <a class="navbar-item" href={{ url_for('new_class') }}>
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>New class</span>
+
+                </span>
+            </a>
+
+            <a href="{{ url_for('teacher_account') }}" class="navbar-item">
+
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <span>Your account</span>
+
+                </span>
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="navbar-item">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </span>
+                    <span>Log out</span>
+
+                </span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+<div class="modal" id="view-switch">
+    <div class="modal-background" onclick="removeActive(this)" data-target="view-switch"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Change Mode</p>
+            <button class="delete" aria-label="close" onclick="removeActive(this)"
+                    data-target="view-switch"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="field">
+                <label for="switchExample">Admin&nbsp;</label>
+                <input id="switchExample" type="checkbox" name="switchExample" class="switch">
+                <label for="switchExample">Teacher</label>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success">Save changes</button>
+            <button onclick="removeActive(this)" data-target="view-switch" class="button">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+{# Get and show flashed's messages using Bulma's notification class #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+
+            <div class="notification is-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% block body %}
+{% endblock %}
 
 

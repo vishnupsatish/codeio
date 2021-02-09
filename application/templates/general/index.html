@@ -20,10 +20,16 @@
                         <div class="buttons">
 
                             <a href="{{ url_for('teacher_login') }}" class="button is-light">
-                                Log in
+                                <span class="icon">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </span>
+                                <span>Log in</span>
                             </a>
                             <a href="{{ url_for('teacher_register') }}" class="button is-info">
-                                <b>Sign up</b>
+                                <span class="icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </span>
+                                <span><b>Sign up</b></span>
                             </a>
                         </div>
                     </div>
@@ -36,137 +42,145 @@
     {% endif %}
 
 
-        <section class="section">
-            <div class="container">
+    <section class="section">
+        <div class="container">
 
-                <img class="mb-6" width="25%" src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
-
-
+            <img class="mb-6" width="25%" src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
 
 
-                <h3 class="title is-4">What is CodeIO?</h3>
-                <p>CodeIO is a platform that allow teachers to assess coding skills through interactive problems. In
-                    essence,
-                    you assign problems to students, and students solve them.</p>
-                <br>
-                <p>The "teacher" and "student" can be anyone, and CodeIO can be used anywhere from computer science classes
-                    and local coding clubs, to even teaching your own family how to code!</p>
-                <br>
-                <p>If you intend on using CodeIO for commercial uses, contact me at <a target="_blank" href="mailto:contact@vishnus.me">contact@vishnus.me</a>.</p>
+            <h3 class="title is-4">What is CodeIO?</h3>
+            <p>CodeIO is a platform that allow teachers to assess coding skills through interactive problems. In
+                essence,
+                you assign problems to students, and students solve them.</p>
+            <br>
+            <p>The "teacher" and "student" can be anyone, and CodeIO can be used anywhere from computer science classes
+                and local coding clubs, to even teaching your own family how to code!</p>
+            <br>
+            <p>If you intend on using CodeIO for commercial uses, contact me at <a target="_blank"
+                                                                                   href="mailto:contact@vishnus.me">contact@vishnus.me</a>.
+            </p>
 
 
-                <h3 class="title is-4 mt-6">Features</h3>
-                <div class="content">
-                    <ul>
-                        <li>Support for <b>over 40 programming languages</b></li>
-                        <li>Ability to check for plagiarism within the submissions of a problem through an <b>easy-to-use
-                            MOSS
-                            interface</b><a href="#disclaimer">*</a></li>
-                        <li><b>Real-time</b> feedback while running code</li>
-                        <li><b>Invite multiple teachers</b> to a class</li>
-                    </ul>
-                </div>
-
-                <h3 class="title is-4 mt-6">How does it work?</h3>
-                <div class="content">
-                    <ol>
-                        <li>Teacher creates an account</li>
-                        <li>Teacher creates a class</li>
-                        <li>Inside a class, teachers can create students</li>
-                        <ul class="mt-2 mb-2">
-                            <li>Each student is assigned a random code</li>
-                            <li>This code is what they'll use to sign in</li>
-                        </ul>
-                        <li>Inside a class, teachers can add problems</li>
-                        <ul class="mt-2 mb-2">
-                            <li>Every problem has a title, description, and languages allowed</li>
-                            <li>When you create a problem, a unique link will be generated</li>
-                            <ul class="mt-2 mb-2">
-                                <li>You need to send this link to the students to submit to the problem</li>
-                            </ul>
-                            <li>There are two types of problems; auto-graded and non auto-graded</li>
-                            <li>Auto-graded problems</li>
-                            <ul class="mt-2 mb-2">
-                                <li>Teacher adds input and output text files to run the students' code against</li>
-                                <li>When the student submits to the problem, their code is run</li>
-                                <li>The code is given the input file(s) as input (stdin)</li>
-                                <li>Then, the output of the code (stdout) is checked against the output text file that was
-                                    the provided by the teacher</li>
-                                <li>If the output file and the stdout match, then a number of points is awarded (determined
-                                    by you, the teacher)</li>
-                                <li>All of this happens in <b>real-time</b> so the student can see their feedback</li>
-                            </ul>
-                            <li>Non auto-graded problems</li>
-                            <ul class="mt-2 mb-2">
-                                <li>The student submits their code</li>
-                                <li>Then, you, the teacher, are able to see it</li>
-                            </ul>
-                        </ul>
-                    </ol>
-                </div>
-
-                <h3 class="title is-4 mt-6">Technologies</h3>
-                <div class="content">
-                    <p>CodeIO is created using:</p>
-                    <ul>
-                        <li>Back-end</li>
-                        <ul>
-                            <li>Flask - Python web framework</li>
-                            <li>PostgreSQL - main database</li>
-                            <li>Multitude of Flask plugins, such as Flask-SQLAlchemy, Flask-WTF, etc.</li>
-                        </ul>
-                        <li>Front-end</li>
-                        <ul>
-                            <li>Bulma - CSS framework</li>
-                        </ul>
-                        <li>Background tasks</li>
-                        <ul>
-                            <li>Celery - Python background task manager</li>
-                            <li>RabbitMQ - Message broker</li>
-                            <li>Redis - Message database and rate-limiting database</li>
-                        </ul>
-                        <li>Code execution</li>
-                        <ul>
-                            <li>Self-hosted code execution API</li>
-                            <li>Hosted on an EC2 Ubuntu 20.04 LTS instance</li>
-                            <li>Runs on Docker and Isolate</li>
-                            <li>Containerized code execution, to avoid devastating effects on machine</li>
-                            <li>Try running <code>rm -rf</code> on CodeIO!</li>
-                        </ul>
-                        <li>Hosting</li>
-                        <ul>
-                            <li>Hosted on an EC2 Ubuntu 20.04 LTS instance</li>
-                            <li>Nginx proxy server</li>
-                            <li>Gunicorn WSGI web server</li>
-                            <li>LetsEncrypt for HTTPS certificate</li>
-                            <li>Supervisor</li>
-                        </ul>
-                        <li>CodeIO is also <a target="_blank" href="https://github.com/vishnupsatish/codeio">open source</a> with
-                            self-hosting options</li>
-                    </ul>
-                </div>
-
-                <h3 class="title is-4 mt-6">Who created CodeIO?</h3>
-                <p>Vishnu Satish, a high school student in Mississauga, Ontario, Canada</p>
-                <p><a target="_blank" href="https://www.vishnus.me">My website</a></p>
-                <p>Found a bug? Have business/commercial inquires? Want to self-host? Contact me at <a target="_blank" href="mailto:contact@vishnus.me">contact@vishnus.me</a></p>
-
-
-                <h3 class="title is-4 mt-6" id="disclaimer">*Disclaimer</h3>
-                <p>CodeIO has MOSS capabilities, meaning using your unique MOSS user ID, it can use MOSS to check the
-                    similarity between your students' code for a specific problem. Note that CodeIO is not selling nor
-                    commercializing use for MOSS, it is only providing an interface for you to interact with MOSS since
-                    you're using your user ID. Think of it like a client for MOSS.</p>
-                <br>
-                <p>Sign up for a MOSS ID by following the instructions at the MOSS homepage. In essence, all you need to do
-                    is send an email. Once you've done that, add your MOSS user ID in the account page when you're logged
-                    in.</p>
-
-
-
-
+            <h3 class="title is-4 mt-6">Features</h3>
+            <div class="content">
+                <ul>
+                    <li>Support for <b>over 40 programming languages</b></li>
+                    <li>Ability to check for plagiarism within the submissions of a problem through an <b>easy-to-use
+                        MOSS
+                        interface</b><a href="#disclaimer">*</a></li>
+                    <li><b>Real-time</b> feedback while running code</li>
+                    <li><b>Invite multiple teachers</b> to a class</li>
+                </ul>
             </div>
-        </section>
+
+            <h3 class="title is-4 mt-6">How does it work?</h3>
+            <div class="content">
+                <ol>
+                    <li>Teacher creates an account</li>
+                    <li>Teacher creates a class</li>
+                    <li>Inside a class, teachers can create students</li>
+                    <ul class="mt-2 mb-2">
+                        <li>Each student is assigned a random code</li>
+                        <li>This code is what they'll use to sign in</li>
+                    </ul>
+                    <li>Inside a class, teachers can add problems</li>
+                    <ul class="mt-2 mb-2">
+                        <li>Every problem has a title, description, and languages allowed</li>
+                        <li>When you create a problem, a unique link will be generated</li>
+                        <ul class="mt-2 mb-2">
+                            <li>You need to send this link to the students to submit to the problem</li>
+                        </ul>
+                        <li>There are two types of problems; auto-graded and non auto-graded</li>
+                        <li>Auto-graded problems</li>
+                        <ul class="mt-2 mb-2">
+                            <li>Teacher adds input and output text files to run the students' code against</li>
+                            <li>When the student submits to the problem, their code is run</li>
+                            <li>The code is given the input file(s) as input (stdin)</li>
+                            <li>Then, the output of the code (stdout) is checked against the output text file that was
+                                the provided by the teacher
+                            </li>
+                            <li>If the output file and the stdout match, then a number of points is awarded (determined
+                                by you, the teacher)
+                            </li>
+                            <li>All of this happens in <b>real-time</b> so the student can see their feedback</li>
+                        </ul>
+                        <li>Non auto-graded problems</li>
+                        <ul class="mt-2 mb-2">
+                            <li>The student submits their code</li>
+                            <li>Then, you, the teacher, are able to see it</li>
+                        </ul>
+                    </ul>
+                </ol>
+            </div>
+
+            <h3 class="title is-4 mt-6">Technologies</h3>
+            <div class="content">
+                <p>CodeIO is created using:</p>
+                <ul>
+                    <li>Back-end</li>
+                    <ul>
+                        <li>Flask - Python web framework</li>
+                        <li>PostgreSQL - main database</li>
+                        <li>Multitude of Flask plugins, such as Flask-SQLAlchemy, Flask-WTF, etc.</li>
+                    </ul>
+                    <li>Front-end</li>
+                    <ul>
+                        <li>Bulma - CSS framework</li>
+                    </ul>
+                    <li>Background tasks</li>
+                    <ul>
+                        <li>Celery - Python background task manager</li>
+                        <li>RabbitMQ - Message broker</li>
+                        <li>Redis - Message database and rate-limiting database</li>
+                    </ul>
+                    <li>Code execution</li>
+                    <ul>
+                        <li>Self-hosted code execution API</li>
+                        <li>Hosted on an EC2 Ubuntu 20.04 LTS instance</li>
+                        <li>Runs on Docker and Isolate</li>
+                        <li>Containerized code execution, to avoid devastating effects on machine</li>
+                        <li>Try running <code>rm -rf</code> on CodeIO!</li>
+                    </ul>
+                    <li>Hosting</li>
+                    <ul>
+                        <li>Hosted on an EC2 Ubuntu 20.04 LTS instance</li>
+                        <li>Nginx - Proxy server</li>
+                        <li>Gunicorn - WSGI web server</li>
+                        <li>LetsEncrypt - HTTPS certificate</li>
+                        <li>Supervisor - Run Gunicorn and the Celery worker automatically</li>
+                    </ul>
+                    <li>File storage</li>
+                    <ul>
+                        <li>Files, such as input, output, and submission files are stored on AWS S3</li>
+                    </ul>
+                    <li>CodeIO is also <a target="_blank" href="https://github.com/vishnupsatish/codeio">open source</a>
+                        with
+                        self-hosting options
+                    </li>
+                </ul>
+            </div>
+
+            <h3 class="title is-4 mt-6">Who created CodeIO?</h3>
+            <p>Vishnu Satish, a high school student in Mississauga, Ontario, Canada</p>
+            <p><a target="_blank" href="https://www.vishnus.me">My website</a></p>
+            <p>Found a bug? Have business/commercial inquires? Want to self-host? Contact me at <a target="_blank"
+                                                                                                   href="mailto:contact@vishnus.me">contact@vishnus.me</a>
+            </p>
+
+
+            <h3 class="title is-4 mt-6" id="disclaimer">*Disclaimer</h3>
+            <p>CodeIO has MOSS capabilities, meaning using your unique MOSS user ID, it can use MOSS to check the
+                similarity between your students' code for a specific problem. Note that CodeIO is not selling nor
+                commercializing use for MOSS, it is only providing an interface for you to interact with MOSS since
+                you're using your user ID. Think of it like a client for MOSS.</p>
+            <br>
+            <p>Sign up for a MOSS ID by following the instructions at the MOSS homepage. In essence, all you need to do
+                is send an email. Once you've done that, add your MOSS user ID in the account page when you're logged
+                in.</p>
+
+
+        </div>
+    </section>
 
 {% endblock %}
 
