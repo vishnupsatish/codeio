@@ -78,14 +78,27 @@
                 </form>
             </div>
 
-            {# The unique link to send to students #}
-            <div class="box mb-6 mt-4"><p>Send this link to your students:</p>
-                <h4 class="title is-4"><a id="text-to-copy" target="_blank"
-                                          href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">
-                    {{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier, _external=True) }}</a>
-                </h4>
-                <button onclick="copy_url()" class="button is-info">Copy</button>
-            </div>
+            {% if problem.visible and problem.allow_more_submissions %}
+
+                {# The unique link to send to students #}
+                <div class="box mb-6 mt-4"><p>Send this link to your students:</p>
+                    <h4 class="title is-4"><a id="text-to-copy" target="_blank"
+                                              href="{{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier) }}">
+                        {{ url_for('student_submit_problem', class_identifier=class_.identifier, problem_identifier=problem.identifier, _external=True) }}</a>
+                    </h4>
+                    <button onclick="copy_url()" class="button is-info">Copy</button>
+                </div>
+
+            {% elif not problem.visible and not problem.allow_more_submissions %}
+                <h4 class="title is-4">Note: this problem is not allowing more submissions and is not visible. Go to
+                    "Edit problem" to change this.</h4>
+            {% elif not problem.allow_more_submissions %}
+                <h4 class="title is-4">Note: this problem is not allowing more submissions. Go to "Edit problem" to
+                    allow more submissions.</h4>
+            {% else %}
+                <h4 class="title is-4">Note: this problem is not visible to students. Go to "Edit problem" to make it
+                    visible.</h4>
+            {% endif %}
 
             <div class="columns">
                 <div class="column is-10">
@@ -133,6 +146,10 @@
                     {% endfor %}
                     <br>
                     <p><b>Allow multiple submissions</b>: {{ problem.allow_multiple_submissions }}</p>
+                    <br>
+                    <p><b>Visible to students</b>: {{ problem.visible }}</p>
+                    <br>
+                    <p><b>Allow more submissions</b>: {{ problem.allow_more_submissions }}</p>
                     <br>
                     <p><b>Auto grade</b>: {{ problem.auto_grade }}</p>
                     <br>

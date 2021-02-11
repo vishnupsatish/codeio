@@ -48,4 +48,4 @@ limiter = Limiter(
 serializer = URLSafeTimedSerializer(os.environ.get('SECRET_KEY'))
 
 # Import each route from all initializations have been finished
-from application.routes import student, teacher, errors
+from application.routes import general, student, teacher, errors

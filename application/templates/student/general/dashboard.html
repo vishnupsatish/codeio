@@ -1,0 +1,49 @@
+{% extends "templates/bulma_template.html" %}
+
+
+{% block head %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher/main.css') }}">
+
+
+
+{% endblock %}
+
+{% block content %}
+
+    {% include "student/templates/navbar.html" %}
+
+    <section class="section">
+
+        <div class="container">
+
+            <h2 class="title is-2">Hello, {{ student.name }}!</h2>
+            <h3 class="title is-3">Your class: {{ student.class_.name }}</h3>
+
+            <h3 class="title is-3">Your problems:</h3>
+
+            {# A link to create a new problem #}
+            <div class="columns is-multiline">
+
+                {# For every problem, show the problem's name along with the number the students that have/have not submitted to the problem #}
+                {% for problem in problems %}
+                    <div class="column is-half">
+
+                        <a href="{{ url_for('student_submit_problem', class_identifier=problem.class_.identifier, problem_identifier=problem.identifier) }}">
+                            <div class="box card-hover-effect {{ submitted[problem] }}">
+                                <h4 class="title is-4">{{ problem.title }}</h4>
+                            </div>
+                        </a>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

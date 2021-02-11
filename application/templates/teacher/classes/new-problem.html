@@ -129,6 +129,12 @@
                 </div>
                 <div class="field">
                     <label class="checkbox mb-3">
+                        {{ form.visible(class="checkbox") }}
+                        {{ form.visible.label() }}
+                    </label>
+                </div>
+                <div class="field">
+                    <label class="checkbox mb-3">
                         {{ form.auto_grade(class="checkbox", id="auto-grade-checkbox", onchange="show_auto_grade(this)") }}
                         {{ form.auto_grade.label() }}
                         {% for error in form.auto_grade.errors %}

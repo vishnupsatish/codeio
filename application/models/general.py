@@ -93,6 +93,7 @@ class Problem(db.Model):
     auto_grade = db.Column(db.Boolean, nullable=False, default=False)
     allow_multiple_submissions = db.Column(db.Boolean, nullable=False, default=False)
     allow_more_submissions = db.Column(db.Boolean, nullable=False, default=True)
+    visible = db.Column(db.Boolean, nullable=False)
     create_date_time = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
 
     # The input and output files associated to that problem

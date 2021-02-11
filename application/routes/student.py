@@ -45,7 +45,7 @@ def abort_student_not_found(f):
 
 
 # Create another decorator function
-def login_student_not_found(f):
+def login_student_not_found_class_problem(f):
     # When this function is used as a decorator, the @wraps calls the decorator
     # function with the function below the decorator as the parameter "f", and any
     # arguments and keyword arguments are also passed in and can be passed to the
@@ -64,10 +64,11 @@ def login_student_not_found(f):
         class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
 
         # Get the student that is supposedly authorized to see the problem (is in the same class)
-        student = Student.query.filter_by(identifier=session['student_id'], class_=class_).first()
+        student = Student.query.filter_by(identifier=session['student_id'], class_=class_).all()
 
         # If the student is not authorized to see the problem, then flash so and go to the student login
         if not student:
+            student = student[0]
             del session['student_id']
             flash('You are not authorized to see the problem. Please enter your student code.', 'danger')
             return redirect(
@@ -81,9 +82,41 @@ def login_student_not_found(f):
     return decorator
 
 
+# A plain login student not found decorator
+def login_student_not_found(f):
+    # When this function is used as a decorator, the @wraps calls the decorator
+    # function with the function below the decorator as the parameter "f", and any
+    # arguments and keyword arguments are also passed in and can be passed to the
+    # original function as well
+    @wraps(f)
+    def decorator(*args, **kwargs):
+
+        # If the student is not logged in, redirect them to the login page
+        if 'student_id' not in session:
+            flash('Please enter your student code and log in to submit.', 'info')
+            return redirect(url_for('student_login'))
+
+        # If the student has an incorrect student id, redirect them to the login page
+        student = Student.query.filter_by(identifier=session['student_id']).all()
+
+        if not student:
+            flash('Please enter your student code and log in to submit.', 'info')
+            return redirect(url_for('student_login'))
+
+        # If the student is logged in, then return the original function
+        return f(*args, **kwargs)
+
+    # If the function is used as a decorator, then return
+    # the decorator function which will be called
+    return decorator
+
+
 # The student login route
 @app.route('/student-login', methods=['GET', 'POST'])
 def student_login():
+    if 'student_id' in session:
+        return redirect(url_for('student_dashboard'))
+
     form = StudentLoginForm()
 
     # If the form was successfully submitted
@@ -93,14 +126,27 @@ def student_login():
         student_identifier = form.code.data
 
         # Get the student's DB object
-        student = Student.query.filter_by(identifier=student_identifier).first()
+        student = Student.query.filter_by(identifier=student_identifier).all()
+
+        if not student:
+            flash('Student not found. Please check your code.',
+                  'danger')
+            return redirect(url_for('student_login', class_identifier=request.args.get('class_identifier'),
+                                    problem_identifier=request.args.get('problem_identifier')))
+
+        student = student[0]
+
+        if not request.args.get('class_identifier') or not request.args.get(
+                'problem_identifier'):
+            session['student_id'] = form.code.data
+            return redirect(url_for('student_dashboard'))
 
         # Get the class passed in from the URL parameter (the class identifier will ALWAYS be passed in)
         class_ = Class_.query.filter_by(identifier=request.args.get('class_identifier')).first()
 
-        # If the student exists and the student is in the gievn class,
+        # If the student exists and the student is in the given class,
         # then redirect them to the problem they were trying to reach
-        if student and student in class_.students:
+        if student in class_.students:
 
             # Set the session object of student_id to the student's identifier (student code)
             session['student_id'] = form.code.data
@@ -109,9 +155,31 @@ def student_login():
         # If the student was not found, then go back to the login page
         # and let them know there was an issue logging them in
         else:
-            flash('Student not found. Please check your code and whether you are authorized to see the problem.',
+            flash('Student not found. Please check your code.',
                   'danger')
     return render_template('student/general/login.html', form=form, page_title=f'Student Login')
+
+
+# A student's dashboard
+@app.route('/student-dashboard')
+@login_student_not_found
+def student_dashboard():
+
+    # Get the student and all of the problems in the class that the student is in
+    student = Student.query.filter_by(identifier=session['student_id']).first()
+
+    problems = Problem.query.filter_by(class_id=student.class_id, visible=True).order_by(Problem.create_date_time.desc()).all()
+
+    submitted = {}
+
+    # If the student has submitted a problem, make the background colour green, else make it red
+    for i, p in enumerate(problems):
+        if p in [sub.problem for sub in student.submissions]:
+            submitted[p] = 'has-background-success-light'
+            continue
+        submitted[p] = 'has-background-danger-light'
+
+    return render_template('student/general/dashboard.html', problems=problems, student=student, submitted=submitted, page_title='Student Dashboard')
 
 
 # Student log out
@@ -119,7 +187,7 @@ def student_login():
 def student_logout():
     # If the student is already logged out, then tell them to close the tab
     if 'student_id' not in session:
-        return "<p>You have been logged out. You may now close this tab</p>"
+        return redirect(url_for('student_login'))
 
     # Delete the session object of student_id
     del session['student_id']
@@ -129,13 +197,16 @@ def student_logout():
 # The page to submit a problem
 @app.route('/student/class/<string:class_identifier>/problem/<string:problem_identifier>/submit',
            methods=['GET', 'POST'])
-@login_student_not_found
+@login_student_not_found_class_problem
 def student_submit_problem(class_identifier, problem_identifier):
     # Get the DB objects of the current class, problem, student, and their submissions of this problem
     class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
     student = Student.query.filter_by(identifier=session['student_id'], class_=class_).first()
     problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
     submissions = Submission.query.filter_by(problem=problem, student=student).all()
+
+    if not problem.visible:
+        abort(404)
 
     # Check if the student can submit (if the problem allows
     # multiple submissions or the student has not submitted already)
@@ -406,7 +477,7 @@ def task_status(task_id):
 @abort_student_not_found
 def student_submission(task_id):
     # Get the student, submission, and problem from the database
-    student = Student.query.filter_by(identifier=session['student_id']).first()
+    student = Student.query.filter_by(identifier=session['student_id']).first_or_404()
     submission = Submission.query.filter_by(uuid=task_id, student=student).first_or_404()
     problem = submission.problem
 
@@ -418,8 +489,9 @@ def student_submission(task_id):
     # Show a different HTML page whether or not the submission was to be auto-graded
     if not problem.auto_grade:
         return render_template('student/general/submission-plain.html', submission=submission,
-                               presigned_url=presigned_url, page_title=f'Submission to {problem.title}')
+                               presigned_url=presigned_url, page_title=f'Submission to {problem.title}',
+                               student=student)
 
     return render_template('student/general/submission.html', task_id=task_id, submission=submission,
                            time=problem.time_limit, presigned_url=presigned_url,
-                           page_title=f'Submission to {problem.title}')
+                           page_title=f'Submission to {problem.title}', student=student)

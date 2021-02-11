@@ -2,7 +2,7 @@
 
 <nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-        <a class="navbar-item" href="{{ url_for('teacher_dashboard') }}">
+        <a class="navbar-item" href="{{ url_for('student_dashboard') }}">
             <img src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
 
         </a>
@@ -19,7 +19,7 @@
     <div id="navbar-mobile-open" class="navbar-menu">
 
         <div class="navbar-start">
-            <a href="{{ url_for('teacher_dashboard') }}" class="navbar-item">
+            <a href="{{ url_for('student_dashboard') }}" class="navbar-item">
                 <span class="icon-text">
                     <span class="icon">
                         <i class="fas fa-home"></i>
@@ -28,41 +28,18 @@
 
                 </span>
             </a>
-            <a href="{{ url_for('about') }}" class="navbar-item">
-                <span class="icon-text">
-                    <span class="icon">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
-                    <span>About</span>
-
-                </span>
-            </a>
         </div>
+
 
         <div class="navbar-end">
 
-            <a class="navbar-item" href={{ url_for('new_class') }}>
-                <span class="icon-text">
-                    <span class="icon">
-                        <i class="fas fa-plus"></i>
-                    </span>
-                    <span>New class</span>
+            <p class="navbar-item">
 
-                </span>
-            </a>
+                    Hi {{ student.name }}
 
-            <a href="{{ url_for('teacher_account') }}" class="navbar-item">
+            </p>
 
-                <span class="icon-text">
-                    <span class="icon">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <span>Your account</span>
-
-                </span>
-            </a>
-
-            <a href="{{ url_for('logout') }}" class="navbar-item">
+            <a href="{{ url_for('student_logout') }}" class="navbar-item">
                 <span class="icon-text">
                     <span class="icon">
                         <i class="fas fa-sign-out-alt"></i>
@@ -74,6 +51,7 @@
         </div>
     </div>
 </nav>
+
 
 
 {# Get and show flashed's messages using Bulma's notification class #}

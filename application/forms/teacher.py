@@ -95,6 +95,7 @@ class NewProblemForm(FlaskForm):
     time_limit = DecimalField('Time Limit', render_kw={'placeholder': 'Default: 5 sec'}, validators=[Optional()])
     memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
+    visible = BooleanField('Visible to students')
     auto_grade = BooleanField('Auto Grade')
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
     languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
@@ -227,6 +228,7 @@ class EditProblemForm(FlaskForm):
     memory_limit = IntegerField('Memory Limit', render_kw={'placeholder': 'Default: 512 MB'}, validators=[Optional()])
     allow_multiple_submissions = BooleanField('Allow multiple submissions')
     allow_more_submissions = BooleanField('Allow more submissions')
+    visible = BooleanField('Visible to students')
     total_marks = IntegerField('Marks out of:', validators=[DataRequired()])
     languages = SelectMultipleField('Languages', coerce=int, validators=[DataRequired()])
 

@@ -1,6 +1,5 @@
 import os
 import time
-
 import boto3
 import mistune
 import mosspy
@@ -96,7 +95,7 @@ def logout():
 
 
 # Registration page
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/teacher-register', methods=['GET', 'POST'])
 def teacher_register():
     # If the user is already logged in, redirect to the dashboard
     if current_user.is_authenticated:
@@ -131,7 +130,7 @@ def teacher_register():
 
 
 # Login page
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/teacher-login', methods=['GET', 'POST'])
 def teacher_login():
     # If the user is already logged in, redirect to the dashboard
     if current_user.is_authenticated:
@@ -586,6 +585,7 @@ def teacher_class_new_problem(identifier):
 
         allow_multiple_submissions = form.allow_multiple_submissions.data
         auto_grade = form.auto_grade.data
+        visible = form.visible.data
 
         # Get each input and output file
         input1file = form.input1file.data
@@ -603,7 +603,7 @@ def teacher_class_new_problem(identifier):
         # Create a new problem with the attributes provided by the form
         problem = Problem(user=current_user, title=title, description=description, total_marks=marks_out_of,
                           allow_multiple_submissions=allow_multiple_submissions, auto_grade=auto_grade,
-                          identifier=token_urlsafe(8), class_=class_, description_html=description_html)
+                          identifier=token_urlsafe(8), class_=class_, description_html=description_html, visible=visible)
 
         # If the user and entered the time limit/memory limit, add that as
         # well else keep it to the default as in the database
@@ -944,6 +944,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
         problem.description_html = mistune.html(form.description.data)
         problem.total_marks = form.total_marks.data
         problem.time_limit = form.time_limit.data
+        problem.visible = form.visible.data
 
         # Reset, then change the problem's languages
         problem.languages = []
@@ -971,6 +972,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
     form.description.data = problem.description
     form.allow_multiple_submissions.data = problem.allow_multiple_submissions
     form.allow_more_submissions.data = problem.allow_more_submissions
+    form.visible.data = problem.visible
 
     return render_template('teacher/classes/problem-edit.html', problem=problem, identifier=class_identifier, form=form,
                            class_=class_, page_title=f'Edit Problem - {problem.title} - {class_.name}')

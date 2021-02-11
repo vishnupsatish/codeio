@@ -11,54 +11,8 @@
 
 {% block content %}
 
+    {% include "student/templates/navbar.html" %}
 
-
-
-
-
-
-
-
-    <nav class="navbar has-shadow is-spaced" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item">
-                <img src="{{ url_for('static', filename='img/CodeIOBlack-cropped.png') }}" alt="">
-            </a>
-
-        </div>
-
-        <div class="navbar-menu">
-
-            <div class="navbar-end">
-                <p class="navbar-item">
-                    Hi {{ student.name }}
-                </p>
-
-                <a class="navbar-item" href="{{ url_for('student_logout') }}">
-                    Log out
-                </a>
-            </div>
-        </div>
-    </nav>
-
-
-
-
-
-
-
-
-    {# Get flashed messages and show them using Bulma's notification class #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-
-                <div class="notification is-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 
     <section class="section">
 
