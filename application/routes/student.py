@@ -216,7 +216,7 @@ def student_submit_problem(class_identifier, problem_identifier):
     # Get the DB objects of the current class, problem, student, and their submissions of this problem
     class_ = Class_.query.filter_by(identifier=class_identifier).first_or_404()
     student = Student.query.filter_by(identifier=session['student_id'], class_=class_).first()
-    problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_, visible=True).first_or_404()
     submissions = Submission.query.filter_by(problem=problem, student=student).all()
 
     if not problem.visible:
