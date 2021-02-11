@@ -146,7 +146,7 @@ def student_login():
 
         if not class_:
             flash('The class was not found. Please check your link.', 'danger')
-            return render_template(url_for('student_login'))
+            return redirect(url_for('student_login'))
 
         class_ = class_[0]
 
@@ -154,7 +154,7 @@ def student_login():
 
         if not problem:
             flash('The problem was not found. Please check your link.', 'danger')
-            return render_template(url_for('student_login'))
+            return redirect(url_for('student_login'))
 
         problem = problem[0]
 
