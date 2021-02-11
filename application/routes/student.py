@@ -142,7 +142,21 @@ def student_login():
             return redirect(url_for('student_dashboard'))
 
         # Get the class passed in from the URL parameter (the class identifier will ALWAYS be passed in)
-        class_ = Class_.query.filter_by(identifier=request.args.get('class_identifier')).first()
+        class_ = Class_.query.filter_by(identifier=request.args.get('class_identifier')).all()
+
+        if not class_:
+            flash('The class was not found. Please check your link.', 'danger')
+            return render_template(url_for('student_login'))
+
+        class_ = class_[0]
+
+        problem = Problem.query.filter_by(identifier=request.args.get('problem_identifier'), class_=class_).all()
+
+        if not problem:
+            flash('The problem was not found. Please check your link.', 'danger')
+            return render_template(url_for('student_login'))
+
+        problem = problem[0]
 
         # If the student exists and the student is in the given class,
         # then redirect them to the problem they were trying to reach
