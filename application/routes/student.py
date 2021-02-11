@@ -1,10 +1,12 @@
+import sys
 import json
 import boto3
+import base64
 from functools import wraps
 from time import sleep
 from requests import get, post
 from flask import render_template, url_for, jsonify, flash, redirect, request, abort, session
-from application import app, db, celery
+from application import app, db, celery, limiter
 from application.forms.student import *
 from application.models.general import *
 from application.utils import upload_submission_file, delete_submission_files
@@ -241,13 +243,15 @@ def student_judge_code(self, language, file, problem, student, submission):
 
         # Add the language, source code, the STDIN (standard input), expected output, time limit, and memory limit
         body['submissions'].append(
-            {'language_id': int(language), 'source_code': file, 'stdin': input_file_data,
-             'expected_output': output_file_data, 'cpu_time_limit': problem.time_limit,
+            {'language_id': int(language), 'source_code': base64.b64encode(file.encode()).decode(),
+             'stdin': base64.b64encode(input_file_data.encode()).decode(),
+             'expected_output': base64.b64encode(output_file_data.encode()).decode(),
+             'cpu_time_limit': problem.time_limit,
              'memory_limit': problem.memory_limit * 1000})
 
     # Send the API request and get the tokens from Judge0
     judge0_tokens = json.loads(
-        post('https://judge0-fhwnc7.vishnus.me/submissions/batch?base64_encoded=false', data=json.dumps(body),
+        post('https://judge0-fhwnc7.vishnus.me/submissions/batch?base64_encoded=true', data=json.dumps(body),
              headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN, 'Content-Type': 'application/json'}).text)
 
     # Wait 2 seconds to allow execution to complete
@@ -268,7 +272,7 @@ def student_judge_code(self, language, file, problem, student, submission):
 
         # Pass each token to get a batch of submission
         result = json.loads(get(
-            f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=false&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
+            f'https://judge0-fhwnc7.vishnus.me/submissions/batch?tokens={tokens}&base64_encoded=true&fields=token,stdout,stderr,language_id,time,memory,expected_output,compile_output,status',
             headers={'X-Auth-Token': JUDGE0_AUTHN_TOKEN}).text)
 
         # Since result is now a Python dict object, we can set the total
@@ -291,10 +295,20 @@ def student_judge_code(self, language, file, problem, student, submission):
             time = s['time']
             memory = s['memory']
             stderr = s['stderr']
+            if stderr:
+                stderr = base64.b64decode(s['stderr']).decode()
             stdout = s['stdout']
+            if stdout:
+                stdout = base64.b64decode(s['stdout']).decode()
+            if sys.getsizeof(stdout) > 10000:
+                stdout = stdout[:10000] + '\n(...)'
             token = s['token']
             compile_output = s['compile_output']
+            if compile_output:
+                compile_output = base64.b64decode(s['compile_output']).decode()
             expected_output = s['expected_output']
+            if expected_output:
+                expected_output = base64.b64decode(s['expected_output']).decode()
 
             # Get the relevant status DB object based on the status id that was returned
             status = Status.query.filter_by(number=s['status']['id']).first()
@@ -344,8 +358,8 @@ def student_judge_code(self, language, file, problem, student, submission):
 
 # Get the status of a submission
 @app.route('/status/<task_id>')
+@limiter.limit("4/second", override_defaults=False)
 def task_status(task_id):
-
     # Get the current submission
     submission = Submission.query.filter_by(uuid=task_id).first()
 

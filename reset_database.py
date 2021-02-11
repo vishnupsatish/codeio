@@ -5,6 +5,12 @@ from application.settingssecrets import JUDGE0_AUTHN_TOKEN, AWS_ACCESS_KEY_ID, A
 from application.models.general import *
 import boto3
 
+try:
+    db.session.commit()
+except Exception as e:
+    db.session.rollback()
+
+
 status = [
     {
         "id": 1,
