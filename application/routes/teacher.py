@@ -418,6 +418,8 @@ def teacher_class_delete(identifier):
 
         db.session.commit()
 
+    class_.users = []
+
     # Delete the entire class along with any students (due to the all, delete cascade behaviour)
     db.session.delete(class_)
 
