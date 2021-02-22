@@ -197,7 +197,6 @@ class Submission(db.Model):
     file_size = db.Column(db.Integer)
     total_marks = db.Column(db.Integer)
 
-    # Not used as of now... to be used to handle Internal Errors
     marks = db.Column(db.Integer)
 
     # Whether the submission has finished executing in Judge0 or not

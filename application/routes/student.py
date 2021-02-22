@@ -178,22 +178,35 @@ def student_login():
 @app.route('/student-dashboard')
 @login_student_not_found
 def student_dashboard():
-
     # Get the student and all of the problems in the class that the student is in
     student = Student.query.filter_by(identifier=session['student_id']).first()
 
-    problems = Problem.query.filter_by(class_id=student.class_id, visible=True).order_by(Problem.create_date_time.desc()).all()
+    problems = Problem.query.filter_by(class_id=student.class_id, visible=True).order_by(
+        Problem.create_date_time.desc()).all()
 
     submitted = {}
 
+    student_submissions = Submission.query.filter_by(done=True, student=student)
+
     # If the student has submitted a problem, make the background colour green, else make it red
     for i, p in enumerate(problems):
-        if p in [sub.problem for sub in student.submissions]:
-            submitted[p] = 'has-background-success-light'
+        if p in [sub.problem for sub in student_submissions]:
+            max_submission = 0
+            for subm in student.submissions:
+                if p == subm.problem:
+                    max_submission = max(max_submission, subm.marks)
+
+            if max_submission == p.total_marks:
+                submitted[p] = 'has-background-success-light'
+
+            else:
+                submitted[p] = 'has-background-warning-light'
+
             continue
         submitted[p] = 'has-background-danger-light'
 
-    return render_template('student/general/dashboard.html', problems=problems, student=student, submitted=submitted, page_title='Student Dashboard')
+    return render_template('student/general/dashboard.html', problems=problems, student=student, submitted=submitted,
+                           page_title='Student Dashboard')
 
 
 # Student log out
