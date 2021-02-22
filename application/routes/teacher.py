@@ -693,7 +693,9 @@ def teacher_class_problem(class_identifier, problem_identifier):
         # Take the intersection (common elements) from that student's submissions as well
         # as that problem's submissions and sort the student's submissions based on the date
         # and time the submission was sent in descending order
-        for submission in sorted(list(set(problem.submissions) & set(student.submissions)), key=lambda x: x.date_time,
+        student_submissions_list = Submission.query.filter_by(problem=problem, student=student, done=True).all()
+
+        for submission in sorted(student_submissions_list, key=lambda x: x.date_time,
                                  reverse=True):
             student_submissions[student].append(submission)
 
@@ -986,7 +988,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
 @abort_teacher_not_confirmed
 def teacher_student_submission(task_id):
     # Get the submission and problem from the URL
-    submission = Submission.query.filter_by(uuid=task_id).first_or_404()
+    submission = Submission.query.filter_by(uuid=task_id, done=True).first_or_404()
     problem = submission.problem
 
     # If the problem's creator isn't the current user, them abort with a 404 error code
@@ -1043,7 +1045,8 @@ def teacher_class_specific_student(class_identifier, student_identifier):
     average_mark = get_student_mark(student, class_)
 
     # Get the student's submissions showing the latest one first
-    submissions = sorted(student.submissions, key=lambda s: s.date_time, reverse=True)
+    all_student_submissions = Submission.query.filter_by(student=student, done=True).all()
+    submissions = sorted(all_student_submissions, key=lambda s: s.date_time, reverse=True)
 
     # Get the problems that the student has not submitted to, using simple list comprehension
     not_submitted = []

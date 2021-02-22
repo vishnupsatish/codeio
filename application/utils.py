@@ -135,7 +135,8 @@ def get_student_mark(student, class_):
             # Filter the submissions in the problem such that the user that submitted
             # it is the student to get the highest mark from, then get the highest mark
             # using the max function and the key to check being the marks that the submission earned
-            max_mark_submissions = max(list(filter(lambda a: a.student == student, p.submissions)),
+            submissions = Submission.query.filter_by(problem=p, done=True).all()
+            max_mark_submissions = max(list(filter(lambda a: a.student == student, submissions)),
                                        key=lambda s: s.marks)
 
         # This error occurs if the student has made no submissions to the
