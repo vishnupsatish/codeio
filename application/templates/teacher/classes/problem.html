@@ -230,16 +230,14 @@
                 {# Show the students that have not submitted the problem #}
                 <div class="column">
                     <h3 class="title is-3">Not Submitted</h3>
-                    {% for stud in student_submissions %}
-                        {% if not student_submissions[stud] %}
-                            <a href="{{ url_for('teacher_class_specific_student', class_identifier=class_.identifier, student_identifier=stud.identifier) }}">
-                                <div class="box has-background-danger-light mb-2 card-hover-effect">
-                                    <div class="content">
-                                        <h4 class="title is-4 mb-2 mt-2">{{ stud.name }}</h4>
-                                    </div>
+                    {% for stud in not_submitted %}
+                        <a href="{{ url_for('teacher_class_specific_student', class_identifier=class_.identifier, student_identifier=stud.identifier) }}">
+                            <div class="box has-background-danger-light mb-2 card-hover-effect">
+                                <div class="content">
+                                    <h4 class="title is-4 mb-2 mt-2">{{ stud.name }}</h4>
                                 </div>
-                            </a>
-                        {% endif %}
+                            </div>
+                        </a>
                     {% endfor %}
 
                 </div>

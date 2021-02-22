@@ -605,7 +605,8 @@ def teacher_class_new_problem(identifier):
         # Create a new problem with the attributes provided by the form
         problem = Problem(user=current_user, title=title, description=description, total_marks=marks_out_of,
                           allow_multiple_submissions=allow_multiple_submissions, auto_grade=auto_grade,
-                          identifier=token_urlsafe(8), class_=class_, description_html=description_html, visible=visible)
+                          identifier=token_urlsafe(8), class_=class_, description_html=description_html,
+                          visible=visible)
 
         # If the user and entered the time limit/memory limit, add that as
         # well else keep it to the default as in the database
@@ -683,17 +684,21 @@ def teacher_class_problem(class_identifier, problem_identifier):
                                              ExpiresIn=3600))
 
     student_submissions = {}
+    not_submitted = []
 
     # For every student in the class:
     for student in class_.students:
-
-        # Set that student's submissions to a list
-        student_submissions[student] = []
-
         # Take the intersection (common elements) from that student's submissions as well
         # as that problem's submissions and sort the student's submissions based on the date
         # and time the submission was sent in descending order
         student_submissions_list = Submission.query.filter_by(problem=problem, student=student, done=True).all()
+
+        if not student_submissions_list:
+            not_submitted.append(student)
+            continue
+
+        # Set that student's submissions to a list
+        student_submissions[student] = []
 
         for submission in sorted(student_submissions_list, key=lambda x: x.date_time,
                                  reverse=True):
@@ -734,7 +739,7 @@ def teacher_class_problem(class_identifier, problem_identifier):
                            active_student_submissions=active_student_submissions,
                            show_student_submissions=show_student_submissions, show_problem_info=show_problem_info,
                            active_show_problem=active_show_problem, page_title=f'{problem.title} - {class_.name}',
-                           form=plagiarism_form)
+                           form=plagiarism_form, not_submitted=not_submitted)
 
 
 # The page to show the MOSS links for each language in the problem
