@@ -663,7 +663,7 @@ def teacher_class_problem(class_identifier, problem_identifier):
     if class_ not in current_user.classes:
         abort(404)
 
-    problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
 
     # Create two lists belonging to the presigned URLs from the input and output,
     # since every file is not publicly accessible (since students can then view the
@@ -897,7 +897,7 @@ def teacher_class_problem_delete(class_identifier, problem_identifier):
     if class_ not in current_user.classes:
         abort(404)
 
-    problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
 
     # Hash the same properties as was passed from the problem page
     sha_hash_contents = sha256(
@@ -934,7 +934,7 @@ def teacher_class_problem_edit(class_identifier, problem_identifier):
     if class_ not in current_user.classes:
         abort(404)
 
-    problem = Problem.query.filter_by(identifier=problem_identifier, user=current_user, class_=class_).first_or_404()
+    problem = Problem.query.filter_by(identifier=problem_identifier, class_=class_).first_or_404()
     form = EditProblemForm()
 
     # Set the language choices to what is returned by the
