@@ -996,8 +996,8 @@ def teacher_student_submission(task_id):
     submission = Submission.query.filter_by(uuid=task_id, done=True).first_or_404()
     problem = submission.problem
 
-    # If the problem's creator isn't the current user, them abort with a 404 error code
-    if problem.user != current_user:
+    # If the user isn't in the class's teachers
+    if current_user not in problem.class_.users:
         abort(404)
 
     # Initialize the form
