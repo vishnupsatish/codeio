@@ -126,7 +126,7 @@ class NewProblemForm(FlaskForm):
         if output1file.data is None and self.input1file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output1file.data.read()) / 8000000 > 1:
+        if output1file.data and len(output1file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         output1file.data.seek(0)
 
@@ -134,7 +134,7 @@ class NewProblemForm(FlaskForm):
         if output2file.data is None and self.input2file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output2file.data.read()) / 8000000 > 1:
+        if output2file.data and len(output2file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         output2file.data.seek(0)
 
@@ -142,7 +142,7 @@ class NewProblemForm(FlaskForm):
         if output3file.data is None and self.input3file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output3file.data.read()) / 8000000 > 1:
+        if output3file.data and len(output3file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         output3file.data.seek(0)
 
@@ -150,7 +150,7 @@ class NewProblemForm(FlaskForm):
         if output4file.data is None and self.input4file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output4file.data.read()) / 8000000 > 1:
+        if output4file.data and len(output4file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         output4file.data.seek(0)
 
@@ -158,7 +158,7 @@ class NewProblemForm(FlaskForm):
         if output5file.data is None and self.input5file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output5file.data.read()) / 8000000 > 1:
+        if output5file.data and len(output5file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         output5file.data.seek(0)
 
@@ -167,7 +167,7 @@ class NewProblemForm(FlaskForm):
         if input1file.data is None and self.output1file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input1file.data.read()) / 8000000 > 1:
+        if input1file.data and len(input1file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         input1file.data.seek(0)
 
@@ -175,7 +175,7 @@ class NewProblemForm(FlaskForm):
         if input2file.data is None and self.output2file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input2file.data.read()) / 8000000 > 1:
+        if input2file.data and len(input2file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         input2file.data.seek(0)
 
@@ -183,7 +183,7 @@ class NewProblemForm(FlaskForm):
         if input3file.data is None and self.output3file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input3file.data.read()) / 8000000 > 1:
+        if input3file.data and len(input3file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         input3file.data.seek(0)
 
@@ -191,7 +191,7 @@ class NewProblemForm(FlaskForm):
         if input4file.data is None and self.output4file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input4file.data.read()) / 8000000 > 1:
+        if input4file.data and len(input4file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         input4file.data.seek(0)
 
@@ -199,7 +199,7 @@ class NewProblemForm(FlaskForm):
         if input5file.data is None and self.output5file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input5file.data.read()) / 8000000 > 1:
+        if input5file.data and len(input5file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
         input5file.data.seek(0)
 
