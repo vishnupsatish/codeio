@@ -50,8 +50,8 @@ def upload_input_output_file(num, input_file_object, output_file_object, class_,
     output_file_data = output_file_object.read()
 
     # If the files are too large, return the string to be flashed
-    if len(input_file_data) / 1000000 > 1 or len(output_file_data) / 1000000 > 1:
-        return 'The maximum file size you can add is 1 megabyte.'
+    if len(input_file_data) / 8000000 > 1 or len(output_file_data) / 8000000 > 1:
+        return 'The maximum file size you can add is 8 megabytes.'
 
     # Generate the input file path based on the class, problem, and the number of the file
     input_file_path = f'classes/{class_.identifier}/problems/{problem.identifier}/input_files/input{num}.txt'
