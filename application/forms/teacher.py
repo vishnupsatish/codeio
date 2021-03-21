@@ -128,7 +128,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an output file')
         if output1file.data and len(output1file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        output1file.data.seek(0)
+        if output1file.data:
+            output1file.data.seek(0)
 
     def validate_output2file(self, output2file):
         if output2file.data is None and self.input2file.data is not None and self.auto_grade.data is True:
@@ -136,7 +137,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an output file')
         if output2file.data and len(output2file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        output2file.data.seek(0)
+        if output2file.data:
+            output2file.data.seek(0)
 
     def validate_output3file(self, output3file):
         if output3file.data is None and self.input3file.data is not None and self.auto_grade.data is True:
@@ -144,7 +146,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an output file')
         if output3file.data and len(output3file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        output3file.data.seek(0)
+        if output3file.data:
+            output3file.data.seek(0)
 
     def validate_output4file(self, output4file):
         if output4file.data is None and self.input4file.data is not None and self.auto_grade.data is True:
@@ -152,7 +155,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an output file')
         if output4file.data and len(output4file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        output4file.data.seek(0)
+        if output4file.data:
+            output4file.data.seek(0)
 
     def validate_output5file(self, output5file):
         if output5file.data is None and self.input5file.data is not None and self.auto_grade.data is True:
@@ -160,7 +164,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an output file')
         if output5file.data and len(output5file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        output5file.data.seek(0)
+        if output5file.data:
+            output5file.data.seek(0)
 
     # For each input file, if there is a corresponding output file but no input file, throw an error
     def validate_input1file(self, input1file):
@@ -169,7 +174,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an input file')
         if input1file.data and len(input1file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        input1file.data.seek(0)
+        if input1file.data:
+            input1file.data.seek(0)
 
     def validate_input2file(self, input2file):
         if input2file.data is None and self.output2file.data is not None and self.auto_grade.data is True:
@@ -177,7 +183,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an input file')
         if input2file.data and len(input2file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        input2file.data.seek(0)
+        if input2file.data:
+            input2file.data.seek(0)
 
     def validate_input3file(self, input3file):
         if input3file.data is None and self.output3file.data is not None and self.auto_grade.data is True:
@@ -185,7 +192,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an input file')
         if input3file.data and len(input3file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        input3file.data.seek(0)
+        if input3file.data:
+            input3file.data.seek(0)
 
     def validate_input4file(self, input4file):
         if input4file.data is None and self.output4file.data is not None and self.auto_grade.data is True:
@@ -193,7 +201,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an input file')
         if input4file.data and len(input4file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        input4file.data.seek(0)
+        if input4file.data:
+            input4file.data.seek(0)
 
     def validate_input5file(self, input5file):
         if input5file.data is None and self.output5file.data is not None and self.auto_grade.data is True:
@@ -201,7 +210,8 @@ class NewProblemForm(FlaskForm):
             raise ValidationError('Please enter an input file')
         if input5file.data and len(input5file.data.read()) / 8000000 > 1:
             return 'The maximum file size you can add is 8 megabytes.'
-        input5file.data.seek(0)
+        if input5file.data:
+            input5file.data.seek(0)
 
     # Custom validators to make sure the memory limit and time limit aren't too high or too low
     def validate_memory_limit(self, memory_limit):
