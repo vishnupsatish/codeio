@@ -95,7 +95,7 @@ def upload_submission_file(language, submission_file_object, class_, problem, s3
     submission_file_data = submission_file_object.read()
 
     # If the file is too large, return the text to be flashed
-    if len(submission_file_data) / 1000000 > 1:
+    if len(submission_file_data) / 5000000 > 1:
         return 'The maximum file size you can add is 1 megabyte.'
 
     # Get the language that the student submitted in
