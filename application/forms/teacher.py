@@ -126,35 +126,35 @@ class NewProblemForm(FlaskForm):
         if output1file.data is None and self.input1file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output1file.data) / 5000000 > 1:
+        if len(output1file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_output2file(self, output2file):
         if output2file.data is None and self.input2file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output2file.data) / 5000000 > 1:
+        if len(output2file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_output3file(self, output3file):
         if output3file.data is None and self.input3file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output3file.data) / 5000000 > 1:
+        if len(output3file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_output4file(self, output4file):
         if output4file.data is None and self.input4file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output4file.data) / 5000000 > 1:
+        if len(output4file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_output5file(self, output5file):
         if output5file.data is None and self.input5file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an output file')
-        if len(output5file.data) / 5000000 > 1:
+        if len(output5file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     # For each input file, if there is a corresponding output file but no input file, throw an error
@@ -162,35 +162,35 @@ class NewProblemForm(FlaskForm):
         if input1file.data is None and self.output1file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input1file.data) / 5000000 > 1:
+        if len(input1file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_input2file(self, input2file):
         if input2file.data is None and self.output2file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input2file.data) / 5000000 > 1:
+        if len(input2file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_input3file(self, input3file):
         if input3file.data is None and self.output3file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input3file.data) / 5000000 > 1:
+        if len(input3file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_input4file(self, input4file):
         if input4file.data is None and self.output4file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input4file.data) / 5000000 > 1:
+        if len(input4file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     def validate_input5file(self, input5file):
         if input5file.data is None and self.output5file.data is not None and self.auto_grade.data is True:
             flash('There were some errors creating the problem. Scroll down to see the error(s).', 'danger')
             raise ValidationError('Please enter an input file')
-        if len(input5file.data) / 5000000 > 1:
+        if len(input5file.data.read()) / 5000000 > 1:
             return 'The maximum file size you can add is 1 megabyte.'
 
     # Custom validators to make sure the memory limit and time limit aren't too high or too low
